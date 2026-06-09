@@ -249,11 +249,10 @@ export const deviceApi = {
       headers['If-Match'] = etag;
     }
 
-    // Clean schedule entries (only keep time, openDurationMs, daysOfWeek)
+    // Clean schedule entries (only keep time, openDurationMs)
     const cleanedEntries = schedule.entries.map((item) => ({
       time: item.time,
-      openDurationMs: item.openDurationMs,
-      daysOfWeek: item.daysOfWeek
+      openDurationMs: item.openDurationMs
     }));
 
     // Clean root schedule payload (only keep enabled, timezone, timezoneOffsetSec, entries)
