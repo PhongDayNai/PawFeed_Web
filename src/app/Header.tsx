@@ -88,29 +88,10 @@ export function Header() {
 
       {/* Desktop Header */}
       <header className={`${styles.header} glass`}>
-        <div className={styles.headerContent}>
+        <div className={styles.headerTop}>
           <Link href="/dashboard" className={styles.logo}>
             🐾 Paw<span>Feed</span>
           </Link>
-
-          <nav className={styles.desktopNav}>
-            <Link href="/dashboard" className={`${styles.navItem} ${isActive('/dashboard') ? styles.active : ''}`}>
-              <Home size={18} />
-              {t('nav.dashboard')}
-            </Link>
-            <Link href="/devices" className={`${styles.navItem} ${isActive('/devices') ? styles.active : ''}`}>
-              <Smartphone size={18} />
-              {t('devices.title')}
-            </Link>
-            <Link href="/activity" className={`${styles.navItem} ${isActive('/activity') ? styles.active : ''}`}>
-              <History size={18} />
-              {t('activity.title')}
-            </Link>
-            <Link href="/account" className={`${styles.navItem} ${isActive('/account') ? styles.active : ''}`}>
-              <User size={18} />
-              {t('nav.account')}
-            </Link>
-          </nav>
 
           <div className={styles.rightSection}>
             <button onClick={toggleLanguage} className={styles.langToggle} title="Switch language">
@@ -127,6 +108,25 @@ export function Header() {
             </div>
           </div>
         </div>
+
+        <nav className={styles.desktopNav}>
+          <Link href="/dashboard" className={`${styles.navItem} ${isActive('/dashboard') ? styles.active : ''}`}>
+            <Home size={18} />
+            {t('nav.dashboard')}
+          </Link>
+          <Link href="/devices" className={`${styles.navItem} ${isActive('/devices') ? styles.active : ''}`}>
+            <Smartphone size={18} />
+            {t('devices.title')}
+          </Link>
+          <Link href="/activity" className={`${styles.navItem} ${isActive('/activity') ? styles.active : ''}`}>
+            <History size={18} />
+            {t('activity.title')}
+          </Link>
+          <Link href="/account" className={`${styles.navItem} ${isActive('/account') ? styles.active : ''}`}>
+            <User size={18} />
+            {t('nav.account')}
+          </Link>
+        </nav>
       </header>
 
       {/* Mobile Bottom Navigation */}
