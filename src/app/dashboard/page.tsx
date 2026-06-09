@@ -119,7 +119,7 @@ export default function DashboardPage() {
           </PawButton>
           <PawButton
             variant="secondary"
-            onClick={() => router.push('/devices/link')}
+            onClick={() => router.push('/devices')}
             className={styles.actionBtn}
           >
             <Plus size={16} />
@@ -192,7 +192,7 @@ export default function DashboardPage() {
                   <Smartphone size={48} className={styles.emptyIcon} />
                   <h3>{t('dashboard.no_feeders_title')}</h3>
                   <p>{t('dashboard.no_feeders_desc')}</p>
-                  <PawButton variant="secondary" onClick={() => router.push('/devices/link')} style={{ marginTop: '16px' }}>
+                  <PawButton variant="secondary" onClick={() => router.push('/devices')} style={{ marginTop: '16px' }}>
                     {t('dashboard.link_now')}
                   </PawButton>
                 </PawCard>
