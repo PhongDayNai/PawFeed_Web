@@ -3,11 +3,13 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Loader } from 'lucide-react';
 
 export default function Home() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useApp();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (isLoading) return;
@@ -43,7 +45,7 @@ export default function Home() {
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
         <Loader className="spinning" size={20} style={{ animation: 'spin 1s linear infinite' }} />
-        <span>Initializing...</span>
+        <span>{t('common.initializing')}</span>
       </div>
     </div>
   );
