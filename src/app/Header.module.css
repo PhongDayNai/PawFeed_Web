@@ -234,3 +234,32 @@
     max-width: none;
   }
 }
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.langToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  transition: all 0.2s;
+}
+
+.langToggle:hover {
+  background: hsla(var(--hue-primary), 100%, 60%, 0.1);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 12px hsla(var(--hue-primary), 100%, 60%, 0.2);
+}
+
