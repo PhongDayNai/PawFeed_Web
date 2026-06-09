@@ -1,0 +1,317 @@
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.dashboardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-family: var(--font-outfit);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.errorAlert {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--error-bg);
+  border: 1px solid hsla(var(--hue-error), 75%, 50%, 0.2);
+  color: var(--error);
+  padding: 16px 24px;
+  border-radius: var(--radius-md);
+  margin-bottom: 32px;
+}
+
+.errorAlert h4 {
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.errorAlert p {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.summaryCard {
+  border-radius: var(--radius-md);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 140px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s ease;
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+}
+
+.cardInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.cardValue {
+  font-family: var(--font-outfit);
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Gradient themes */
+.blueGradient {
+  background: linear-gradient(135deg, hsla(217, 90%, 20%, 0.6) 0%, hsla(217, 90%, 30%, 0.4) 100%);
+  color: hsl(210, 100%, 85%);
+  border-color: hsla(217, 90%, 40%, 0.2);
+}
+.blueGradient svg { color: hsl(210, 100%, 75%); }
+
+.greenGradient {
+  background: linear-gradient(135deg, hsla(142, 70%, 15%, 0.6) 0%, hsla(142, 70%, 25%, 0.4) 100%);
+  color: hsl(142, 100%, 85%);
+  border-color: hsla(142, 70%, 40%, 0.2);
+}
+.greenGradient svg { color: hsl(142, 100%, 75%); }
+
+.grayGradient {
+  background: linear-gradient(135deg, hsla(210, 15%, 20%, 0.6) 0%, hsla(210, 15%, 30%, 0.4) 100%);
+  color: hsl(210, 15%, 85%);
+  border-color: hsla(210, 15%, 40%, 0.2);
+}
+.grayGradient svg { color: hsl(210, 15%, 75%); }
+
+.orangeGradient {
+  background: linear-gradient(135deg, hsla(25, 95%, 15%, 0.6) 0%, hsla(25, 95%, 25%, 0.4) 100%);
+  color: hsl(25, 100%, 85%);
+  border-color: hsla(25, 95%, 40%, 0.2);
+}
+.orangeGradient svg { color: hsl(25, 100%, 75%); }
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 32px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  font-family: var(--font-outfit);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.deviceCard, .historyCard {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+.deviceCard:hover, .historyCard:hover {
+  border-color: var(--border-color-hover);
+  background: var(--bg-surface-hover);
+}
+
+.deviceInfo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.deviceName {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.deviceId {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.deviceDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.detailLabel {
+  color: var(--text-secondary);
+}
+
+.detailVal {
+  font-weight: 600;
+}
+
+.deviceActions {
+  display: flex;
+  gap: 12px;
+}
+
+.deviceBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  padding: 8px 16px;
+}
+
+/* History Card */
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.historyMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.historySource {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.historyTime {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.historyBody {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-top: 1px dashed rgba(255, 255, 255, 0.05);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.historyId {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+  border: 1px dashed var(--border-color-hover);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.emptyIcon {
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.emptyState h3 {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.emptyState p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  max-width: 320px;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.8rem;
+  }
+  .summaryGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+}
