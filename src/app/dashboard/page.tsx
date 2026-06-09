@@ -27,6 +27,12 @@ export default function DashboardPage() {
   const { language, t } = useLanguage();
   const router = useRouter();
 
+  const dashboardRef = React.useRef<HTMLDivElement>(null);
+  const feedersListRef = React.useRef<HTMLDivElement>(null);
+  const historyListRef = React.useRef<HTMLDivElement>(null);
+  const scrollOffsetRef = React.useRef(0);
+  const touchStartYRef = React.useRef(0);
+
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -61,6 +67,89 @@ export default function DashboardPage() {
       }
     }
   }, [recentEvent, fetchDashboardData]);
+
+  useEffect(() => {
+    const dashboard = dashboardRef.current;
+    if (!dashboard) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      const delta = e.deltaY;
+      const currentOffset = scrollOffsetRef.current;
+      
+      const feedersList = feedersListRef.current;
+      const historyList = historyListRef.current;
+
+      const targetList = e.composedPath().find(
+        el => el === feedersList || el === historyList
+      ) as HTMLDivElement | undefined;
+
+      const scrollTop = targetList ? targetList.scrollTop : 0;
+
+      if (delta > 0) {
+        if (currentOffset < 100) {
+          e.preventDefault();
+          const nextOffset = Math.min(100, currentOffset + delta * 0.4);
+          scrollOffsetRef.current = nextOffset;
+          dashboard.style.setProperty('--scroll-progress', String(nextOffset / 100));
+        }
+      } else if (delta < 0) {
+        if (scrollTop <= 2 && currentOffset > 0) {
+          e.preventDefault();
+          const nextOffset = Math.max(0, currentOffset + delta * 0.4);
+          scrollOffsetRef.current = nextOffset;
+          dashboard.style.setProperty('--scroll-progress', String(nextOffset / 100));
+          if (targetList) targetList.scrollTop = 0;
+        }
+      }
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartYRef.current = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touchY = e.touches[0].clientY;
+      const delta = touchStartYRef.current - touchY;
+      touchStartYRef.current = touchY;
+
+      const currentOffset = scrollOffsetRef.current;
+      const feedersList = feedersListRef.current;
+      const historyList = historyListRef.current;
+
+      const targetList = e.composedPath().find(
+        el => el === feedersList || el === historyList
+      ) as HTMLDivElement | undefined;
+
+      const scrollTop = targetList ? targetList.scrollTop : 0;
+
+      if (delta > 0) {
+        if (currentOffset < 100) {
+          if (e.cancelable) e.preventDefault();
+          const nextOffset = Math.min(100, currentOffset + delta * 0.8);
+          scrollOffsetRef.current = nextOffset;
+          dashboard.style.setProperty('--scroll-progress', String(nextOffset / 100));
+        }
+      } else if (delta < 0) {
+        if (scrollTop <= 2 && currentOffset > 0) {
+          if (e.cancelable) e.preventDefault();
+          const nextOffset = Math.max(0, currentOffset + delta * 0.8);
+          scrollOffsetRef.current = nextOffset;
+          dashboard.style.setProperty('--scroll-progress', String(nextOffset / 100));
+          if (targetList) targetList.scrollTop = 0;
+        }
+      }
+    };
+
+    dashboard.addEventListener('wheel', handleWheel, { passive: false });
+    dashboard.addEventListener('touchstart', handleTouchStart, { passive: true });
+    dashboard.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      dashboard.removeEventListener('wheel', handleWheel);
+      dashboard.removeEventListener('touchstart', handleTouchStart);
+      dashboard.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [data]);
 
   const formatTime = (isoString: string | null) => {
     if (!isoString) return 'N/A';
@@ -100,7 +189,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="container" style={{ padding: '32px 24px', animation: 'fadeInUp 0.4s ease' }}>
+    <div className={`container ${styles.dashboardPage}`} ref={dashboardRef} style={{ padding: '32px 24px', animation: 'fadeInUp 0.4s ease' }}>
       {/* Header Row */}
       <div className={styles.dashboardHeader}>
         <div>
@@ -197,7 +286,7 @@ export default function DashboardPage() {
                   </PawButton>
                 </PawCard>
               ) : (
-                <div className={styles.list}>
+                <div className={styles.list} ref={feedersListRef}>
                   {data.recentDevices.map((device) => (
                     <PawCard key={device.deviceId} className={styles.deviceCard}>
                       <div className={styles.deviceInfo}>
@@ -260,7 +349,7 @@ export default function DashboardPage() {
                   <p>{t('dashboard.no_history_desc')}</p>
                 </PawCard>
               ) : (
-                <div className={styles.list}>
+                <div className={styles.list} ref={historyListRef}>
                   {data.recentFeedingHistories.map((history) => (
                     <PawCard key={history.id} className={styles.historyCard}>
                       <div className={styles.historyHeader}>
@@ -274,7 +363,6 @@ export default function DashboardPage() {
                       </div>
                       <div className={styles.historyBody}>
                         <span>{t('dashboard.dispensing_time')} <strong>{history.openDurationMs / 1000}s</strong></span>
-                        <span className={styles.historyId}>ID: #{history.id}</span>
                       </div>
                     </PawCard>
                   ))}
