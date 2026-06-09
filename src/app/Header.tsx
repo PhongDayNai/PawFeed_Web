@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Home, PlusCircle, User, LogOut, WifiOff, Bell, Loader, Globe } from 'lucide-react';
+import { Home, User, LogOut, WifiOff, Bell, Loader, Globe, Smartphone, History } from 'lucide-react';
 import styles from './Header.module.css';
 
 export function Header() {
@@ -98,9 +98,13 @@ export function Header() {
               <Home size={18} />
               {t('nav.dashboard')}
             </Link>
-            <Link href="/devices/link" className={`${styles.navItem} ${isActive('/devices/link') ? styles.active : ''}`}>
-              <PlusCircle size={18} />
-              {t('nav.link_device')}
+            <Link href="/devices" className={`${styles.navItem} ${isActive('/devices') ? styles.active : ''}`}>
+              <Smartphone size={18} />
+              {t('devices.title')}
+            </Link>
+            <Link href="/activity" className={`${styles.navItem} ${isActive('/activity') ? styles.active : ''}`}>
+              <History size={18} />
+              {t('activity.title')}
             </Link>
             <Link href="/account" className={`${styles.navItem} ${isActive('/account') ? styles.active : ''}`}>
               <User size={18} />
@@ -131,18 +135,18 @@ export function Header() {
           <Home size={22} />
           <span>{t('nav.dashboard')}</span>
         </Link>
-        <Link href="/devices/link" className={`${styles.mobileNavItem} ${isActive('/devices/link') ? styles.mobileActive : ''}`}>
-          <PlusCircle size={22} />
-          <span>{t('nav.link_device')}</span>
+        <Link href="/devices" className={`${styles.mobileNavItem} ${isActive('/devices') ? styles.mobileActive : ''}`}>
+          <Smartphone size={22} />
+          <span>{t('devices.title')}</span>
+        </Link>
+        <Link href="/activity" className={`${styles.mobileNavItem} ${isActive('/activity') ? styles.mobileActive : ''}`}>
+          <History size={22} />
+          <span>{t('activity.title')}</span>
         </Link>
         <Link href="/account" className={`${styles.mobileNavItem} ${isActive('/account') ? styles.mobileActive : ''}`}>
           <User size={22} />
           <span>{t('nav.account')}</span>
         </Link>
-        <button onClick={logout} className={styles.mobileNavItem}>
-          <LogOut size={22} />
-          <span>{t('nav.logout')}</span>
-        </button>
       </nav>
 
       {/* Toast Notification Popup */}
