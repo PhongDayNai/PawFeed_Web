@@ -101,6 +101,29 @@ export default function ActivityPage() {
     }
   };
 
+  const getEventMessage = (event: any) => {
+    const payload = event.payload || {};
+    switch (event.eventType) {
+      case 'feeding_completed': {
+        const duration = payload.openDurationMs || 0;
+        return t('activity.event_feeding_completed', { duration });
+      }
+      case 'device_error': {
+        const errorVal = payload.error || 'System error';
+        return t('activity.event_device_error', { error: errorVal });
+      }
+      case 'config_applied': {
+        const version = payload.version || 0;
+        return t('activity.event_config_applied', { version });
+      }
+      case 'device_status_updated':
+        return t('activity.event_device_status_updated');
+      default:
+        if (event.message) return event.message;
+        return t('activity.event_other');
+    }
+  };
+
   if (loadingDevices) {
     return (
       <div className={styles.loadingContainer}>
@@ -209,22 +232,36 @@ export default function ActivityPage() {
                 events.length === 0 ? (
                   <p className={styles.noLogsText}>{t('activity.no_logs')}</p>
                 ) : (
-                  events.map((event) => (
-                    <PawCard key={event.id} hoverable={false} className={styles.logCard}>
-                      <div className={styles.eventRow}>
-                        <div className={styles.eventIconWrapper}>
-                          {event.eventType === 'device_error' && <AlertTriangle size={18} color="var(--error)" />}
-                          {event.eventType === 'config_applied' && <Settings size={18} color="var(--primary)" />}
-                          {event.eventType === 'feeding_completed' && <CheckCircle size={18} color="var(--success)" />}
-                          {event.eventType !== 'device_error' && event.eventType !== 'config_applied' && event.eventType !== 'feeding_completed' && <Info size={18} color="var(--text-muted)" />}
+                  events.map((event) => {
+                    const eventTypeClass = event.eventType === 'device_error' || 
+                                           event.eventType === 'config_applied' || 
+                                           event.eventType === 'feeding_completed' 
+                                           ? styles[event.eventType] 
+                                           : styles.eventDefault;
+                    return (
+                      <PawCard key={event.id} hoverable={false} className={styles.logCard}>
+                        <div className={styles.eventRow}>
+                          <div className={`${styles.eventIconWrapper} ${eventTypeClass}`}>
+                            {event.eventType === 'device_error' && <AlertTriangle size={20} />}
+                            {event.eventType === 'config_applied' && <Settings size={20} />}
+                            {event.eventType === 'feeding_completed' && <CheckCircle size={20} />}
+                            {event.eventType !== 'device_error' && event.eventType !== 'config_applied' && event.eventType !== 'feeding_completed' && <Info size={20} />}
+                          </div>
+                          <div className={styles.eventContent}>
+                            <div className={styles.eventHeader}>
+                              <span className={`${styles.eventBadge} ${eventTypeClass}`}>
+                                {event.eventType === 'device_error' ? 'ERROR' : 
+                                 event.eventType === 'config_applied' ? 'CONFIG' : 
+                                 event.eventType === 'feeding_completed' ? 'FEED' : 'INFO'}
+                              </span>
+                              <span className={styles.eventTime}>{formatTime(event.createdAt)}</span>
+                            </div>
+                            <p className={styles.eventMessage}>{getEventMessage(event)}</p>
+                          </div>
                         </div>
-                        <div className={styles.eventContent}>
-                          <p className={styles.eventMessage}>{event.message}</p>
-                          <span className={styles.eventTime}>{formatTime(event.createdAt)}</span>
-                        </div>
-                      </div>
-                    </PawCard>
-                  ))
+                      </PawCard>
+                    );
+                  })
                 )
               )}
             </div>

@@ -207,7 +207,12 @@
       "tab_events": "Device Events",
       "select_device": "Select Device:",
       "no_logs": "No logs found for this device.",
-      "no_devices": "No devices connected to load logs."
+      "no_devices": "No devices connected to load logs.",
+      "event_feeding_completed": "Device completed feeding. Open duration: {duration}ms",
+      "event_device_error": "Device error: {error}",
+      "event_config_applied": "Configuration applied successfully (Version: {version})",
+      "event_device_status_updated": "Connection status updated",
+      "event_other": "Other system event"
     }
   },
   "vi": {
@@ -418,7 +423,12 @@
       "tab_events": "Sự kiện thiết bị",
       "select_device": "Chọn thiết bị:",
       "no_logs": "Không tìm thấy nhật ký nào của thiết bị này.",
-      "no_devices": "Chưa kết nối thiết bị nào để tải nhật ký."
+      "no_devices": "Chưa kết nối thiết bị nào để tải nhật ký.",
+      "event_feeding_completed": "Thiết bị đã hoàn tất cho ăn. Thời gian mở: {duration}ms",
+      "event_device_error": "Thiết bị gặp lỗi: {error}",
+      "event_config_applied": "Áp dụng cấu hình thành công (Phiên bản: {version})",
+      "event_device_status_updated": "Cập nhật trạng thái kết nối",
+      "event_other": "Sự kiện hệ thống khác"
     }
   }
 }

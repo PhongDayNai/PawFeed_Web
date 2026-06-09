@@ -197,30 +197,92 @@
 .eventRow {
   display: flex;
   gap: 16px;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .eventIconWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--bg-surface-hover);
   flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.eventIconWrapper.device_error {
+  background: hsla(var(--hue-error), 75%, 50%, 0.12);
+  color: var(--error);
+  border: 1px solid hsla(var(--hue-error), 75%, 50%, 0.2);
+}
+
+.eventIconWrapper.config_applied {
+  background: hsla(var(--hue-primary), 85%, 60%, 0.12);
+  color: var(--primary);
+  border: 1px solid hsla(var(--hue-primary), 85%, 60%, 0.2);
+}
+
+.eventIconWrapper.feeding_completed {
+  background: hsla(var(--hue-success), 70%, 45%, 0.12);
+  color: var(--success);
+  border: 1px solid hsla(var(--hue-success), 70%, 45%, 0.2);
+}
+
+.eventIconWrapper.eventDefault {
+  background: hsla(0, 0%, 100%, 0.05);
+  color: var(--text-muted);
+  border: 1px solid hsla(0, 0%, 100%, 0.1);
 }
 
 .eventContent {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  flex: 1;
+}
+
+.eventHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.eventBadge {
+  font-size: 0.65rem;
+  font-weight: 750;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.eventBadge.device_error {
+  background: hsla(var(--hue-error), 75%, 50%, 0.15);
+  color: var(--error);
+}
+
+.eventBadge.config_applied {
+  background: hsla(var(--hue-primary), 85%, 60%, 0.15);
+  color: var(--primary);
+}
+
+.eventBadge.feeding_completed {
+  background: hsla(var(--hue-success), 70%, 45%, 0.15);
+  color: var(--success);
+}
+
+.eventBadge.eventDefault {
+  background: hsla(0, 0%, 100%, 0.08);
+  color: var(--text-muted);
 }
 
 .eventMessage {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: var(--text-primary);
-  line-height: 1.4;
+  line-height: 1.45;
+  font-weight: 500;
 }
 
 .eventTime {
