@@ -151,7 +151,15 @@
       "reload_btn": "Reload settings",
       "save_backups_btn": "Save Schedule Backups",
       "sync_success": "Schedules backups synced to server successfully!",
-      "days_short": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      "days_short": [
+        "Sun",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat"
+      ],
       "duration_for": "for {duration}",
       "select_day_alert": "Please select at least one day for repeat schedule.",
       "apply_changes": "Apply Changes",
@@ -185,6 +193,21 @@
       "pairing_code": "Pairing Code",
       "pair_btn": "Pair & Link Device",
       "link_failed_err": "Failed to link feeder. Verify your machine code and pairing code."
+    },
+    "devices": {
+      "title": "Devices",
+      "subtitle": "Manage all your smart pet feeder devices",
+      "no_devices": "No devices connected",
+      "add_feeder_btn": "Link New Feeder"
+    },
+    "activity": {
+      "title": "Activity",
+      "subtitle": "Track feeding events and device diagnostics",
+      "tab_history": "Feeding History",
+      "tab_events": "Device Events",
+      "select_device": "Select Device:",
+      "no_logs": "No logs found for this device.",
+      "no_devices": "No devices connected to load logs."
     }
   },
   "vi": {
@@ -339,7 +362,15 @@
       "reload_btn": "Tải lại dữ liệu mới",
       "save_backups_btn": "Lưu cấu hình lịch trình",
       "sync_success": "Đã đồng bộ lịch trình thành công lên máy chủ!",
-      "days_short": ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+      "days_short": [
+        "CN",
+        "T2",
+        "T3",
+        "T4",
+        "T5",
+        "T6",
+        "T7"
+      ],
       "duration_for": "trong {duration}",
       "select_day_alert": "Vui lòng chọn ít nhất một ngày để lặp lại lịch trình.",
       "apply_changes": "Áp dụng thay đổi",
@@ -373,6 +404,21 @@
       "pairing_code": "Mã liên kết (Pairing Code)",
       "pair_btn": "Kết nối thiết bị",
       "link_failed_err": "Liên kết thiết bị thất bại. Vui lòng kiểm tra lại Machine Code và Pairing Code."
+    },
+    "devices": {
+      "title": "Thiết bị",
+      "subtitle": "Quản lý toàn bộ thiết bị máy cho thú cưng ăn thông minh",
+      "no_devices": "Chưa kết nối thiết bị nào",
+      "add_feeder_btn": "Kết nối máy mới"
+    },
+    "activity": {
+      "title": "Nhật ký hoạt động",
+      "subtitle": "Theo dõi lịch sử cho ăn và chẩn đoán thiết bị",
+      "tab_history": "Lịch sử cho ăn",
+      "tab_events": "Sự kiện thiết bị",
+      "select_device": "Chọn thiết bị:",
+      "no_logs": "Không tìm thấy nhật ký nào của thiết bị này.",
+      "no_devices": "Chưa kết nối thiết bị nào để tải nhật ký."
     }
   }
 }
