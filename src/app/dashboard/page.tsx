@@ -79,10 +79,11 @@ export default function DashboardPage() {
   };
 
   const getSourceLabel = (source: string) => {
-    switch (source) {
-      case 'REMOTE': return 'App (Remote)';
-      case 'SCHEDULE': return 'Schedule';
-      case 'MANUAL': return 'Manual Button';
+    if (!source) return 'Unknown';
+    switch (source.toUpperCase()) {
+      case 'REMOTE': return 'App / Web (Remote)';
+      case 'SCHEDULE': return 'Feeding Schedule';
+      case 'MANUAL': return 'Feeder Button';
       case 'TEST': return 'Test Mode';
       default: return source;
     }
