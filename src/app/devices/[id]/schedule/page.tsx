@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import styles from './page.module.css';
 
-const DEFAULT_DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
 
 export default function SchedulePage() {
   const params = useParams();
@@ -41,7 +41,6 @@ export default function SchedulePage() {
   // Dialog states for editing/adding entry
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingEntry, setEditingEntry] = useState<ScheduleEntry | null>(null);
-  const [selectedDays, setSelectedDays] = useState<number[]>([]);
   const [entryTime, setEntryTime] = useState('07:00');
   const [entryDurationMs, setEntryDurationMs] = useState(5000);
   const [entryEnabled, setEntryEnabled] = useState(true);
@@ -98,7 +97,6 @@ export default function SchedulePage() {
     setEditingEntry(null);
     setEntryTime('07:00');
     setEntryDurationMs(5000);
-    setSelectedDays([0, 1, 2, 3, 4, 5, 6]); // All days by default
     setEntryEnabled(true);
     setShowEditDialog(true);
   };
@@ -107,7 +105,6 @@ export default function SchedulePage() {
     setEditingEntry(entry);
     setEntryTime(entry.time);
     setEntryDurationMs(entry.openDurationMs);
-    setSelectedDays([...entry.daysOfWeek]);
     setEntryEnabled(entry.enabled);
     setShowEditDialog(true);
   };
@@ -116,16 +113,11 @@ export default function SchedulePage() {
     e.preventDefault();
     if (!schedule) return;
 
-    if (selectedDays.length === 0) {
-      alert(t('schedule.select_day_alert'));
-      return;
-    }
-
     const newOrUpdatedEntry: ScheduleEntry = {
       id: editingEntry ? editingEntry.id : Date.now(), // Use temporary ID if new
       time: entryTime,
       openDurationMs: entryDurationMs,
-      daysOfWeek: [...selectedDays].sort(),
+      daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
       enabled: entryEnabled,
       mealId: editingEntry?.mealId || null,
       mealOrder: editingEntry?.mealOrder || null
@@ -147,15 +139,7 @@ export default function SchedulePage() {
     setShowEditDialog(false);
   };
 
-  const handleDayToggle = (dayIndex: number) => {
-    if (selectedDays.includes(dayIndex)) {
-      if (selectedDays.length > 1) {
-        setSelectedDays(selectedDays.filter((d) => d !== dayIndex));
-      }
-    } else {
-      setSelectedDays([...selectedDays, dayIndex]);
-    }
-  };
+
 
   const handleSaveSchedule = async () => {
     if (!schedule) return;
@@ -197,11 +181,7 @@ export default function SchedulePage() {
     return `${(ms / 1000).toFixed(1)}s`;
   };
 
-  const getDayLabel = (dayIdx: number) => {
-    const key = `schedule.days_short.${dayIdx}`;
-    const label = t(key);
-    return label !== key ? label : DEFAULT_DAY_LABELS[dayIdx];
-  };
+
 
   if (loading) {
     return (
@@ -304,21 +284,7 @@ export default function SchedulePage() {
                       </div>
                     </div>
 
-                    {/* Active Days */}
-                    <div className={styles.daysRow}>
-                      {DEFAULT_DAY_LABELS.map((_, dayIdx) => {
-                        const active = entry.daysOfWeek.includes(dayIdx);
-                        const label = getDayLabel(dayIdx);
-                        return (
-                          <span
-                            key={dayIdx}
-                            className={`${styles.dayBadge} ${active ? styles.dayBadgeActive : ''}`}
-                          >
-                            {label.charAt(0)}
-                          </span>
-                        );
-                      })}
-                    </div>
+
                   </PawCard>
                 ))}
               </div>
@@ -373,24 +339,7 @@ export default function SchedulePage() {
                 </div>
               </div>
 
-              <div className="form-group" style={{ margin: '12px 0' }}>
-                <label className="form-label">{t('schedule.days')}</label>
-                <div className={styles.daysSelector}>
-                  {DEFAULT_DAY_LABELS.map((_, dayIdx) => {
-                    const active = selectedDays.includes(dayIdx);
-                    return (
-                      <button
-                        type="button"
-                        key={dayIdx}
-                        onClick={() => handleDayToggle(dayIdx)}
-                        className={`${styles.dayBtn} ${active ? styles.dayBtnActive : ''}`}
-                      >
-                        {getDayLabel(dayIdx)}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+
 
               <div className="form-group" style={{ margin: '12px 0 20px 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
