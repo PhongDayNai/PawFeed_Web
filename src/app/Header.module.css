@@ -1,0 +1,236 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  border-radius: 0;
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 0;
+  backdrop-filter: blur(12px);
+  background: hsla(223, 47%, 7%, 0.7);
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: var(--font-outfit);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo span {
+  color: var(--accent);
+}
+
+.desktopNav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.navItem:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+
+.active {
+  color: var(--primary);
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border-color);
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.userName {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  color: var(--error);
+  cursor: pointer;
+  border: 1px solid hsla(var(--hue-error), 75%, 50%, 0.15);
+  background: hsla(var(--hue-error), 75%, 50%, 0.05);
+}
+
+.logoutBtn:hover {
+  background: hsla(var(--hue-error), 75%, 50%, 0.12);
+  border-color: hsla(var(--hue-error), 75%, 50%, 0.3);
+}
+
+/* Mobile bottom navigation */
+.mobileBottomNav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 64px;
+  border-radius: 0;
+  border-top: 1px solid var(--border-color);
+  justify-content: space-around;
+  align-items: center;
+  background: hsla(223, 47%, 7%, 0.9);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mobileNavItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 25%;
+  height: 100%;
+}
+
+.mobileActive {
+  color: var(--primary);
+}
+
+/* Sync & Offline Banners */
+.offlineBanner {
+  background: var(--error);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 101;
+  width: 100%;
+}
+
+.syncBanner {
+  background: var(--warning-bg);
+  border-bottom: 1px solid hsla(38, 92%, 50%, 0.2);
+  color: var(--warning);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  z-index: 101;
+  width: 100%;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* Toast System */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  max-width: 350px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: hsla(223, 47%, 10%, 0.9);
+}
+
+.toastIcon {
+  flex-shrink: 0;
+}
+
+.toastText {
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.success {
+  border-left: 4px solid var(--success);
+}
+
+.success .toastIcon {
+  color: var(--success);
+}
+
+.error {
+  border-left: 4px solid var(--error);
+}
+
+.error .toastIcon {
+  color: var(--error);
+}
+
+.info {
+  border-left: 4px solid var(--primary);
+}
+
+.info .toastIcon {
+  color: var(--primary);
+}
+
+/* Responsive Queries */
+@media (max-width: 768px) {
+  .desktopNav, .userSection {
+    display: none;
+  }
+  .mobileBottomNav {
+    display: flex;
+  }
+  .toast {
+    bottom: 80px;
+    left: 24px;
+    right: 24px;
+    max-width: none;
+  }
+}
