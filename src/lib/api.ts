@@ -246,10 +246,26 @@ export const deviceApi = {
     if (etag) {
       headers['If-Match'] = etag;
     }
+
+    // Clean schedule entries (only keep time, openDurationMs, daysOfWeek)
+    const cleanedEntries = schedule.entries.map((item) => ({
+      time: item.time,
+      openDurationMs: item.openDurationMs,
+      daysOfWeek: item.daysOfWeek
+    }));
+
+    // Clean root schedule payload (only keep enabled, timezone, timezoneOffsetSec, entries)
+    const cleanedPayload = {
+      enabled: schedule.enabled,
+      timezone: schedule.timezone,
+      timezoneOffsetSec: schedule.timezoneOffsetSec,
+      entries: cleanedEntries
+    };
+
     const res = await fetchApi(`/devices/${deviceId}/schedule`, {
       method: 'PUT',
       headers,
-      body: JSON.stringify(schedule),
+      body: JSON.stringify(cleanedPayload),
     });
     return {
       schedule: res.body,
