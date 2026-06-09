@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { deviceApi } from '../../lib/api';
-import { DashboardData, Device, FeedingHistory } from '../../lib/types';
+import { DashboardData } from '../../lib/types';
 import { PawCard } from '../../components/PawCard';
 import { PawButton } from '../../components/PawButton';
 import {
@@ -14,7 +15,6 @@ import {
   Cookie,
   RefreshCw,
   Plus,
-  ArrowRight,
   ChevronRight,
   History,
   Activity,
@@ -23,7 +23,8 @@ import {
 import styles from './page.module.css';
 
 export default function DashboardPage() {
-  const { recentEvent, networkOffline } = useApp();
+  const { recentEvent } = useApp();
+  const { language, t } = useLanguage();
   const router = useRouter();
 
   const [data, setData] = useState<DashboardData | null>(null);
@@ -41,12 +42,12 @@ export default function DashboardPage() {
       setData(dashboard);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to load dashboard data');
+      setError(err.message || t('nav.toast_error', { message: err.message || '' }));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -65,7 +66,7 @@ export default function DashboardPage() {
     if (!isoString) return 'N/A';
     try {
       const date = new Date(isoString);
-      return date.toLocaleString('vi-VN', {
+      return date.toLocaleString(language === 'en' ? 'en-US' : 'vi-VN', {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
@@ -79,12 +80,12 @@ export default function DashboardPage() {
   };
 
   const getSourceLabel = (source: string) => {
-    if (!source) return 'Unknown';
+    if (!source) return t('common.unknown');
     switch (source.toUpperCase()) {
-      case 'REMOTE': return 'App / Web (Remote)';
-      case 'SCHEDULE': return 'Feeding Schedule';
-      case 'MANUAL': return 'Feeder Button';
-      case 'TEST': return 'Test Mode';
+      case 'REMOTE': return t('dashboard.source_remote');
+      case 'SCHEDULE': return t('dashboard.source_schedule');
+      case 'MANUAL': return t('dashboard.source_manual');
+      case 'TEST': return t('dashboard.source_test');
       default: return source;
     }
   };
@@ -93,7 +94,7 @@ export default function DashboardPage() {
     return (
       <div className={styles.loadingContainer}>
         <RefreshCw className="spinning" size={40} />
-        <p>Loading Dashboard...</p>
+        <p>{t('dashboard.loading_dashboard')}</p>
       </div>
     );
   }
@@ -103,8 +104,8 @@ export default function DashboardPage() {
       {/* Header Row */}
       <div className={styles.dashboardHeader}>
         <div>
-          <h1 className={styles.title}>Dashboard</h1>
-          <p className={styles.subtitle}>Overview of your smart feeding network</p>
+          <h1 className={styles.title}>{t('dashboard.title')}</h1>
+          <p className={styles.subtitle}>{t('dashboard.subtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
           <PawButton
@@ -114,7 +115,7 @@ export default function DashboardPage() {
             className={styles.actionBtn}
           >
             <RefreshCw className={refreshing ? 'spinning' : ''} size={16} />
-            Refresh
+            {t('dashboard.refresh')}
           </PawButton>
           <PawButton
             variant="secondary"
@@ -122,7 +123,7 @@ export default function DashboardPage() {
             className={styles.actionBtn}
           >
             <Plus size={16} />
-            Link Feeder
+            {t('dashboard.link_feeder')}
           </PawButton>
         </div>
       </div>
@@ -131,11 +132,11 @@ export default function DashboardPage() {
         <div className={styles.errorAlert}>
           <AlertCircle size={20} />
           <div>
-            <h4>Error Loading Dashboard</h4>
+            <h4>{t('dashboard.error_loading')}</h4>
             <p>{error}</p>
           </div>
           <PawButton variant="outline" onClick={() => fetchDashboardData()} style={{ marginLeft: 'auto' }}>
-            Retry
+            {t('common.retry')}
           </PawButton>
         </div>
       )}
@@ -147,7 +148,7 @@ export default function DashboardPage() {
             <div className={`${styles.summaryCard} ${styles.blueGradient} glass`}>
               <div className={styles.cardInfo}>
                 <Smartphone size={24} />
-                <span>Total Feeders</span>
+                <span>{t('dashboard.total_feeders')}</span>
               </div>
               <div className={styles.cardValue}>{data.deviceCount}</div>
             </div>
@@ -155,7 +156,7 @@ export default function DashboardPage() {
             <div className={`${styles.summaryCard} ${styles.greenGradient} glass`}>
               <div className={styles.cardInfo}>
                 <Wifi size={24} />
-                <span>Online Feeders</span>
+                <span>{t('dashboard.online_feeders')}</span>
               </div>
               <div className={styles.cardValue}>{data.onlineCount}</div>
             </div>
@@ -163,7 +164,7 @@ export default function DashboardPage() {
             <div className={`${styles.summaryCard} ${styles.grayGradient} glass`}>
               <div className={styles.cardInfo}>
                 <WifiOff size={24} />
-                <span>Offline Feeders</span>
+                <span>{t('dashboard.offline_feeders')}</span>
               </div>
               <div className={styles.cardValue}>{data.offlineCount}</div>
             </div>
@@ -171,7 +172,7 @@ export default function DashboardPage() {
             <div className={`${styles.summaryCard} ${styles.orangeGradient} glass`}>
               <div className={styles.cardInfo}>
                 <Cookie size={24} />
-                <span>Total Feedings</span>
+                <span>{t('dashboard.total_feedings')}</span>
               </div>
               <div className={styles.cardValue}>{data.feedingCount}</div>
             </div>
@@ -183,16 +184,16 @@ export default function DashboardPage() {
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>
                 <Activity size={18} />
-                Recent Feeders
+                {t('dashboard.recent_feeders')}
               </h2>
 
               {data.recentDevices.length === 0 ? (
                 <PawCard hoverable={false} className={styles.emptyState}>
                   <Smartphone size={48} className={styles.emptyIcon} />
-                  <h3>No Feeders Linked</h3>
-                  <p>Link your first smart pet feeder to start managing schedules and feeding remotely.</p>
+                  <h3>{t('dashboard.no_feeders_title')}</h3>
+                  <p>{t('dashboard.no_feeders_desc')}</p>
                   <PawButton variant="secondary" onClick={() => router.push('/devices/link')} style={{ marginTop: '16px' }}>
-                    Link Now
+                    {t('dashboard.link_now')}
                   </PawButton>
                 </PawCard>
               ) : (
@@ -201,21 +202,21 @@ export default function DashboardPage() {
                     <PawCard key={device.deviceId} className={styles.deviceCard}>
                       <div className={styles.deviceInfo}>
                         <div className={styles.deviceMeta}>
-                          <h3 className={styles.deviceName}>{device.displayName || 'Unnamed Feeder'}</h3>
+                          <h3 className={styles.deviceName}>{device.displayName || t('common.unknown')}</h3>
                           <span className={styles.deviceId}>{device.deviceId}</span>
                         </div>
                         <span className={`badge ${device.online ? 'badge-online' : 'badge-offline'}`}>
-                          {device.online ? 'Online' : 'Offline'}
+                          {device.online ? t('common.online') : t('common.offline')}
                         </span>
                       </div>
 
                       <div className={styles.deviceDetails}>
                         <div className={styles.detailRow}>
-                          <span className={styles.detailLabel}>Code:</span>
+                          <span className={styles.detailLabel}>{t('common.code')}:</span>
                           <span className={styles.detailVal}>{device.machineCode}</span>
                         </div>
                         <div className={styles.detailRow}>
-                          <span className={styles.detailLabel}>Last seen:</span>
+                          <span className={styles.detailLabel}>{t('common.last_seen')}:</span>
                           <span className={styles.detailVal}>{formatTime(device.lastSeenAt)}</span>
                         </div>
                       </div>
@@ -226,7 +227,7 @@ export default function DashboardPage() {
                           onClick={() => router.push(`/devices/${device.deviceId}`)}
                           className={styles.deviceBtn}
                         >
-                          Details
+                          {t('common.details')}
                           <ChevronRight size={16} />
                         </PawButton>
                         <PawButton
@@ -235,7 +236,7 @@ export default function DashboardPage() {
                           disabled={!device.online}
                           className={styles.deviceBtn}
                         >
-                          Feed Now
+                          {t('common.feed_now')}
                           <Cookie size={16} />
                         </PawButton>
                       </div>
@@ -249,14 +250,14 @@ export default function DashboardPage() {
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>
                 <History size={18} />
-                Recent Feeding History
+                {t('dashboard.recent_feeding_history')}
               </h2>
 
               {data.recentFeedingHistories.length === 0 ? (
                 <PawCard hoverable={false} className={styles.emptyState}>
                   <Cookie size={48} className={styles.emptyIcon} />
-                  <h3>No Feeding History</h3>
-                  <p>Trigger a quick feed or configure a schedule to start tracking pet meals.</p>
+                  <h3>{t('dashboard.no_history_title')}</h3>
+                  <p>{t('dashboard.no_history_desc')}</p>
                 </PawCard>
               ) : (
                 <div className={styles.list}>
@@ -268,11 +269,11 @@ export default function DashboardPage() {
                           <span className={styles.historyTime}>{formatTime(history.startedAt)}</span>
                         </div>
                         <span className={`badge ${history.status === 'completed' ? 'badge-online' : 'badge-warning'}`}>
-                          {history.status}
+                          {history.status === 'completed' ? t('common.done') : history.status}
                         </span>
                       </div>
                       <div className={styles.historyBody}>
-                        <span>Dispensing time: <strong>{history.openDurationMs / 1000}s</strong></span>
+                        <span>{t('dashboard.dispensing_time')} <strong>{history.openDurationMs / 1000}s</strong></span>
                         <span className={styles.historyId}>ID: #{history.id}</span>
                       </div>
                     </PawCard>
