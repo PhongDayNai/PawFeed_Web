@@ -58,6 +58,7 @@ export async function fetchApi(path: string, options: RequestInit = {}): Promise
   }
 
   const response = await fetch(`${BASE_URL}${path}`, {
+    cache: 'no-store',
     ...options,
     headers,
   });
@@ -77,6 +78,7 @@ export async function fetchApi(path: string, options: RequestInit = {}): Promise
         // Retry the original request with the new token
         headers.set('Authorization', `Bearer ${newToken}`);
         const retryResponse = await fetch(`${BASE_URL}${path}`, {
+          cache: 'no-store',
           ...options,
           headers,
         });
