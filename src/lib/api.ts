@@ -311,6 +311,16 @@ export const deviceApi = {
     });
   },
 
+  async regenerateConfigFile(deviceId: string): Promise<{ configId: string; content: string }> {
+    return fetchApi(`/devices/${deviceId}/config-file/regenerate?mode=json`, {
+      method: 'POST',
+    });
+  },
+
+  async getCurrentConfig(deviceId: string): Promise<any> {
+    return fetchApi(`/devices/${deviceId}/current-config`, { method: 'GET' });
+  },
+
   async confirmConfigFile(deviceId: string, configId: string): Promise<void> {
     await fetchApi(`/devices/${deviceId}/config-file/${configId}/confirm`, { method: 'POST' });
   },

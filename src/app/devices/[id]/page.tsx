@@ -50,6 +50,8 @@ export default function DeviceDetailPage() {
   const [wifiSsid, setWifiSsid] = useState('');
   const [wifiPassword, setWifiPassword] = useState('');
   const [generatingConfig, setGeneratingConfig] = useState(false);
+  const [currentConfig, setCurrentConfig] = useState<any>(null);
+  const [changeWifi, setChangeWifi] = useState(false);
 
   const [showUnlink, setShowUnlink] = useState(false);
   const [unlinking, setUnlinking] = useState(false);
@@ -84,6 +86,13 @@ export default function DeviceDetailPage() {
       } catch (e) {
         console.warn('Failed to fetch Schedule', e);
       }
+
+      try {
+        const configRes = await deviceApi.getCurrentConfig(deviceId);
+        setCurrentConfig(configRes);
+      } catch (e) {
+        console.warn('Failed to fetch current config', e);
+      }
     } catch (err: any) {
       setError(err.message || t('nav.toast_error', { message: err.message || '' }));
     } finally {
@@ -95,6 +104,20 @@ export default function DeviceDetailPage() {
   useEffect(() => {
     fetchDetails();
   }, [fetchDetails]);
+
+  useEffect(() => {
+    if (showWifiConfig) {
+      const hasWifi = !!currentConfig?.wifiSsid;
+      setChangeWifi(!hasWifi);
+      if (hasWifi) {
+        setWifiSsid(currentConfig.wifiSsid);
+        setWifiPassword('');
+      } else {
+        setWifiSsid('');
+        setWifiPassword('');
+      }
+    }
+  }, [showWifiConfig, currentConfig]);
 
   // Handle SSE realtime updates
   useEffect(() => {
@@ -125,10 +148,12 @@ export default function DeviceDetailPage() {
 
   const handleWifiConfig = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!wifiSsid || !wifiPassword) return;
+    if (changeWifi && (!wifiSsid || !wifiPassword)) return;
     setGeneratingConfig(true);
     try {
-      const { configId, content } = await deviceApi.createConfigFile(deviceId, wifiSsid, wifiPassword);
+      const { configId, content } = changeWifi
+        ? await deviceApi.createConfigFile(deviceId, wifiSsid, wifiPassword)
+        : await deviceApi.regenerateConfigFile(deviceId);
       
       // Trigger local download of file with name = deviceId
       const blob = new Blob([content], { type: 'application/octet-stream' });
@@ -322,7 +347,7 @@ export default function DeviceDetailPage() {
         <PawButton
           variant="secondary"
           onClick={() => router.push(`/devices/${deviceId}/feed`)}
-          disabled={!device.online}
+          disabled={!status || !device.online}
           style={{ height: '52px', fontSize: '1.05rem' }}
         >
           <Utensils size={18} />
@@ -332,6 +357,7 @@ export default function DeviceDetailPage() {
         <PawButton
           variant="primary"
           onClick={() => router.push(`/devices/${deviceId}/schedule`)}
+          disabled={!status}
           style={{ height: '52px', fontSize: '1.05rem' }}
         >
           <CalendarDays size={18} />
@@ -341,6 +367,7 @@ export default function DeviceDetailPage() {
         <PawButton
           variant="outline"
           onClick={() => setShowWifiConfig(true)}
+          disabled={!status}
           style={{ height: '52px', fontSize: '1.05rem' }}
         >
           <FolderDown size={18} />
@@ -390,30 +417,72 @@ export default function DeviceDetailPage() {
             <h3>{t('device_detail.wifi_dialog_title')}</h3>
             <p className={styles.modalDesc}>{t('device_detail.wifi_dialog_desc')}</p>
             <form onSubmit={handleWifiConfig}>
-              <div className="form-group">
-                <label className="form-label">{t('device_detail.wifi_ssid_label')}</label>
-                <input
-                  type="text"
-                  placeholder="e.g. MyHomeWiFi"
-                  className="input-field"
-                  value={wifiSsid}
-                  onChange={(e) => setWifiSsid(e.target.value)}
-                  disabled={generatingConfig}
-                  required
-                />
-              </div>
-              <div className="form-group" style={{ margin: '12px 0 20px 0' }}>
-                <label className="form-label">{t('device_detail.wifi_password_label')}</label>
-                <input
-                  type="password"
-                  placeholder="e.g. 12345678"
-                  className="input-field"
-                  value={wifiPassword}
-                  onChange={(e) => setWifiPassword(e.target.value)}
-                  disabled={generatingConfig}
-                  required
-                />
-              </div>
+              {currentConfig?.wifiSsid && (
+                <div 
+                  className={styles.checkboxContainer} 
+                  onClick={() => setChangeWifi(prev => !prev)}
+                >
+                  <input
+                    type="checkbox"
+                    id="changeWifiCheckbox"
+                    checked={changeWifi}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setChangeWifi(e.target.checked);
+                    }}
+                    className={styles.checkboxInput}
+                  />
+                  <label 
+                    htmlFor="changeWifiCheckbox" 
+                    className={styles.checkboxLabel}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {t('device_detail.change_wifi_checkbox')}
+                  </label>
+                </div>
+              )}
+
+              {!changeWifi && currentConfig?.wifiSsid && (
+                <div className={styles.currentWifiPanel}>
+                  <div className={styles.currentWifiTitleRow}>
+                    <Wifi size={16} />
+                    <span>{t('device_detail.current_wifi_ssid')}</span>
+                    <span className={styles.currentWifiName}>{currentConfig.wifiSsid}</span>
+                  </div>
+                  <p className={styles.currentWifiDesc}>
+                    {t('device_detail.regenerate_desc')}
+                  </p>
+                </div>
+              )}
+
+              {changeWifi && (
+                <>
+                  <div className="form-group">
+                    <label className="form-label">{t('device_detail.wifi_ssid_label')}</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. MyHomeWiFi"
+                      className="input-field"
+                      value={wifiSsid}
+                      onChange={(e) => setWifiSsid(e.target.value)}
+                      disabled={generatingConfig}
+                      required={changeWifi}
+                    />
+                  </div>
+                  <div className="form-group" style={{ margin: '12px 0 20px 0' }}>
+                    <label className="form-label">{t('device_detail.wifi_password_label')}</label>
+                    <input
+                      type="password"
+                      placeholder="e.g. 12345678"
+                      className="input-field"
+                      value={wifiPassword}
+                      onChange={(e) => setWifiPassword(e.target.value)}
+                      disabled={generatingConfig}
+                      required={changeWifi}
+                    />
+                  </div>
+                </>
+              )}
               <div className={styles.modalActions}>
                 <PawButton type="button" variant="outline" onClick={() => setShowWifiConfig(false)} disabled={generatingConfig}>
                   {t('common.cancel')}

@@ -114,7 +114,10 @@
       "wifi_password_label": "WiFi Password",
       "confirm_unlink_title": "Unlink Feeder",
       "confirm_unlink_desc": "Are you sure you want to unlink this device? Your feeder will no longer be associated with your account, and all schedule backups on the server will be deleted.",
-      "wifi_success": "Config file saved successfully. Please copy it to your device's storage root."
+      "wifi_success": "Config file saved successfully. Please copy it to your device's storage root.",
+      "change_wifi_checkbox": "Change WiFi configuration",
+      "current_wifi_ssid": "Current WiFi SSID:",
+      "regenerate_desc": "WiFi credentials have been saved. Click Confirm to download the configuration file using saved settings."
     },
     "feed": {
       "duration_label": "Feed Duration",
@@ -330,7 +333,10 @@
       "wifi_password_label": "Mật khẩu WiFi",
       "confirm_unlink_title": "Hủy liên kết thiết bị",
       "confirm_unlink_desc": "Bạn có chắc chắn muốn gỡ thiết bị này? Thiết bị sẽ không còn liên kết với tài khoản này nữa và toàn bộ dữ liệu lịch trình sao lưu trên server sẽ bị xóa bỏ.",
-      "wifi_success": "Đã tạo file cấu hình thành công. Vui lòng copy tệp tin vào bộ nhớ thiết bị của bạn."
+      "wifi_success": "Đã tạo file cấu hình thành công. Vui lòng copy tệp tin vào bộ nhớ thiết bị của bạn.",
+      "change_wifi_checkbox": "Thay đổi cấu hình WiFi",
+      "current_wifi_ssid": "WiFi hiện tại:",
+      "regenerate_desc": "Cấu hình WiFi đã được lưu. Nhấn Xác nhận để tải lại file cấu hình với thông tin cũ."
     },
     "feed": {
       "duration_label": "Thời gian nhả hạt",
