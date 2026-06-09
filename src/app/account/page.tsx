@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { authApi } from '../../lib/api';
 import { PawCard } from '../../components/PawCard';
 import { PawButton } from '../../components/PawButton';
@@ -11,6 +12,7 @@ import styles from './page.module.css';
 
 export default function AccountPage() {
   const { user, updateUserFullName } = useApp();
+  const { t } = useLanguage();
   const router = useRouter();
 
   // Profile Form States
@@ -46,7 +48,7 @@ export default function AccountPage() {
       setProfileSuccess(true);
       setTimeout(() => setProfileSuccess(false), 3000);
     } catch (err: any) {
-      setProfileError(err.message || 'Failed to update profile name');
+      setProfileError(err.message || t('account.profile_failed_err'));
     } finally {
       setUpdatingProfile(false);
     }
@@ -55,17 +57,17 @@ export default function AccountPage() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!oldPassword || !newPassword || !confirmPassword) {
-      setPasswordError('Please fill in all password fields');
+      setPasswordError(t('account.fill_password_err'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordError('New passwords do not match');
+      setPasswordError(t('account.password_mismatch_err'));
       return;
     }
 
     if (newPassword.length < 6) {
-      setPasswordError('New password must be at least 6 characters long');
+      setPasswordError(t('account.password_length_err'));
       return;
     }
 
@@ -80,7 +82,7 @@ export default function AccountPage() {
       setConfirmPassword('');
       setTimeout(() => setPasswordSuccess(false), 3000);
     } catch (err: any) {
-      setPasswordError(err.message || 'Failed to change password. Double check your old password.');
+      setPasswordError(err.message || t('account.password_failed_err'));
     } finally {
       setUpdatingPassword(false);
     }
@@ -89,8 +91,8 @@ export default function AccountPage() {
   return (
     <div className="container animate-fade-in" style={{ padding: '32px 24px', maxWidth: '720px' }}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Account Settings</h1>
-        <p className={styles.subtitle}>Configure your profile and security credentials</p>
+        <h1 className={styles.title}>{t('account.title')}</h1>
+        <p className={styles.subtitle}>{t('account.subtitle')}</p>
       </div>
 
       <div className={styles.layout}>
@@ -98,11 +100,11 @@ export default function AccountPage() {
         <PawCard hoverable={false} className={styles.card}>
           <h2 className={styles.cardTitle}>
             <User size={18} />
-            Profile Details
+            {t('account.profile_details')}
           </h2>
 
           <div className={styles.readOnlyField}>
-            <span className={styles.label}>Email Address</span>
+            <span className={styles.label}>{t('account.email_label')}</span>
             <div className={styles.roValue}>
               <Mail size={16} />
               <span>{user?.email}</span>
@@ -110,7 +112,7 @@ export default function AccountPage() {
           </div>
 
           <div className={styles.readOnlyField} style={{ marginBottom: '24px' }}>
-            <span className={styles.label}>Account Role</span>
+            <span className={styles.label}>{t('account.role_label')}</span>
             <div className={styles.roValue}>
               <Shield size={16} />
               <span style={{ textTransform: 'capitalize' }}>{user?.role}</span>
@@ -119,12 +121,12 @@ export default function AccountPage() {
 
           <form onSubmit={handleUpdateProfile}>
             <div className="form-group">
-              <label className="form-label">Full Name</label>
+              <label className="form-label">{t('register.fullname_label')}</label>
               <div className={styles.inputWrapper}>
                 <User className={styles.inputIcon} size={18} />
                 <input
                   type="text"
-                  placeholder="e.g. John Doe"
+                  placeholder={t('register.fullname_placeholder')}
                   className="input-field"
                   style={{ paddingLeft: '44px' }}
                   value={fullName}
@@ -145,7 +147,7 @@ export default function AccountPage() {
             {profileSuccess && (
               <div className={styles.successAlert}>
                 <CheckCircle size={16} />
-                <span>Profile updated successfully!</span>
+                <span>{t('account.profile_success')}</span>
               </div>
             )}
 
@@ -155,7 +157,7 @@ export default function AccountPage() {
               loading={updatingProfile}
               style={{ width: '100%', marginTop: '8px' }}
             >
-              Update Profile Name
+              {t('account.update_profile_btn')}
             </PawButton>
           </form>
         </PawCard>
@@ -164,15 +166,15 @@ export default function AccountPage() {
         <PawCard hoverable={false} className={styles.card}>
           <h2 className={styles.cardTitle}>
             <KeyRound size={18} />
-            Update Password
+            {t('account.change_password_title')}
           </h2>
 
           <form onSubmit={handleChangePassword}>
             <div className="form-group">
-              <label className="form-label">Current Password</label>
+              <label className="form-label">{t('account.current_password_label')}</label>
               <input
                 type="password"
-                placeholder="Enter current password"
+                placeholder={t('login.password_placeholder')}
                 className="input-field"
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
@@ -182,10 +184,10 @@ export default function AccountPage() {
             </div>
 
             <div className="form-group" style={{ margin: '12px 0' }}>
-              <label className="form-label">New Password</label>
+              <label className="form-label">{t('account.new_password_label')}</label>
               <input
                 type="password"
-                placeholder="Minimum 6 characters"
+                placeholder={t('login.password_placeholder')}
                 className="input-field"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -195,10 +197,10 @@ export default function AccountPage() {
             </div>
 
             <div className="form-group" style={{ margin: '12px 0 20px 0' }}>
-              <label className="form-label">Confirm New Password</label>
+              <label className="form-label">{t('account.confirm_new_password_label')}</label>
               <input
                 type="password"
-                placeholder="Re-enter new password"
+                placeholder={t('login.password_placeholder')}
                 className="input-field"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -217,7 +219,7 @@ export default function AccountPage() {
             {passwordSuccess && (
               <div className={styles.successAlert}>
                 <CheckCircle size={16} />
-                <span>Password changed successfully!</span>
+                <span>{t('account.password_success')}</span>
               </div>
             )}
 
@@ -227,7 +229,7 @@ export default function AccountPage() {
               loading={updatingPassword}
               style={{ width: '100%' }}
             >
-              Change Password
+              {t('account.change_password_btn')}
             </PawButton>
           </form>
         </PawCard>
