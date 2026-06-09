@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '../../../context/LanguageContext';
 import { deviceApi } from '../../../lib/api';
 import { PawCard } from '../../../components/PawCard';
 import { PawButton } from '../../../components/PawButton';
@@ -10,6 +11,7 @@ import styles from './page.module.css';
 
 export default function LinkDevicePage() {
   const router = useRouter();
+  const { t } = useLanguage();
 
   const [machineCode, setMachineCode] = useState('');
   const [pairingCode, setPairingCode] = useState('');
@@ -26,7 +28,7 @@ export default function LinkDevicePage() {
       await deviceApi.linkDevice(machineCode, pairingCode);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Failed to link feeder. Verify your machine code and pairing code.');
+      setError(err.message || t('link_device.link_failed_err'));
     } finally {
       setLoading(false);
     }
@@ -38,19 +40,19 @@ export default function LinkDevicePage() {
       <div className={styles.header}>
         <button onClick={() => router.back()} className={styles.backBtn} disabled={loading}>
           <ArrowLeft size={20} />
-          Dashboard
+          {t('nav.dashboard')}
         </button>
-        <h1 className={styles.title}>Link New Feeder</h1>
+        <h1 className={styles.title}>{t('link_device.title')}</h1>
       </div>
 
       <PawCard hoverable={false} className={styles.card}>
         <p className={styles.cardDesc}>
-          Enter the credentials found on the back label of your PawFeed smart pet feeder device or in its user manual.
+          {t('link_device.desc')}
         </p>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Machine Code</label>
+            <label className="form-label">{t('link_device.machine_code')}</label>
             <div className={styles.inputWrapper}>
               <Cpu className={styles.inputIcon} size={18} />
               <input
@@ -67,7 +69,7 @@ export default function LinkDevicePage() {
           </div>
 
           <div className="form-group" style={{ margin: '16px 0 24px 0' }}>
-            <label className="form-label">Pairing Code</label>
+            <label className="form-label">{t('link_device.pairing_code')}</label>
             <div className={styles.inputWrapper}>
               <KeyRound className={styles.inputIcon} size={18} />
               <input
@@ -96,7 +98,7 @@ export default function LinkDevicePage() {
             loading={loading}
             style={{ width: '100%', height: '48px' }}
           >
-            Pair & Link Device
+            {t('link_device.pair_btn')}
           </PawButton>
         </form>
       </PawCard>

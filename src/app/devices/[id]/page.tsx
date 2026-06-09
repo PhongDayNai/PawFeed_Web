@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
+import { useLanguage } from '../../../context/LanguageContext';
 import { deviceApi } from '../../../lib/api';
 import { Device, DeviceStatus, MqttStatus, Schedule } from '../../../lib/types';
 import { PawCard } from '../../../components/PawCard';
@@ -14,7 +15,6 @@ import {
   Activity,
   Wifi,
   Clock,
-  Database,
   Unlink,
   AlertTriangle,
   RefreshCw,
@@ -29,7 +29,8 @@ export default function DeviceDetailPage() {
   const router = useRouter();
   const deviceId = params.id as string;
   
-  const { recentEvent, networkOffline } = useApp();
+  const { recentEvent } = useApp();
+  const { t } = useLanguage();
 
   const [device, setDevice] = useState<Device | null>(null);
   const [status, setStatus] = useState<DeviceStatus | null>(null);
@@ -84,12 +85,12 @@ export default function DeviceDetailPage() {
         console.warn('Failed to fetch Schedule', e);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to load device details');
+      setError(err.message || t('nav.toast_error', { message: err.message || '' }));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [deviceId]);
+  }, [deviceId, t]);
 
   useEffect(() => {
     fetchDetails();
@@ -116,7 +117,7 @@ export default function DeviceDetailPage() {
       setDevice(updated);
       setShowEditName(false);
     } catch (err: any) {
-      alert(err.message || 'Failed to update name');
+      alert(err.message || t('nav.toast_error', { message: err.message || '' }));
     } finally {
       setUpdatingName(false);
     }
@@ -143,9 +144,9 @@ export default function DeviceDetailPage() {
       // Call confirm endpoint
       await deviceApi.confirmConfigFile(deviceId, configId);
       setShowWifiConfig(false);
-      alert(`Config file saved successfully. Please copy it to your device's storage root.`);
+      alert(t('device_detail.wifi_success'));
     } catch (err: any) {
-      alert(err.message || 'Failed to generate configuration file');
+      alert(err.message || t('nav.toast_error', { message: err.message || '' }));
     } finally {
       setGeneratingConfig(false);
     }
@@ -157,7 +158,7 @@ export default function DeviceDetailPage() {
       await deviceApi.unlinkDevice(deviceId);
       router.replace('/dashboard');
     } catch (err: any) {
-      alert(err.message || 'Failed to unlink device');
+      alert(err.message || t('nav.toast_error', { message: err.message || '' }));
       setUnlinking(false);
     }
   };
@@ -174,7 +175,7 @@ export default function DeviceDetailPage() {
     return (
       <div className={styles.loadingContainer}>
         <RefreshCw className="spinning" size={40} />
-        <p>Loading Feeder Details...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -184,14 +185,14 @@ export default function DeviceDetailPage() {
       <div className="container" style={{ padding: '32px 24px' }}>
         <PawCard hoverable={false} className={styles.errorCard}>
           <AlertTriangle size={48} color="var(--error)" />
-          <h3>Error Loading Details</h3>
-          <p>{error || 'Feeder details not found'}</p>
+          <h3>{t('dashboard.error_loading')}</h3>
+          <p>{error || t('common.unknown')}</p>
           <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
             <PawButton variant="outline" onClick={() => router.back()}>
-              <ArrowLeft size={16} /> Go Back
+              <ArrowLeft size={16} /> {t('common.back')}
             </PawButton>
             <PawButton variant="primary" onClick={() => fetchDetails()}>
-              Retry
+              {t('common.retry')}
             </PawButton>
           </div>
         </PawCard>
@@ -207,7 +208,7 @@ export default function DeviceDetailPage() {
       <div className={styles.detailHeader}>
         <button onClick={() => router.back()} className={styles.backBtn}>
           <ArrowLeft size={20} />
-          Back
+          {t('common.back')}
         </button>
         <div style={{ display: 'flex', gap: '12px' }}>
           <PawButton variant="outline" onClick={() => fetchDetails(true)} disabled={refreshing}>
@@ -218,7 +219,7 @@ export default function DeviceDetailPage() {
             setShowEditName(true);
           }}>
             <Settings size={16} />
-            Rename
+            {t('device_detail.rename')}
           </PawButton>
         </div>
       </div>
@@ -227,11 +228,11 @@ export default function DeviceDetailPage() {
       <PawCard hoverable={false} className={styles.mainCard}>
         <div className={styles.mainHeader}>
           <div>
-            <h1 className={styles.deviceName}>{device.displayName || 'Smart Feeder'}</h1>
-            <p className={styles.deviceId}>Device ID: {device.deviceId}</p>
+            <h1 className={styles.deviceName}>{device.displayName || t('common.unknown')}</h1>
+            <p className={styles.deviceId}>{t('device_detail.device_id')} {device.deviceId}</p>
           </div>
           <span className={`badge ${device.online ? 'badge-online' : 'badge-offline'}`} style={{ fontSize: '0.85rem', padding: '6px 14px' }}>
-            {device.online ? 'Online' : 'Offline'}
+            {device.online ? t('common.online') : t('common.offline')}
           </span>
         </div>
 
@@ -240,20 +241,20 @@ export default function DeviceDetailPage() {
           <div className={styles.syncRow}>
             <div className={styles.syncLabel}>
               <Activity size={18} />
-              <span>MQTT Broker connection</span>
+              <span>{t('device_detail.mqtt_connection')}</span>
             </div>
             <span className={`badge ${mqtt?.mqttConnected ? 'badge-online' : 'badge-offline'}`}>
-              {mqtt?.mqttConnected ? 'Connected' : 'Disconnected'}
+              {mqtt?.mqttConnected ? t('common.connected') : t('common.disconnected')}
             </span>
           </div>
 
           <div className={styles.syncRow}>
             <div className={styles.syncLabel}>
               <Clock size={18} />
-              <span>Schedule Synchronization</span>
+              <span>{t('device_detail.schedule_sync')}</span>
             </div>
             <span className={`badge ${isScheduleSynced ? 'badge-online' : 'badge-warning'}`}>
-              {isScheduleSynced ? 'Synced' : 'Syncing'}
+              {isScheduleSynced ? t('device_detail.synced') : t('device_detail.syncing')}
             </span>
           </div>
         </div>
@@ -265,25 +266,25 @@ export default function DeviceDetailPage() {
         <PawCard hoverable={false} className={styles.infoCard}>
           <h2 className={styles.infoTitle}>
             <Cpu size={18} />
-            Device Information
+            {t('device_detail.device_info')}
           </h2>
           <div className={styles.infoList}>
             <div className={styles.infoRow}>
-              <span>Machine Code</span>
+              <span>{t('device_detail.machine_code')}</span>
               <strong>{device.machineCode}</strong>
             </div>
             <div className={styles.infoRow}>
-              <span>Firmware Version</span>
+              <span>{t('device_detail.firmware_version')}</span>
               <strong>{device.firmwareVersion || 'N/A'}</strong>
             </div>
             <div className={styles.infoRow}>
-              <span>Operating Mode</span>
+              <span>{t('device_detail.operating_mode')}</span>
               <strong>{status?.mode || 'N/A'}</strong>
             </div>
             <div className={styles.infoRow}>
-              <span>Feeder Door Status</span>
+              <span>{t('device_detail.door_status')}</span>
               <strong style={{ color: status?.doorOpen ? 'var(--warning)' : 'var(--success)' }}>
-                {status?.doorOpen ? 'Open' : 'Closed'}
+                {status?.doorOpen ? t('device_detail.door_open') : t('device_detail.door_closed')}
               </strong>
             </div>
           </div>
@@ -293,23 +294,23 @@ export default function DeviceDetailPage() {
         <PawCard hoverable={false} className={styles.infoCard}>
           <h2 className={styles.infoTitle}>
             <Wifi size={18} />
-            Diagnostics Panel
+            {t('device_detail.diagnostics')}
           </h2>
           <div className={styles.infoList}>
             <div className={styles.infoRow}>
-              <span>IP Address</span>
+              <span>{t('device_detail.ip_address')}</span>
               <strong>{status?.ipAddress || 'N/A'}</strong>
             </div>
             <div className={styles.infoRow}>
-              <span>WiFi RSSI Strength</span>
+              <span>{t('device_detail.wifi_signal')}</span>
               <strong>{status?.wifiRssi ? `${status.wifiRssi} dBm` : 'N/A'}</strong>
             </div>
             <div className={styles.infoRow}>
-              <span>Uptime Duration</span>
+              <span>{t('device_detail.uptime')}</span>
               <strong>{formatUptime(status?.uptimeSec ?? null)}</strong>
             </div>
             <div className={styles.infoRow}>
-              <span>Heap Memory Status</span>
+              <span>{t('device_detail.heap_memory')}</span>
               <strong>{status?.heap ? `${status.heap.toLocaleString()} bytes` : 'N/A'}</strong>
             </div>
           </div>
@@ -325,7 +326,7 @@ export default function DeviceDetailPage() {
           style={{ height: '52px', fontSize: '1.05rem' }}
         >
           <Utensils size={18} />
-          Feed Now
+          {t('common.feed_now')}
         </PawButton>
 
         <PawButton
@@ -334,7 +335,7 @@ export default function DeviceDetailPage() {
           style={{ height: '52px', fontSize: '1.05rem' }}
         >
           <CalendarDays size={18} />
-          Schedules Configuration
+          {t('common.schedules')}
         </PawButton>
 
         <PawButton
@@ -343,12 +344,12 @@ export default function DeviceDetailPage() {
           style={{ height: '52px', fontSize: '1.05rem' }}
         >
           <FolderDown size={18} />
-          Generate WiFi Config
+          {t('device_detail.generate_wifi')}
         </PawButton>
 
         <button onClick={() => setShowUnlink(true)} className={styles.unlinkBtn}>
           <Unlink size={16} />
-          Unlink Device from Account
+          {t('device_detail.unlink_device')}
         </button>
       </div>
 
@@ -356,10 +357,10 @@ export default function DeviceDetailPage() {
       {showEditName && (
         <div className={styles.modalOverlay}>
           <PawCard hoverable={false} className={styles.modal}>
-            <h3>Rename Feeder</h3>
+            <h3>{t('device_detail.rename_dialog_title')}</h3>
             <form onSubmit={handleUpdateName}>
               <div className="form-group" style={{ margin: '16px 0' }}>
-                <label className="form-label">New Display Name</label>
+                <label className="form-label">{t('device_detail.rename_dialog_label')}</label>
                 <input
                   type="text"
                   className="input-field"
@@ -371,10 +372,10 @@ export default function DeviceDetailPage() {
               </div>
               <div className={styles.modalActions}>
                 <PawButton type="button" variant="outline" onClick={() => setShowEditName(false)} disabled={updatingName}>
-                  Cancel
+                  {t('common.cancel')}
                 </PawButton>
                 <PawButton type="submit" variant="primary" loading={updatingName}>
-                  Save
+                  {t('common.save')}
                 </PawButton>
               </div>
             </form>
@@ -386,11 +387,11 @@ export default function DeviceDetailPage() {
       {showWifiConfig && (
         <div className={styles.modalOverlay}>
           <PawCard hoverable={false} className={styles.modal}>
-            <h3>Generate WiFi Config</h3>
-            <p className={styles.modalDesc}>WiFi credential config file will download automatically to be loaded into ESP firmware.</p>
+            <h3>{t('device_detail.wifi_dialog_title')}</h3>
+            <p className={styles.modalDesc}>{t('device_detail.wifi_dialog_desc')}</p>
             <form onSubmit={handleWifiConfig}>
               <div className="form-group">
-                <label className="form-label">WiFi SSID Name</label>
+                <label className="form-label">{t('device_detail.wifi_ssid_label')}</label>
                 <input
                   type="text"
                   placeholder="e.g. MyHomeWiFi"
@@ -402,7 +403,7 @@ export default function DeviceDetailPage() {
                 />
               </div>
               <div className="form-group" style={{ margin: '12px 0 20px 0' }}>
-                <label className="form-label">WiFi Password</label>
+                <label className="form-label">{t('device_detail.wifi_password_label')}</label>
                 <input
                   type="password"
                   placeholder="e.g. 12345678"
@@ -415,10 +416,10 @@ export default function DeviceDetailPage() {
               </div>
               <div className={styles.modalActions}>
                 <PawButton type="button" variant="outline" onClick={() => setShowWifiConfig(false)} disabled={generatingConfig}>
-                  Cancel
+                  {t('common.cancel')}
                 </PawButton>
                 <PawButton type="submit" variant="primary" loading={generatingConfig}>
-                  Download & Confirm
+                  {t('common.confirm')}
                 </PawButton>
               </div>
             </form>
@@ -432,17 +433,17 @@ export default function DeviceDetailPage() {
           <PawCard hoverable={false} className={styles.modal}>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: 'var(--error)' }}>
               <AlertTriangle size={24} />
-              <h3>Unlink Feeder</h3>
+              <h3>{t('device_detail.confirm_unlink_title')}</h3>
             </div>
             <p className={styles.modalDesc} style={{ margin: '16px 0' }}>
-              Are you sure you want to unlink this device? Your feeder will no longer be associated with your account, and all schedule backups on the server will be deleted.
+              {t('device_detail.confirm_unlink_desc')}
             </p>
             <div className={styles.modalActions}>
               <PawButton variant="outline" onClick={() => setShowUnlink(false)} disabled={unlinking}>
-                Cancel
+                {t('common.cancel')}
               </PawButton>
               <PawButton variant="danger" onClick={handleUnlink} loading={unlinking}>
-                Unlink Feeder
+                {t('device_detail.unlink_device')}
               </PawButton>
             </div>
           </PawCard>

@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useLanguage } from '../../../../context/LanguageContext';
 import { deviceApi } from '../../../../lib/api';
 import { Schedule, ScheduleEntry } from '../../../../lib/types';
 import { PawCard } from '../../../../components/PawCard';
 import { PawButton } from '../../../../components/PawButton';
 import {
   ArrowLeft,
-  Calendar,
   Clock,
   Plus,
   Trash2,
@@ -20,12 +20,14 @@ import {
 } from 'lucide-react';
 import styles from './page.module.css';
 
-const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DEFAULT_DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function SchedulePage() {
   const params = useParams();
   const router = useRouter();
   const deviceId = params.id as string;
+
+  const { t } = useLanguage();
 
   const [schedule, setSchedule] = useState<Schedule | null>(null);
   const [etag, setEtag] = useState<string | null>(null);
@@ -52,11 +54,11 @@ export default function SchedulePage() {
       setSchedule(res.schedule);
       setEtag(res.etag);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch schedule data');
+      setError(err.message || t('schedule.load_failed_err'));
     } finally {
       setLoading(false);
     }
-  }, [deviceId]);
+  }, [deviceId, t]);
 
   useEffect(() => {
     fetchSchedule();
@@ -115,7 +117,7 @@ export default function SchedulePage() {
     if (!schedule) return;
 
     if (selectedDays.length === 0) {
-      alert('Please select at least one day for repeat schedule.');
+      alert(t('schedule.select_day_alert'));
       return;
     }
 
@@ -177,14 +179,14 @@ export default function SchedulePage() {
       const res = await deviceApi.updateSchedule(deviceId, payload, etag);
       setSchedule(res.schedule);
       setEtag(res.etag);
-      setSuccessMsg('Schedules backups synced to server successfully!');
+      setSuccessMsg(t('schedule.sync_success'));
       setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err: any) {
       if (err.status === 412) {
         // ETag Conflict
         setConflictModal(true);
       } else {
-        setError(err.message || 'Failed to save schedule settings.');
+        setError(err.message || t('schedule.save_failed_err'));
       }
     } finally {
       setSaving(false);
@@ -195,11 +197,17 @@ export default function SchedulePage() {
     return `${(ms / 1000).toFixed(1)}s`;
   };
 
+  const getDayLabel = (dayIdx: number) => {
+    const key = `schedule.days_short.${dayIdx}`;
+    const label = t(key);
+    return label !== key ? label : DEFAULT_DAY_LABELS[dayIdx];
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
         <RefreshCw className="spinning" size={40} />
-        <p>Loading Feeder Schedules...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -210,9 +218,9 @@ export default function SchedulePage() {
       <div className={styles.header}>
         <button onClick={() => router.back()} className={styles.backBtn} disabled={saving}>
           <ArrowLeft size={20} />
-          Feeder Details
+          {t('device_detail.title')}
         </button>
-        <h1 className={styles.title}>Feeding Schedules</h1>
+        <h1 className={styles.title}>{t('schedule.title')}</h1>
       </div>
 
       {error && (
@@ -234,8 +242,8 @@ export default function SchedulePage() {
           {/* Master Toggle */}
           <PawCard hoverable={false} className={styles.masterToggleCard}>
             <div className={styles.masterText}>
-              <h3>Enable Feeder Schedules</h3>
-              <p>Turn on to run automatic feedings configured below.</p>
+              <h3>{t('schedule.enable')}</h3>
+              <p>{t('schedule.enable_desc')}</p>
             </div>
             <label className={styles.switch}>
               <input
@@ -250,11 +258,11 @@ export default function SchedulePage() {
           {/* Schedule List */}
           <div className={styles.scheduleListContainer}>
             <div className={styles.listHeader}>
-              <h2>Backup Schedules ({schedule.entries.length}/8)</h2>
+              <h2>{t('schedule.backup_schedules', { count: schedule.entries.length })}</h2>
               {schedule.entries.length < 8 && (
                 <PawButton variant="secondary" onClick={openAddDialog} className={styles.addBtn}>
                   <Plus size={16} />
-                  Add Feeding
+                  {t('schedule.add_feeding')}
                 </PawButton>
               )}
             </div>
@@ -262,8 +270,8 @@ export default function SchedulePage() {
             {schedule.entries.length === 0 ? (
               <PawCard hoverable={false} className={styles.emptyCard}>
                 <Clock size={40} className={styles.emptyIcon} />
-                <h3>No feeding entries</h3>
-                <p>Click "Add Feeding" above to configure your first automatic meal plan.</p>
+                <h3>{t('schedule.no_schedules_title')}</h3>
+                <p>{t('schedule.no_schedules_desc')}</p>
               </PawCard>
             ) : (
               <div className={styles.list}>
@@ -273,7 +281,9 @@ export default function SchedulePage() {
                       <div className={styles.timeGroup}>
                         <Clock size={20} color="var(--primary)" />
                         <span className={styles.timeText}>{entry.time}</span>
-                        <span className={styles.durationText}>for {formatDuration(entry.openDurationMs)}</span>
+                        <span className={styles.durationText}>
+                          {t('schedule.duration_for', { duration: formatDuration(entry.openDurationMs) })}
+                        </span>
                       </div>
                       
                       <div className={styles.itemActions}>
@@ -296,11 +306,12 @@ export default function SchedulePage() {
 
                     {/* Active Days */}
                     <div className={styles.daysRow}>
-                      {DAY_LABELS.map((label, dayIdx) => {
+                      {DEFAULT_DAY_LABELS.map((_, dayIdx) => {
                         const active = entry.daysOfWeek.includes(dayIdx);
+                        const label = getDayLabel(dayIdx);
                         return (
                           <span
-                            key={label}
+                            key={dayIdx}
                             className={`${styles.dayBadge} ${active ? styles.dayBadgeActive : ''}`}
                           >
                             {label.charAt(0)}
@@ -321,7 +332,7 @@ export default function SchedulePage() {
             loading={saving}
             style={{ width: '100%', height: '52px', marginTop: '12px' }}
           >
-            Save Schedule Backups
+            {t('schedule.save_backups_btn')}
           </PawButton>
         </div>
       )}
@@ -330,10 +341,10 @@ export default function SchedulePage() {
       {showEditDialog && (
         <div className={styles.modalOverlay}>
           <PawCard hoverable={false} className={styles.modal}>
-            <h3>{editingEntry ? 'Edit Feeding' : 'Add Feeding Entry'}</h3>
+            <h3>{editingEntry ? t('schedule.edit_dialog_title') : t('schedule.add_dialog_title')}</h3>
             <form onSubmit={handleSaveEntry}>
               <div className="form-group" style={{ margin: '16px 0 12px 0' }}>
-                <label className="form-label">Feeding Time</label>
+                <label className="form-label">{t('schedule.time')}</label>
                 <input
                   type="time"
                   className="input-field"
@@ -344,7 +355,9 @@ export default function SchedulePage() {
               </div>
 
               <div className="form-group" style={{ margin: '12px 0' }}>
-                <label className="form-label">Dispense Duration: {formatDuration(entryDurationMs)}</label>
+                <label className="form-label">
+                  {t('schedule.duration')}: {formatDuration(entryDurationMs)}
+                </label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <Sliders size={18} color="var(--text-muted)" />
                   <input
@@ -361,18 +374,18 @@ export default function SchedulePage() {
               </div>
 
               <div className="form-group" style={{ margin: '12px 0' }}>
-                <label className="form-label">Repeat Days</label>
+                <label className="form-label">{t('schedule.days')}</label>
                 <div className={styles.daysSelector}>
-                  {DAY_LABELS.map((label, dayIdx) => {
+                  {DEFAULT_DAY_LABELS.map((_, dayIdx) => {
                     const active = selectedDays.includes(dayIdx);
                     return (
                       <button
                         type="button"
-                        key={label}
+                        key={dayIdx}
                         onClick={() => handleDayToggle(dayIdx)}
                         className={`${styles.dayBtn} ${active ? styles.dayBtnActive : ''}`}
                       >
-                        {label}
+                        {getDayLabel(dayIdx)}
                       </button>
                     );
                   })}
@@ -381,7 +394,7 @@ export default function SchedulePage() {
 
               <div className="form-group" style={{ margin: '12px 0 20px 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <label className="form-label">Enable Entry</label>
+                  <label className="form-label">{t('schedule.enable_entry')}</label>
                   <label className={styles.switchSmall}>
                     <input
                       type="checkbox"
@@ -395,10 +408,10 @@ export default function SchedulePage() {
 
               <div className={styles.modalActions}>
                 <PawButton type="button" variant="outline" onClick={() => setShowEditDialog(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </PawButton>
                 <PawButton type="submit" variant="primary">
-                  Apply Changes
+                  {t('schedule.apply_changes')}
                 </PawButton>
               </div>
             </form>
@@ -412,20 +425,20 @@ export default function SchedulePage() {
           <PawCard hoverable={false} className={styles.modal}>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: 'var(--warning)' }}>
               <AlertTriangle size={24} />
-              <h3>Version Conflict</h3>
+              <h3>{t('schedule.conflict_title')}</h3>
             </div>
             <p className={styles.modalDesc} style={{ margin: '16px 0' }}>
-              The schedule backup on the server has been modified by another application since you loaded it. Saving now will overwrite those changes.
+              {t('schedule.conflict_desc')}
             </p>
             <div className={styles.modalActions}>
               <PawButton variant="outline" onClick={() => setConflictModal(false)}>
-                Cancel
+                {t('common.cancel')}
               </PawButton>
               <PawButton variant="secondary" onClick={() => {
                 setConflictModal(false);
                 fetchSchedule();
               }}>
-                Reload settings
+                {t('schedule.reload_btn')}
               </PawButton>
             </div>
           </PawCard>

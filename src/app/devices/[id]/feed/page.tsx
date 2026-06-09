@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '../../../../context/AppContext';
+import { useLanguage } from '../../../../context/LanguageContext';
 import { deviceApi } from '../../../../lib/api';
 import { Device } from '../../../../lib/types';
 import { PawCard } from '../../../../components/PawCard';
@@ -18,6 +19,7 @@ export default function FeedPage() {
   const deviceId = params.id as string;
 
   const { recentEvent } = useApp();
+  const { t } = useLanguage();
 
   const [device, setDevice] = useState<Device | null>(null);
   const [duration, setDuration] = useState(5); // 5 seconds default
@@ -34,9 +36,9 @@ export default function FeedPage() {
       .then((res) => setDevice(res.device))
       .catch((err) => {
         setFeedState('error');
-        setErrorMessage(err.message || 'Failed to connect to device');
+        setErrorMessage(err.message || t('feed.connect_failed_err'));
       });
-  }, [deviceId]);
+  }, [deviceId, t]);
 
   // Handle SSE device state
   useEffect(() => {
@@ -46,11 +48,11 @@ export default function FeedPage() {
         // If device went offline, abort feeding
         if (!recentEvent.online && (feedState === 'sending' || feedState === 'dispensing')) {
           setFeedState('error');
-          setErrorMessage('Feeder disconnected during operation.');
+          setErrorMessage(t('feed.disconnect_err'));
         }
       }
     }
-  }, [recentEvent, deviceId, feedState]);
+  }, [recentEvent, deviceId, feedState, t]);
 
   // Dispensing timer countdown
   useEffect(() => {
@@ -98,9 +100,6 @@ export default function FeedPage() {
     }
 
     const kibbles: Kibble[] = [];
-    const maxKibbles = 100;
-    let pileHeight = 0;
-
     const chuteX = canvas.width / 2;
     const chuteY = 15;
     const chuteWidth = 36;
@@ -120,6 +119,7 @@ export default function FeedPage() {
 
     let lastTime = 0;
     const spawnRateMs = 60; // Spawn every 60ms
+    let pileHeight = 0;
 
     function drawDispenser(timestamp: number) {
       if (!ctx || !canvas) return;
@@ -244,7 +244,7 @@ export default function FeedPage() {
       setFeedState('dispensing');
     } catch (err: any) {
       setFeedState('error');
-      setErrorMessage(err.message || 'Failed to dispatch command to feeder.');
+      setErrorMessage(err.message || t('feed.dispatch_err'));
     }
   };
 
@@ -261,15 +261,15 @@ export default function FeedPage() {
       <div className={styles.header}>
         <button onClick={() => router.back()} className={styles.backBtn} disabled={feedState === 'sending' || feedState === 'dispensing'}>
           <ArrowLeft size={20} />
-          Feeder Details
+          {t('device_detail.title')}
         </button>
       </div>
 
       <PawCard hoverable={false} className={styles.card}>
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <h2 className={styles.feederName}>{device?.displayName || 'Smart Pet Feeder'}</h2>
+          <h2 className={styles.feederName}>{device?.displayName || t('common.unknown')}</h2>
           <span className={`badge ${device?.online ? 'badge-online' : 'badge-offline'}`}>
-            {device?.online ? 'Online' : 'Offline'}
+            {device?.online ? t('common.online') : t('common.offline')}
           </span>
         </div>
 
@@ -280,7 +280,7 @@ export default function FeedPage() {
               <canvas ref={canvasRef} className={styles.canvas} />
               <div className={styles.countdownOverlay}>
                 <div className={styles.secondsVal}>{secondsRemaining}</div>
-                <div className={styles.secondsLbl}>seconds left</div>
+                <div className={styles.secondsLbl}>{t('feed.seconds_left')}</div>
               </div>
             </div>
           ) : (
@@ -300,7 +300,9 @@ export default function FeedPage() {
               </svg>
               <div className={styles.dialInfo}>
                 <div className={styles.dialValText}>{duration}</div>
-                <div className={styles.dialLblText}>seconds</div>
+                <div className={styles.dialLblText}>
+                  {duration === 1 ? t('feed.seconds_singular') : t('feed.seconds_plural')}
+                </div>
               </div>
             </div>
           )}
@@ -310,28 +312,28 @@ export default function FeedPage() {
         <div className={styles.statusDisplay}>
           {feedState === 'idle' && (
             <div className={styles.statusText}>
-              <p>Drag the slider below to choose the feed dispensing duration.</p>
+              <p>{t('feed.choose_duration_desc')}</p>
             </div>
           )}
 
           {feedState === 'sending' && (
             <div className={styles.statusInfo}>
               <Loader className="spinning" size={20} />
-              <span>Sending feed signal to device...</span>
+              <span>{t('feed.sending_signal')}</span>
             </div>
           )}
 
           {feedState === 'dispensing' && (
             <div className={styles.statusInfo} style={{ color: 'var(--accent)' }}>
               <Loader className="spinning" size={20} style={{ color: 'var(--accent)' }} />
-              <span>Dispensing pet kibbles...</span>
+              <span>{t('feed.dispensing')}</span>
             </div>
           )}
 
           {feedState === 'success' && (
             <div className={styles.statusSuccess}>
               <CheckCircle size={20} />
-              <span>Feeding completed successfully!</span>
+              <span>{t('feed.success')}</span>
             </div>
           )}
 
@@ -370,14 +372,14 @@ export default function FeedPage() {
               onClick={() => setFeedState('idle')}
               style={{ flex: 1 }}
             >
-              Feed Again
+              {t('feed.feed_again')}
             </PawButton>
             <PawButton
               variant="secondary"
               onClick={() => router.back()}
               style={{ flex: 1 }}
             >
-              Done
+              {t('common.done')}
             </PawButton>
           </div>
         ) : (
@@ -388,7 +390,7 @@ export default function FeedPage() {
             style={{ width: '100%', height: '52px', marginTop: '16px' }}
           >
             <Cookie size={18} />
-            Dispense Feed Now
+            {t('feed.dispense_btn')}
           </PawButton>
         )}
       </PawCard>
