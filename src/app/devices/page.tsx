@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { deviceApi } from '../../lib/api';
 import { Device } from '../../lib/types';
@@ -13,9 +14,8 @@ import styles from './page.module.css';
 export default function DevicesPage() {
   const router = useRouter();
   const { t } = useLanguage();
+  const { devices: sharedDevices, devicesLoading, fetchDevices: fetchSharedDevices } = useApp();
 
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,24 +26,25 @@ export default function DevicesPage() {
   const [linking, setLinking] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
 
-  const fetchDevices = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
+  const devices = sharedDevices || [];
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
     setError(null);
     try {
-      const res = await deviceApi.getDevices();
-      setDevices(res.devices);
+      await fetchSharedDevices(true);
     } catch (err: any) {
       setError(err.message || t('nav.toast_error', { message: err.message || '' }));
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
-  }, [t]);
+  }, [fetchSharedDevices, t]);
 
   useEffect(() => {
-    fetchDevices();
-  }, [fetchDevices]);
+    if (!sharedDevices && !devicesLoading) {
+      fetchSharedDevices();
+    }
+  }, [sharedDevices, devicesLoading, fetchSharedDevices]);
 
   const handleLinkDevice = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +57,7 @@ export default function DevicesPage() {
       setShowLinkModal(false);
       setMachineCode('');
       setPairingCode('');
-      fetchDevices(); // reload list
+      fetchSharedDevices(true); // reload list
     } catch (err: any) {
       setLinkError(err.message || t('link_device.link_failed_err'));
     } finally {
@@ -64,7 +65,7 @@ export default function DevicesPage() {
     }
   };
 
-  if (loading) {
+  if (devicesLoading && !sharedDevices) {
     return (
       <div className={styles.loadingContainer}>
         <RefreshCw className="spinning" size={40} />
@@ -83,7 +84,7 @@ export default function DevicesPage() {
             <p className={styles.subtitle}>{t('devices.subtitle')}</p>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
-            <PawButton variant="outline" onClick={() => fetchDevices(true)} disabled={refreshing}>
+            <PawButton variant="outline" onClick={handleRefresh} disabled={refreshing}>
               <RefreshCw className={refreshing ? 'spinning' : ''} size={16} />
             </PawButton>
             {devices.length > 0 && (
@@ -99,7 +100,7 @@ export default function DevicesPage() {
           <div className={styles.errorAlert} style={{ marginBottom: '24px' }}>
             <AlertTriangle size={20} />
             <span>{error}</span>
-            <PawButton variant="outline" onClick={() => fetchDevices()} style={{ marginLeft: 'auto' }}>
+            <PawButton variant="outline" onClick={() => fetchSharedDevices()} style={{ marginLeft: 'auto' }}>
               {t('common.retry')}
             </PawButton>
           </div>

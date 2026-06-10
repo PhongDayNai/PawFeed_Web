@@ -23,9 +23,11 @@ import {
 import styles from './page.module.css';
 
 export default function DashboardPage() {
-  const { recentEvent } = useApp();
+  const { dashboardData, dashboardLoading, fetchDashboardData } = useApp();
   const { language, t } = useLanguage();
   const router = useRouter();
+
+  const data = dashboardData;
 
   const dashboardRef = React.useRef<HTMLDivElement>(null);
   const feedersListRef = React.useRef<HTMLDivElement>(null);
@@ -33,40 +35,27 @@ export default function DashboardPage() {
   const scrollOffsetRef = React.useRef(0);
   const touchStartYRef = React.useRef(0);
 
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDashboardData = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
-
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
     setError(null);
     try {
-      const dashboard = await deviceApi.getDashboard();
-      setData(dashboard);
+      await fetchDashboardData(true);
     } catch (err: any) {
       console.error(err);
       setError(err.message || t('nav.toast_error', { message: err.message || '' }));
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
-  }, [t]);
+  }, [fetchDashboardData, t]);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
-
-  // Refresh dashboard automatically when relevant SSE events are received!
-  useEffect(() => {
-    if (recentEvent) {
-      if (['device_status_updated', 'feeding_completed', 'config_applied'].includes(recentEvent.type)) {
-        fetchDashboardData(true);
-      }
+    if (!dashboardData && !dashboardLoading) {
+      fetchDashboardData();
     }
-  }, [recentEvent, fetchDashboardData]);
+  }, [dashboardData, dashboardLoading, fetchDashboardData]);
 
   useEffect(() => {
     const dashboard = dashboardRef.current;
@@ -149,7 +138,7 @@ export default function DashboardPage() {
       dashboard.removeEventListener('touchstart', handleTouchStart);
       dashboard.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [data]);
+  }, [dashboardData]);
 
   const formatTime = (isoString: string | null) => {
     if (!isoString) return 'N/A';
@@ -179,7 +168,7 @@ export default function DashboardPage() {
     }
   };
 
-  if (loading) {
+  if (dashboardLoading && !data) {
     return (
       <div className={styles.loadingContainer}>
         <RefreshCw className="spinning" size={40} />
@@ -199,7 +188,7 @@ export default function DashboardPage() {
         <div style={{ display: 'flex', gap: '12px' }}>
           <PawButton
             variant="outline"
-            onClick={() => fetchDashboardData(true)}
+            onClick={handleRefresh}
             disabled={refreshing}
             className={styles.actionBtn}
           >

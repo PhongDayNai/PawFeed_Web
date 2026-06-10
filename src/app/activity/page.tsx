@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { deviceApi } from '../../lib/api';
 import { Device, FeedingHistory } from '../../lib/types';
@@ -11,13 +12,10 @@ import styles from './page.module.css';
 
 export default function ActivityPage() {
   const { language, t } = useLanguage();
+  const { devices: sharedDevices, devicesLoading, fetchDevices: fetchSharedDevices } = useApp();
 
-  const [devices, setDevices] = useState<Device[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
-  
   const [activeTab, setActiveTab] = useState<number>(0); // 0: History, 1: Events
-  
-  const [loadingDevices, setLoadingDevices] = useState(true);
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,21 +23,21 @@ export default function ActivityPage() {
   const [history, setHistory] = useState<FeedingHistory[]>([]);
   const [events, setEvents] = useState<any[]>([]);
 
-  const fetchDevices = useCallback(async () => {
-    setLoadingDevices(true);
-    setError(null);
-    try {
-      const res = await deviceApi.getDevices();
-      setDevices(res.devices);
-      if (res.devices.length > 0) {
-        setSelectedDeviceId(res.devices[0].deviceId);
-      }
-    } catch (err: any) {
-      setError(err.message || t('activity.no_devices'));
-    } finally {
-      setLoadingDevices(false);
+  const devices = sharedDevices || [];
+
+  // Fetch devices from context if not loaded
+  useEffect(() => {
+    if (!sharedDevices && !devicesLoading) {
+      fetchSharedDevices();
     }
-  }, [t]);
+  }, [sharedDevices, devicesLoading, fetchSharedDevices]);
+
+  // Set default selected device ID when devices list is loaded
+  useEffect(() => {
+    if (devices.length > 0 && !selectedDeviceId) {
+      setSelectedDeviceId(devices[0].deviceId);
+    }
+  }, [devices, selectedDeviceId]);
 
   const fetchLogs = useCallback(async (deviceId: string) => {
     if (!deviceId) return;
@@ -62,10 +60,6 @@ export default function ActivityPage() {
       setLoadingLogs(false);
     }
   }, [t]);
-
-  useEffect(() => {
-    fetchDevices();
-  }, [fetchDevices]);
 
   useEffect(() => {
     if (selectedDeviceId) {
@@ -124,7 +118,7 @@ export default function ActivityPage() {
     }
   };
 
-  if (loadingDevices) {
+  if (devicesLoading && !sharedDevices) {
     return (
       <div className={styles.loadingContainer}>
         <RefreshCw className="spinning" size={40} />
