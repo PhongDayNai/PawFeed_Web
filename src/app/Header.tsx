@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
+import { getFriendlyErrorMessage } from '../lib/error';
 import { Home, User, LogOut, WifiOff, Bell, Loader, Globe, Smartphone, History, RefreshCw } from 'lucide-react';
 import styles from './Header.module.css';
 
@@ -49,8 +50,9 @@ export function Header() {
         type: 'success',
       });
     } else if (recentEvent.type === 'device_error') {
+      const friendlyMsg = getFriendlyErrorMessage({ message: recentEvent.errorMessage }, 'errors.unknown', t);
       setToast({
-        message: t('nav.toast_error', { message: recentEvent.errorMessage }),
+        message: t('nav.toast_error', { message: friendlyMsg }),
         type: 'error',
       });
     } else if (recentEvent.type === 'config_applied') {

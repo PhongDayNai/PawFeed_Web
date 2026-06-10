@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '../../../../context/AppContext';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { deviceApi } from '../../../../lib/api';
+import { getFriendlyErrorMessage } from '../../../../lib/error';
 import { Device } from '../../../../lib/types';
 import { PawCard } from '../../../../components/PawCard';
 import { PawButton } from '../../../../components/PawButton';
@@ -36,7 +37,7 @@ export default function FeedPage() {
       .then((res) => setDevice(res.device))
       .catch((err) => {
         setFeedState('error');
-        setErrorMessage(err.message || t('feed.connect_failed_err'));
+        setErrorMessage(getFriendlyErrorMessage(err, 'feed.connect_failed_err', t));
       });
   }, [deviceId, t]);
 
@@ -244,7 +245,7 @@ export default function FeedPage() {
       setFeedState('dispensing');
     } catch (err: any) {
       setFeedState('error');
-      setErrorMessage(err.message || t('feed.dispatch_err'));
+      setErrorMessage(getFriendlyErrorMessage(err, 'feed.dispatch_err', t));
     }
   };
 

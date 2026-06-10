@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { deviceApi } from '../../lib/api';
+import { getFriendlyErrorMessage } from '../../lib/error';
 import { Device, FeedingHistory } from '../../lib/types';
 import { PawCard } from '../../components/PawCard';
 import { PawButton } from '../../components/PawButton';
@@ -61,7 +62,7 @@ export default function ActivityPage() {
       try {
         await fetchLogsForDevice(selectedDeviceId, true);
       } catch (err: any) {
-        setError(err.message || t('nav.toast_error', { message: err.message || '' }));
+        setError(getFriendlyErrorMessage(err, 'activity.load_failed_err', t));
       }
     }
   }, [selectedDeviceId, fetchLogsForDevice, t]);

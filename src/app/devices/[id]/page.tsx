@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { deviceApi } from '../../../lib/api';
+import { getFriendlyErrorMessage } from '../../../lib/error';
 import { Device, DeviceStatus, MqttStatus, Schedule } from '../../../lib/types';
 import { PawCard } from '../../../components/PawCard';
 import { PawButton } from '../../../components/PawButton';
@@ -94,7 +95,7 @@ export default function DeviceDetailPage() {
         console.warn('Failed to fetch current config', e);
       }
     } catch (err: any) {
-      setError(err.message || t('nav.toast_error', { message: err.message || '' }));
+      setError(getFriendlyErrorMessage(err, 'device_detail.load_failed_err', t));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -140,7 +141,7 @@ export default function DeviceDetailPage() {
       setDevice(updated);
       setShowEditName(false);
     } catch (err: any) {
-      alert(err.message || t('nav.toast_error', { message: err.message || '' }));
+      alert(getFriendlyErrorMessage(err, 'device_detail.rename_failed_err', t));
     } finally {
       setUpdatingName(false);
     }
@@ -171,7 +172,7 @@ export default function DeviceDetailPage() {
       setShowWifiConfig(false);
       alert(t('device_detail.wifi_success'));
     } catch (err: any) {
-      alert(err.message || t('nav.toast_error', { message: err.message || '' }));
+      alert(getFriendlyErrorMessage(err, 'device_detail.wifi_failed_err', t));
     } finally {
       setGeneratingConfig(false);
     }
@@ -183,7 +184,7 @@ export default function DeviceDetailPage() {
       await deviceApi.unlinkDevice(deviceId);
       router.replace('/dashboard');
     } catch (err: any) {
-      alert(err.message || t('nav.toast_error', { message: err.message || '' }));
+      alert(getFriendlyErrorMessage(err, 'device_detail.unlink_failed_err', t));
       setUnlinking(false);
     }
   };

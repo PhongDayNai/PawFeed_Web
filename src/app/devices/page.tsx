@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { deviceApi } from '../../lib/api';
+import { getFriendlyErrorMessage } from '../../lib/error';
 import { Device } from '../../lib/types';
 import { PawCard } from '../../components/PawCard';
 import { PawButton } from '../../components/PawButton';
@@ -34,7 +35,7 @@ export default function DevicesPage() {
     try {
       await fetchSharedDevices(true);
     } catch (err: any) {
-      setError(err.message || t('nav.toast_error', { message: err.message || '' }));
+      setError(getFriendlyErrorMessage(err, 'devices.load_failed_err', t));
     } finally {
       setRefreshing(false);
     }
@@ -59,7 +60,7 @@ export default function DevicesPage() {
       setPairingCode('');
       fetchSharedDevices(true); // reload list
     } catch (err: any) {
-      setLinkError(err.message || t('link_device.link_failed_err'));
+      setLinkError(getFriendlyErrorMessage(err, 'link_device.link_failed_err', t));
     } finally {
       setLinking(false);
     }

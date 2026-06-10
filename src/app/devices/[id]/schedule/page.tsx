@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useLanguage } from '../../../../context/LanguageContext';
 import { deviceApi } from '../../../../lib/api';
+import { getFriendlyErrorMessage } from '../../../../lib/error';
 import { Schedule, ScheduleEntry } from '../../../../lib/types';
 import { PawCard } from '../../../../components/PawCard';
 import { PawButton } from '../../../../components/PawButton';
@@ -53,7 +54,7 @@ export default function SchedulePage() {
       setSchedule(res.schedule);
       setEtag(res.etag);
     } catch (err: any) {
-      setError(err.message || t('schedule.load_failed_err'));
+      setError(getFriendlyErrorMessage(err, 'schedule.load_failed_err', t));
     } finally {
       setLoading(false);
     }
@@ -170,7 +171,7 @@ export default function SchedulePage() {
         // ETag Conflict
         setConflictModal(true);
       } else {
-        setError(err.message || t('schedule.save_failed_err'));
+        setError(getFriendlyErrorMessage(err, 'schedule.save_failed_err', t));
       }
     } finally {
       setSaving(false);

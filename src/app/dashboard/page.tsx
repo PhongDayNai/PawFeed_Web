@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { deviceApi } from '../../lib/api';
+import { getFriendlyErrorMessage } from '../../lib/error';
 import { DashboardData } from '../../lib/types';
 import { PawCard } from '../../components/PawCard';
 import { PawButton } from '../../components/PawButton';
@@ -45,7 +46,7 @@ export default function DashboardPage() {
       await fetchDashboardData(true);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || t('nav.toast_error', { message: err.message || '' }));
+      setError(getFriendlyErrorMessage(err, 'dashboard.error_loading', t));
     } finally {
       setRefreshing(false);
     }
