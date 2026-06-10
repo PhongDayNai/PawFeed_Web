@@ -7,6 +7,7 @@ import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { PawCard } from '../../components/PawCard';
 import { PawButton } from '../../components/PawButton';
+import { getFriendlyErrorMessage } from '../../lib/error';
 import { Mail, Lock, User, ShieldAlert, Eye, EyeOff } from 'lucide-react';
 import styles from './page.module.css';
 
@@ -54,7 +55,7 @@ export default function RegisterPage() {
       await register({ fullName, email, password });
       router.replace('/dashboard');
     } catch (err: any) {
-      setError(err.message || t('register.register_failed_err'));
+      setError(getFriendlyErrorMessage(err, 'register.register_failed_err', t));
     } finally {
       setSubmitting(false);
     }

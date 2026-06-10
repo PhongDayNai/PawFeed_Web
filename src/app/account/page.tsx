@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { authApi } from '../../lib/api';
+import { getFriendlyErrorMessage } from '../../lib/error';
 import { PawCard } from '../../components/PawCard';
 import { PawButton } from '../../components/PawButton';
 import { User, Mail, ShieldAlert, CheckCircle, Shield, KeyRound } from 'lucide-react';
@@ -48,7 +49,7 @@ export default function AccountPage() {
       setProfileSuccess(true);
       setTimeout(() => setProfileSuccess(false), 3000);
     } catch (err: any) {
-      setProfileError(err.message || t('account.profile_failed_err'));
+      setProfileError(getFriendlyErrorMessage(err, 'account.profile_failed_err', t));
     } finally {
       setUpdatingProfile(false);
     }
@@ -82,7 +83,7 @@ export default function AccountPage() {
       setConfirmPassword('');
       setTimeout(() => setPasswordSuccess(false), 3000);
     } catch (err: any) {
-      setPasswordError(err.message || t('account.password_failed_err'));
+      setPasswordError(getFriendlyErrorMessage(err, 'account.password_failed_err', t));
     } finally {
       setUpdatingPassword(false);
     }

@@ -7,6 +7,7 @@ import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { PawCard } from '../../components/PawCard';
 import { PawButton } from '../../components/PawButton';
+import { getFriendlyErrorMessage } from '../../lib/error';
 import { Mail, Lock, ShieldAlert, Eye, EyeOff } from 'lucide-react';
 import styles from './page.module.css';
 
@@ -41,7 +42,7 @@ export default function LoginPage() {
       await login({ email, password });
       router.replace('/dashboard');
     } catch (err: any) {
-      setError(err.message || t('login.login_failed_err'));
+      setError(getFriendlyErrorMessage(err, 'login.login_failed_err', t));
     } finally {
       setSubmitting(false);
     }
