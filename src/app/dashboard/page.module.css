@@ -85,12 +85,28 @@
   gap: calc(16px - 16px * var(--scroll-progress, 0));
   box-shadow: var(--card-shadow);
   border: 1px solid var(--border-color);
-  transition: transform 0.2s ease, height 0.2s cubic-bezier(0.16, 1, 0.3, 1), padding 0.2s cubic-bezier(0.16, 1, 0.3, 1), gap 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), height 0.2s cubic-bezier(0.16, 1, 0.3, 1), padding 0.2s cubic-bezier(0.16, 1, 0.3, 1), gap 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, filter 0.2s ease;
   overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
 }
 
 .summaryCard:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  filter: brightness(1.15);
+}
+
+.summaryCard:focus-visible {
+  outline: 2px solid var(--primary-color, #ff8a00);
+  outline-offset: 2px;
+}
+
+.summaryCard:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  filter: brightness(0.95);
 }
 
 .cardInfo {

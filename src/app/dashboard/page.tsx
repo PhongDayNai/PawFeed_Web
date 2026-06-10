@@ -224,7 +224,17 @@ export default function DashboardPage() {
         <>
           {/* Summary Cards Grid */}
           <div className={styles.summaryGrid}>
-            <div className={`${styles.summaryCard} ${styles.blueGradient} glass`}>
+            <div
+              className={`${styles.summaryCard} ${styles.blueGradient} glass`}
+              onClick={() => router.push('/devices')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  router.push('/devices');
+                }
+              }}
+            >
               <div className={styles.cardInfo}>
                 <Smartphone size={24} />
                 <span>{t('dashboard.total_feeders')}</span>
@@ -232,7 +242,17 @@ export default function DashboardPage() {
               <div className={styles.cardValue}>{data.deviceCount}</div>
             </div>
 
-            <div className={`${styles.summaryCard} ${styles.greenGradient} glass`}>
+            <div
+              className={`${styles.summaryCard} ${styles.greenGradient} glass`}
+              onClick={() => router.push('/devices?status=online')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  router.push('/devices?status=online');
+                }
+              }}
+            >
               <div className={styles.cardInfo}>
                 <Wifi size={24} />
                 <span>{t('dashboard.online_feeders')}</span>
@@ -240,7 +260,17 @@ export default function DashboardPage() {
               <div className={styles.cardValue}>{data.onlineCount}</div>
             </div>
 
-            <div className={`${styles.summaryCard} ${styles.grayGradient} glass`}>
+            <div
+              className={`${styles.summaryCard} ${styles.grayGradient} glass`}
+              onClick={() => router.push('/devices?status=offline')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  router.push('/devices?status=offline');
+                }
+              }}
+            >
               <div className={styles.cardInfo}>
                 <WifiOff size={24} />
                 <span>{t('dashboard.offline_feeders')}</span>
@@ -248,7 +278,17 @@ export default function DashboardPage() {
               <div className={styles.cardValue}>{data.offlineCount}</div>
             </div>
 
-            <div className={`${styles.summaryCard} ${styles.orangeGradient} glass`}>
+            <div
+              className={`${styles.summaryCard} ${styles.orangeGradient} glass`}
+              onClick={() => router.push('/activity')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  router.push('/activity');
+                }
+              }}
+            >
               <div className={styles.cardInfo}>
                 <Cookie size={24} />
                 <span>{t('dashboard.total_feedings')}</span>
