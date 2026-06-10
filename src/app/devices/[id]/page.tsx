@@ -29,7 +29,7 @@ export default function DeviceDetailPage() {
   const router = useRouter();
   const deviceId = params.id as string;
   
-  const { recentEvent } = useApp();
+  const { user, recentEvent } = useApp();
   const { t } = useLanguage();
 
   const [device, setDevice] = useState<Device | null>(null);
@@ -334,10 +334,12 @@ export default function DeviceDetailPage() {
               <span>{t('device_detail.uptime')}</span>
               <strong>{formatUptime(status?.uptimeSec ?? null)}</strong>
             </div>
-            <div className={styles.infoRow}>
-              <span>{t('device_detail.heap_memory')}</span>
-              <strong>{status?.heap ? `${status.heap.toLocaleString()} bytes` : 'N/A'}</strong>
-            </div>
+            {user?.role !== 'user' && (
+              <div className={styles.infoRow}>
+                <span>{t('device_detail.heap_memory')}</span>
+                <strong>{status?.heap ? `${status.heap.toLocaleString()} bytes` : 'N/A'}</strong>
+              </div>
+            )}
           </div>
         </PawCard>
       </div>
