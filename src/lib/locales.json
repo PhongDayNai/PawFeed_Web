@@ -117,7 +117,11 @@
       "wifi_success": "Config file saved successfully. Please copy it to your device's storage root.",
       "change_wifi_checkbox": "Change WiFi configuration",
       "current_wifi_ssid": "Current WiFi SSID:",
-      "regenerate_desc": "WiFi credentials have been saved. Click Confirm to download the configuration file using saved settings."
+      "regenerate_desc": "WiFi credentials have been saved. Click Confirm to download the configuration file using saved settings.",
+      "load_failed_err": "Failed to load device details.",
+      "rename_failed_err": "Failed to rename device.",
+      "wifi_failed_err": "Failed to generate WiFi config.",
+      "unlink_failed_err": "Failed to unlink device."
     },
     "feed": {
       "duration_label": "Feed Duration",
@@ -201,7 +205,8 @@
       "title": "Devices",
       "subtitle": "Manage all your smart pet feeder devices",
       "no_devices": "No devices connected",
-      "add_feeder_btn": "Link New Feeder"
+      "add_feeder_btn": "Link New Feeder",
+      "load_failed_err": "Failed to load device list."
     },
     "activity": {
       "title": "Activity",
@@ -215,7 +220,20 @@
       "event_device_error": "Device error: {error}",
       "event_config_applied": "Configuration applied successfully (Version: {version})",
       "event_device_status_updated": "Connection status updated",
-      "event_other": "Other system event"
+      "event_other": "Other system event",
+      "load_failed_err": "Failed to load activity logs."
+    },
+    "errors": {
+      "api_failed": "Failed to connect to the server. Please try again later.",
+      "network_error": "Network connection error. Please check your internet connection.",
+      "unauthorized": "Session expired. Please log in again.",
+      "invalid_email_or_password": "Invalid email or password.",
+      "invalid_credentials": "Login failed. Please check your credentials.",
+      "email_already_in_use": "Email is already in use.",
+      "device_not_found": "Feeder device not found.",
+      "device_already_linked": "This device is already linked to another account.",
+      "invalid_pairing_code": "Incorrect machine code or pairing code.",
+      "unknown": "An unexpected error occurred."
     }
   },
   "vi": {
@@ -336,7 +354,11 @@
       "wifi_success": "Đã tạo file cấu hình thành công. Vui lòng copy tệp tin vào bộ nhớ thiết bị của bạn.",
       "change_wifi_checkbox": "Thay đổi cấu hình WiFi",
       "current_wifi_ssid": "WiFi hiện tại:",
-      "regenerate_desc": "Cấu hình WiFi đã được lưu. Nhấn Xác nhận để tải lại file cấu hình với thông tin cũ."
+      "regenerate_desc": "Cấu hình WiFi đã được lưu. Nhấn Xác nhận để tải lại file cấu hình với thông tin cũ.",
+      "load_failed_err": "Lỗi tải thông tin chi tiết thiết bị.",
+      "rename_failed_err": "Đổi tên thiết bị thất bại.",
+      "wifi_failed_err": "Tạo cấu hình WiFi thất bại.",
+      "unlink_failed_err": "Hủy liên kết thiết bị thất bại."
     },
     "feed": {
       "duration_label": "Thời gian nhả hạt",
@@ -420,7 +442,8 @@
       "title": "Thiết bị",
       "subtitle": "Quản lý toàn bộ thiết bị máy cho thú cưng ăn thông minh",
       "no_devices": "Chưa kết nối thiết bị nào",
-      "add_feeder_btn": "Kết nối máy mới"
+      "add_feeder_btn": "Kết nối máy mới",
+      "load_failed_err": "Lỗi tải danh sách thiết bị."
     },
     "activity": {
       "title": "Nhật ký hoạt động",
@@ -434,7 +457,20 @@
       "event_device_error": "Thiết bị gặp lỗi: {error}",
       "event_config_applied": "Áp dụng cấu hình thành công (Phiên bản: {version})",
       "event_device_status_updated": "Cập nhật trạng thái kết nối",
-      "event_other": "Sự kiện hệ thống khác"
+      "event_other": "Sự kiện hệ thống khác",
+      "load_failed_err": "Lỗi tải nhật ký hoạt động."
+    },
+    "errors": {
+      "api_failed": "Kết nối tới máy chủ thất bại. Vui lòng thử lại sau.",
+      "network_error": "Lỗi kết nối mạng. Vui lòng kiểm tra lại đường truyền.",
+      "unauthorized": "Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.",
+      "invalid_email_or_password": "Email hoặc mật khẩu không chính xác.",
+      "invalid_credentials": "Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản.",
+      "email_already_in_use": "Email này đã được sử dụng.",
+      "device_not_found": "Không tìm thấy thiết bị máy cho ăn.",
+      "device_already_linked": "Thiết bị này đã được liên kết với một tài khoản khác.",
+      "invalid_pairing_code": "Mã thiết bị hoặc mã liên kết không chính xác.",
+      "unknown": "Đã xảy ra lỗi không xác định."
     }
   }
 }
