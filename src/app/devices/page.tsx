@@ -9,7 +9,7 @@ import { getFriendlyErrorMessage } from '../../lib/error';
 import { Device } from '../../lib/types';
 import { PawCard } from '../../components/PawCard';
 import { PawButton } from '../../components/PawButton';
-import { Smartphone, Plus, RefreshCw, Cpu, KeyRound, AlertTriangle, ChevronRight, Cookie } from 'lucide-react';
+import { Smartphone, Plus, RefreshCw, Cpu, KeyRound, AlertTriangle, ChevronRight, Cookie, Search, Wifi, WifiOff } from 'lucide-react';
 import styles from './page.module.css';
 
 export default function DevicesPage() {
@@ -27,7 +27,57 @@ export default function DevicesPage() {
   const [linking, setLinking] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
 
+  const [filterStatus, setFilterStatus] = useState<'all' | 'online' | 'offline'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
   const devices = sharedDevices || [];
+
+  // Sync status filter from URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const statusParam = params.get('status');
+      if (statusParam === 'online' || statusParam === 'offline') {
+        setFilterStatus(statusParam);
+      }
+    }
+  }, []);
+
+  const handleFilterChange = (status: 'all' | 'online' | 'offline') => {
+    setFilterStatus(status);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (status === 'all') {
+        params.delete('status');
+      } else {
+        params.set('status', status);
+      }
+      const newSearch = params.toString();
+      router.replace(`/devices${newSearch ? `?${newSearch}` : ''}`);
+    }
+  };
+
+  // Filter devices list
+  const filteredDevices = devices.filter((device) => {
+    const matchesStatus =
+      filterStatus === 'all' ||
+      (filterStatus === 'online' && device.online) ||
+      (filterStatus === 'offline' && !device.online);
+
+    const query = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !query ||
+      (device.displayName || '').toLowerCase().includes(query) ||
+      device.deviceId.toLowerCase().includes(query) ||
+      device.machineCode.toLowerCase().includes(query);
+
+    return matchesStatus && matchesSearch;
+  });
+
+  // Count devices for filters
+  const totalCount = devices.length;
+  const onlineCount = devices.filter((d) => d.online).length;
+  const offlineCount = devices.filter((d) => !d.online).length;
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -124,50 +174,116 @@ export default function DevicesPage() {
             </PawCard>
           </div>
         ) : (
-          <div className={styles.deviceList}>
-            {devices.map((device) => (
-              <PawCard key={device.deviceId} className={styles.deviceCard}>
-                <div className={styles.cardHeader}>
-                  <div>
-                    <h3 className={styles.deviceName}>{device.displayName || t('common.unknown')}</h3>
-                    <span className={styles.deviceId}>{device.deviceId}</span>
-                  </div>
-                  <span className={`badge ${device.online ? 'badge-online' : 'badge-offline'}`}>
-                    {device.online ? t('common.online') : t('common.offline')}
-                  </span>
-                </div>
-                <div className={styles.cardBody}>
-                  <div className={styles.detailRow}>
-                    <span>{t('device_detail.machine_code')}:</span>
-                    <strong>{device.machineCode}</strong>
-                  </div>
-                  <div className={styles.detailRow}>
-                    <span>{t('device_detail.firmware_version')}:</span>
-                    <strong>{device.firmwareVersion || 'N/A'}</strong>
-                  </div>
-                </div>
-                <div className={styles.cardActions}>
+          <>
+            {/* Search and Filter Controls */}
+            <div className={styles.controlsRow}>
+              <div className={styles.searchBox}>
+                <Search className={styles.searchIcon} size={18} />
+                <input
+                  type="text"
+                  placeholder={t('devices.search_placeholder')}
+                  className={styles.searchInput}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.filterTabs}>
+                <button
+                  type="button"
+                  className={`${styles.filterBtn} ${filterStatus === 'all' ? styles.activeFilter : ''}`}
+                  onClick={() => handleFilterChange('all')}
+                >
+                  <Smartphone size={14} />
+                  <span>{t('devices.filter_all')}</span>
+                  <span className={styles.filterCount}>{totalCount}</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.filterBtn} ${filterStatus === 'online' ? styles.activeFilter : ''}`}
+                  onClick={() => handleFilterChange('online')}
+                >
+                  <Wifi size={14} style={{ color: filterStatus === 'online' ? '#4caf50' : 'inherit' }} />
+                  <span>{t('common.online')}</span>
+                  <span className={styles.filterCount}>{onlineCount}</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.filterBtn} ${filterStatus === 'offline' ? styles.activeFilter : ''}`}
+                  onClick={() => handleFilterChange('offline')}
+                >
+                  <WifiOff size={14} style={{ color: filterStatus === 'offline' ? '#f44336' : 'inherit' }} />
+                  <span>{t('common.offline')}</span>
+                  <span className={styles.filterCount}>{offlineCount}</span>
+                </button>
+              </div>
+            </div>
+
+            {filteredDevices.length === 0 ? (
+              <div className={styles.emptyContainer} key="empty_results">
+                <PawCard hoverable={false} className={styles.emptyCard}>
+                  <AlertTriangle size={64} className={styles.emptyIcon} />
+                  <h3>{t('devices.no_results_title')}</h3>
+                  <p>{t('devices.no_results_desc')}</p>
                   <PawButton
                     variant="outline"
-                    onClick={() => router.push(`/devices/${device.deviceId}`)}
-                    className={styles.actionBtn}
+                    onClick={() => {
+                      setSearchQuery('');
+                      handleFilterChange('all');
+                    }}
+                    style={{ marginTop: '24px' }}
                   >
-                    {t('common.details')}
-                    <ChevronRight size={16} />
+                    {t('devices.clear_filters')}
                   </PawButton>
-                  <PawButton
-                    variant="secondary"
-                    onClick={() => router.push(`/devices/${device.deviceId}/feed`)}
-                    disabled={!device.online}
-                    className={styles.actionBtn}
-                  >
-                    {t('common.feed_now')}
-                    <Cookie size={16} />
-                  </PawButton>
-                </div>
-              </PawCard>
-            ))}
-          </div>
+                </PawCard>
+              </div>
+            ) : (
+              <div className={styles.deviceList} key={`${filterStatus}_${searchQuery}`}>
+                {filteredDevices.map((device) => (
+                  <PawCard key={device.deviceId} className={styles.deviceCard}>
+                    <div className={styles.cardHeader}>
+                      <div>
+                        <h3 className={styles.deviceName}>{device.displayName || t('common.unknown')}</h3>
+                        <span className={styles.deviceId}>{device.deviceId}</span>
+                      </div>
+                      <span className={`badge ${device.online ? 'badge-online' : 'badge-offline'}`}>
+                        {device.online ? t('common.online') : t('common.offline')}
+                      </span>
+                    </div>
+                    <div className={styles.cardBody}>
+                      <div className={styles.detailRow}>
+                        <span>{t('device_detail.machine_code')}:</span>
+                        <strong>{device.machineCode}</strong>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span>{t('device_detail.firmware_version')}:</span>
+                        <strong>{device.firmwareVersion || 'N/A'}</strong>
+                      </div>
+                    </div>
+                    <div className={styles.cardActions}>
+                      <PawButton
+                        variant="outline"
+                        onClick={() => router.push(`/devices/${device.deviceId}`)}
+                        className={styles.actionBtn}
+                      >
+                        {t('common.details')}
+                        <ChevronRight size={16} />
+                      </PawButton>
+                      <PawButton
+                        variant="secondary"
+                        onClick={() => router.push(`/devices/${device.deviceId}/feed`)}
+                        disabled={!device.online}
+                        className={styles.actionBtn}
+                      >
+                        {t('common.feed_now')}
+                        <Cookie size={16} />
+                      </PawButton>
+                    </div>
+                  </PawCard>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 

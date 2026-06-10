@@ -206,7 +206,12 @@
       "subtitle": "Manage all your smart pet feeder devices",
       "no_devices": "No devices connected",
       "add_feeder_btn": "Link New Feeder",
-      "load_failed_err": "Failed to load device list."
+      "load_failed_err": "Failed to load device list.",
+      "search_placeholder": "Search by name, ID or code...",
+      "filter_all": "All",
+      "no_results_title": "No Feeders Found",
+      "no_results_desc": "No devices match your search query or status filter.",
+      "clear_filters": "Clear Filters"
     },
     "activity": {
       "title": "Activity",
@@ -443,7 +448,12 @@
       "subtitle": "Quản lý toàn bộ thiết bị máy cho thú cưng ăn thông minh",
       "no_devices": "Chưa kết nối thiết bị nào",
       "add_feeder_btn": "Kết nối máy mới",
-      "load_failed_err": "Lỗi tải danh sách thiết bị."
+      "load_failed_err": "Lỗi tải danh sách thiết bị.",
+      "search_placeholder": "Tìm theo tên, ID hoặc mã...",
+      "filter_all": "Tất cả",
+      "no_results_title": "Không tìm thấy thiết bị",
+      "no_results_desc": "Không có thiết bị nào khớp với từ khóa tìm kiếm hoặc bộ lọc trạng thái.",
+      "clear_filters": "Xóa bộ lọc"
     },
     "activity": {
       "title": "Nhật ký hoạt động",
