@@ -85,7 +85,7 @@
   gap: calc(16px - 16px * var(--scroll-progress, 0));
   box-shadow: var(--card-shadow);
   border: 1px solid var(--border-color);
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease, height 0.2s cubic-bezier(0.16, 1, 0.3, 1), padding 0.2s cubic-bezier(0.16, 1, 0.3, 1), gap 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
 }
 
@@ -101,7 +101,7 @@
   font-weight: 600;
   opacity: 0.9;
   width: calc(100% - var(--scroll-progress, 0) * 55%);
-  transition: width 0.1s ease;
+  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cardValue {
@@ -110,7 +110,7 @@
   font-weight: 800;
   line-height: 1;
   text-align: right;
-  transition: font-size 0.1s ease;
+  transition: font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Gradient themes */
