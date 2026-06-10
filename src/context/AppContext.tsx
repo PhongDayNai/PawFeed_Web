@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { User, AuthResponse, Device, DashboardData } from '../lib/types';
+import { User, AuthResponse, Device, DashboardData, FeedingHistory } from '../lib/types';
 import { authApi, deviceApi } from '../lib/api';
 import { useSse, SseEventData } from '../lib/useSse';
 
@@ -23,6 +23,11 @@ interface AppContextType {
   dashboardData: DashboardData | null;
   dashboardLoading: boolean;
   fetchDashboardData: (isRefresh?: boolean) => Promise<void>;
+  // Shared logs cache
+  feedingHistories: Record<string, FeedingHistory[]>;
+  deviceEvents: Record<string, any[]>;
+  logsLoading: boolean;
+  fetchLogsForDevice: (deviceId: string, isRefresh?: boolean) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -40,9 +45,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [dashboardLoading, setDashboardLoading] = useState<boolean>(false);
 
+  // Shared logs cache state
+  const [feedingHistories, setFeedingHistories] = useState<Record<string, FeedingHistory[]>>({});
+  const [deviceEvents, setDeviceEvents] = useState<Record<string, any[]>>({});
+  const [logsLoading, setLogsLoading] = useState<boolean>(false);
+
   // Shared state refs to prevent infinite loop in fetch callbacks
   const devicesRef = React.useRef<Device[] | null>(null);
   const dashboardDataRef = React.useRef<DashboardData | null>(null);
+  const feedingHistoriesRef = React.useRef<Record<string, FeedingHistory[]>>({});
+  const deviceEventsRef = React.useRef<Record<string, any[]>>({});
 
   useEffect(() => {
     devicesRef.current = devices;
@@ -51,6 +63,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     dashboardDataRef.current = dashboardData;
   }, [dashboardData]);
+
+  useEffect(() => {
+    feedingHistoriesRef.current = feedingHistories;
+  }, [feedingHistories]);
+
+  useEffect(() => {
+    deviceEventsRef.current = deviceEvents;
+  }, [deviceEvents]);
 
   // Initialize Auth from localStorage
   useEffect(() => {
@@ -109,6 +129,39 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const fetchLogsForDevice = useCallback(async (deviceId: string, isRefresh = false) => {
+    if (!localStorage.getItem('accessToken') || !deviceId) return;
+    const hasCachedData = feedingHistoriesRef.current[deviceId] && deviceEventsRef.current[deviceId];
+    if (!isRefresh && !hasCachedData) {
+      setLogsLoading(true);
+    }
+    try {
+      const histRes = await deviceApi.getFeedingHistory(deviceId);
+      setFeedingHistories(prev => ({
+        ...prev,
+        [deviceId]: histRes.feedingHistory || []
+      }));
+
+      try {
+        const evRes = await deviceApi.getDeviceEvents(deviceId, 1, 50);
+        setDeviceEvents(prev => ({
+          ...prev,
+          [deviceId]: evRes.events || []
+        }));
+      } catch (e) {
+        console.warn('Failed to fetch events', e);
+        setDeviceEvents(prev => ({
+          ...prev,
+          [deviceId]: prev[deviceId] || []
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to fetch logs', err);
+    } finally {
+      setLogsLoading(false);
+    }
+  }, []);
+
   // Fetch initial data when authenticated
   useEffect(() => {
     if (isAuthenticated) {
@@ -117,6 +170,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } else {
       setDevices(null);
       setDashboardData(null);
+      setFeedingHistories({});
+      setDeviceEvents({});
     }
   }, [isAuthenticated, fetchDevices, fetchDashboardData]);
 
@@ -135,9 +190,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (['device_status_updated', 'feeding_completed', 'config_applied'].includes(recentEvent.type)) {
         fetchDashboardData(true);
         fetchDevices(true);
+        const devId = recentEvent.deviceId;
+        if (devId && (feedingHistoriesRef.current[devId] || deviceEventsRef.current[devId])) {
+          fetchLogsForDevice(devId, true);
+        }
       }
     }
-  }, [recentEvent, isAuthenticated, fetchDashboardData, fetchDevices]);
+  }, [recentEvent, isAuthenticated, fetchDashboardData, fetchDevices, fetchLogsForDevice]);
 
   const login = async (credentials: Record<string, string>) => {
     setIsLoading(true);
@@ -169,6 +228,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(false);
       setDevices(null);
       setDashboardData(null);
+      setFeedingHistories({});
+      setDeviceEvents({});
     } finally {
       setIsLoading(false);
     }
@@ -199,6 +260,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         dashboardData,
         dashboardLoading,
         fetchDashboardData,
+        feedingHistories,
+        deviceEvents,
+        logsLoading,
+        fetchLogsForDevice,
       }}
     >
       {children}

@@ -12,16 +12,19 @@ import styles from './page.module.css';
 
 export default function ActivityPage() {
   const { language, t } = useLanguage();
-  const { devices: sharedDevices, devicesLoading, fetchDevices: fetchSharedDevices } = useApp();
+  const { 
+    devices: sharedDevices, 
+    devicesLoading, 
+    fetchDevices: fetchSharedDevices,
+    feedingHistories,
+    deviceEvents,
+    logsLoading,
+    fetchLogsForDevice
+  } = useApp();
 
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
   const [activeTab, setActiveTab] = useState<number>(0); // 0: History, 1: Events
-  const [loadingLogs, setLoadingLogs] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Data states
-  const [history, setHistory] = useState<FeedingHistory[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
 
   const devices = sharedDevices || [];
 
@@ -39,33 +42,29 @@ export default function ActivityPage() {
     }
   }, [devices, selectedDeviceId]);
 
-  const fetchLogs = useCallback(async (deviceId: string) => {
-    if (!deviceId) return;
-    setLoadingLogs(true);
-    setError(null);
-    try {
-      const histRes = await deviceApi.getFeedingHistory(deviceId);
-      setHistory(histRes.feedingHistory || []);
-
-      try {
-        const evRes = await deviceApi.getDeviceEvents(deviceId, 1, 50);
-        setEvents(evRes.events || []);
-      } catch (e) {
-        console.warn('Failed to fetch events', e);
-        setEvents([]);
-      }
-    } catch (err: any) {
-      setError(err.message || t('nav.toast_error', { message: err.message || '' }));
-    } finally {
-      setLoadingLogs(false);
-    }
-  }, [t]);
-
+  // Fetch logs when device is selected and not loaded yet
   useEffect(() => {
     if (selectedDeviceId) {
-      fetchLogs(selectedDeviceId);
+      const hasCachedData = feedingHistories[selectedDeviceId] && deviceEvents[selectedDeviceId];
+      if (!hasCachedData && !logsLoading) {
+        fetchLogsForDevice(selectedDeviceId);
+      }
     }
-  }, [selectedDeviceId, fetchLogs]);
+  }, [selectedDeviceId, feedingHistories, deviceEvents, logsLoading, fetchLogsForDevice]);
+
+  const history = selectedDeviceId ? (feedingHistories[selectedDeviceId] || []) : [];
+  const events = selectedDeviceId ? (deviceEvents[selectedDeviceId] || []) : [];
+
+  const handleRefreshLogs = useCallback(async () => {
+    if (selectedDeviceId) {
+      setError(null);
+      try {
+        await fetchLogsForDevice(selectedDeviceId, true);
+      } catch (err: any) {
+        setError(err.message || t('nav.toast_error', { message: err.message || '' }));
+      }
+    }
+  }, [selectedDeviceId, fetchLogsForDevice, t]);
 
   const formatTime = (isoString: string | null) => {
     if (!isoString) return 'N/A';
@@ -127,6 +126,8 @@ export default function ActivityPage() {
     );
   }
 
+  const hasData = history.length > 0 || events.length > 0;
+
   return (
     <div className="container animate-fade-in" style={{ padding: '32px 24px', maxWidth: '720px', minHeight: 'calc(100vh - 120px)' }}>
       {/* Header */}
@@ -136,8 +137,8 @@ export default function ActivityPage() {
           <p className={styles.subtitle}>{t('activity.subtitle')}</p>
         </div>
         {selectedDeviceId && (
-          <PawButton variant="outline" onClick={() => fetchLogs(selectedDeviceId)} disabled={loadingLogs}>
-            <RefreshCw className={loadingLogs ? 'spinning' : ''} size={16} />
+          <PawButton variant="outline" onClick={handleRefreshLogs} disabled={logsLoading}>
+            <RefreshCw className={logsLoading ? 'spinning' : ''} size={16} />
           </PawButton>
         )}
       </div>
@@ -194,7 +195,7 @@ export default function ActivityPage() {
           )}
 
           {/* Logs Content */}
-          {loadingLogs ? (
+          {logsLoading && !hasData ? (
             <div className={styles.loadingLogs}>
               <RefreshCw className="spinning" size={30} />
               <p>{t('common.loading')}</p>
