@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Home, User, LogOut, WifiOff, Bell, Loader, Globe, Smartphone, History } from 'lucide-react';
+import { Home, User, LogOut, WifiOff, Bell, Loader, Globe, Smartphone, History, RefreshCw } from 'lucide-react';
 import styles from './Header.module.css';
 
 export function Header() {
-  const { user, isAuthenticated, logout, sseConnected, networkOffline, recentEvent } = useApp();
+  const { user, isAuthenticated, logout, sseConnected, networkOffline, recentEvent, devicesLoading, dashboardLoading } = useApp();
   const { language, setLanguage, t } = useLanguage();
   const pathname = usePathname();
   const router = useRouter();
@@ -83,6 +83,14 @@ export function Header() {
         <div className={styles.syncBanner}>
           <Loader size={14} className={styles.spinning} />
           <span>{t('nav.syncing_banner')}</span>
+        </div>
+      )}
+
+      {/* Background Syncing Indicator */}
+      {!networkOffline && sseConnected && (devicesLoading || dashboardLoading) && (
+        <div className={styles.syncIndicator}>
+          <RefreshCw size={14} className={styles.spinning} />
+          <span>{t('device_detail.syncing')}</span>
         </div>
       )}
 
