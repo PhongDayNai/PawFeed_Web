@@ -388,3 +388,8 @@ a {
   animation: spin 0.8s linear infinite;
 }
 
+.spinning {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
