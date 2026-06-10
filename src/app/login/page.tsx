@@ -7,7 +7,7 @@ import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { PawCard } from '../../components/PawCard';
 import { PawButton } from '../../components/PawButton';
-import { Mail, Lock, ShieldAlert } from 'lucide-react';
+import { Mail, Lock, ShieldAlert, Eye, EyeOff } from 'lucide-react';
 import styles from './page.module.css';
 
 export default function LoginPage() {
@@ -17,6 +17,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -77,14 +78,22 @@ export default function LoginPage() {
               <div className={styles.inputWrapper}>
                 <Lock className={styles.inputIcon} size={18} />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder={t('login.password_placeholder')}
                   className="input-field"
-                  style={{ paddingLeft: '44px' }}
+                  style={{ paddingLeft: '44px', paddingRight: '44px' }}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={submitting}
                 />
+                <button
+                  type="button"
+                  className={styles.passwordToggle}
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
