@@ -38,6 +38,39 @@ export default function DashboardPage() {
 
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (typeof window === 'undefined') return;
+      
+      if (window.innerWidth > 992) {
+        setIsScrolled(false);
+        if (typeof document !== 'undefined') {
+          document.documentElement.style.setProperty('--scroll-progress', '0');
+        }
+        return;
+      }
+      
+      const scrollY = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+      const maxScroll = 100; // Scroll distance in pixels to complete the transition
+      const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
+      
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.setProperty('--scroll-progress', String(progress));
+      }
+      setIsScrolled(scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -63,6 +96,7 @@ export default function DashboardPage() {
     if (!dashboard) return;
 
     const handleWheel = (e: WheelEvent) => {
+      if (typeof window !== 'undefined' && window.innerWidth <= 992) return;
       const delta = e.deltaY;
       const currentOffset = scrollOffsetRef.current;
       
@@ -98,6 +132,7 @@ export default function DashboardPage() {
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      if (typeof window !== 'undefined' && window.innerWidth <= 992) return;
       const touchY = e.touches[0].clientY;
       const delta = touchStartYRef.current - touchY;
       touchStartYRef.current = touchY;
@@ -223,7 +258,7 @@ export default function DashboardPage() {
       {data && (
         <>
           {/* Summary Cards Grid */}
-          <div className={styles.summaryGrid}>
+          <div className={`${styles.summaryGrid} ${isScrolled ? styles.scrolled : ''}`}>
             <div
               className={`${styles.summaryCard} ${styles.blueGradient} glass`}
               onClick={() => router.push('/devices')}
