@@ -245,7 +245,7 @@ export default function DeviceDetailPage() {
             setShowEditName(true);
           }}>
             <Settings size={16} />
-            {t('device_detail.rename')}
+            <span className={styles.btnText}>{t('device_detail.rename')}</span>
           </PawButton>
         </div>
       </div>
