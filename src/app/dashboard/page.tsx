@@ -33,33 +33,48 @@ export default function DashboardPage() {
   const dashboardRef = React.useRef<HTMLDivElement>(null);
   const feedersListRef = React.useRef<HTMLDivElement>(null);
   const historyListRef = React.useRef<HTMLDivElement>(null);
+  const summaryGridRef = React.useRef<HTMLDivElement>(null);
   const scrollOffsetRef = React.useRef(0);
   const touchStartYRef = React.useRef(0);
+  const lastProgressRef = React.useRef(0);
 
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       if (typeof window === 'undefined') return;
       
       if (window.innerWidth > 992) {
-        setIsScrolled(false);
-        if (typeof document !== 'undefined') {
-          document.documentElement.style.setProperty('--scroll-progress', '0');
+        if (lastProgressRef.current !== 0) {
+          lastProgressRef.current = 0;
+          if (dashboardRef.current) {
+            dashboardRef.current.style.setProperty('--scroll-progress', '0');
+          }
+        }
+        if (summaryGridRef.current) {
+          summaryGridRef.current.classList.remove(styles.scrolled);
         }
         return;
       }
       
       const scrollY = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
-      const maxScroll = 100; // Scroll distance in pixels to complete the transition
-      const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
+      const scrolled = scrollY > 40;
+      const progress = scrolled ? 1 : 0;
       
-      if (typeof document !== 'undefined') {
-        document.documentElement.style.setProperty('--scroll-progress', String(progress));
+      if (lastProgressRef.current !== progress) {
+        lastProgressRef.current = progress;
+        if (dashboardRef.current) {
+          dashboardRef.current.style.setProperty('--scroll-progress', String(progress));
+        }
+        if (summaryGridRef.current) {
+          if (scrolled) {
+            summaryGridRef.current.classList.add(styles.scrolled);
+          } else {
+            summaryGridRef.current.classList.remove(styles.scrolled);
+          }
+        }
       }
-      setIsScrolled(scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -90,6 +105,69 @@ export default function DashboardPage() {
       fetchDashboardData();
     }
   }, [dashboardData, dashboardLoading, fetchDashboardData]);
+
+  /*
+   * Compute the per-card translate offsets needed to morph 2x2 -> 1x4.
+   * The card's WIDTH/HEIGHT snap to 1x4 values via CSS (no transition - one
+   * layout pass). Only the POSITION morphs smoothly, via `transform: translate`,
+   * which is GPU-composited. The translate amounts are expressed as a
+   * percentage of the card's EXPANDED size (50% wide × 110px tall), so the
+   * CSS percentage resolves to the correct pixel offset at any viewport width.
+   */
+  useEffect(() => {
+    const computeCardTransforms = () => {
+      const grid = summaryGridRef.current;
+      if (!grid) return;
+
+      const w = grid.clientWidth;
+      if (w === 0) return;
+
+      // Constants kept in sync with page.module.css (mobile @media).
+      const GAP = 12;
+      const EXPANDED_H = 110;
+      const COLLAPSED_H = 50;
+      const COLLAPSED_GRID_H = 80;
+      // Vertical position is handled directly by CSS top: 15px on .scrolled .summaryCard.
+      // JS only needs to compute horizontal --tx offsets.
+      const COLLAPSED_TOP = (COLLAPSED_GRID_H - COLLAPSED_H) / 2; // = 15px
+
+      // 2x2 and 1x4 cell widths derived from the current grid width.
+      const cellW2x2 = (w - GAP) / 2;
+      const cellW1x4 = (w - GAP * 3) / 4;
+
+      // 2x2 anchor positions in grid pixels (top-left of each cell).
+      // Use COLLAPSED_TOP for all top values so --ty computes to 0
+      // (vertical offset is handled by CSS, not transform).
+      const pos2x2 = [
+        { left: 0, top: COLLAPSED_TOP },
+        { left: cellW2x2 + GAP, top: COLLAPSED_TOP },
+        { left: 0, top: COLLAPSED_TOP },
+        { left: cellW2x2 + GAP, top: COLLAPSED_TOP },
+      ];
+
+      // 1x4 anchor positions in grid pixels.
+      const pos1x4 = [
+        { left: 0, top: COLLAPSED_TOP },
+        { left: cellW1x4 + GAP, top: COLLAPSED_TOP },
+        { left: (cellW1x4 + GAP) * 2, top: COLLAPSED_TOP },
+        { left: (cellW1x4 + GAP) * 3, top: COLLAPSED_TOP },
+      ];
+
+      const cards = grid.querySelectorAll<HTMLElement>(`.${styles.summaryCard}`);
+      cards.forEach((card, i) => {
+        if (i >= 4) return;
+        // Only apply horizontal translation via --tx.
+        // Vertical (--ty) is always 0 since CSS top handles it.
+        const tx = pos1x4[i].left - pos2x2[i].left;
+        card.style.setProperty('--tx', `${tx}px`);
+        card.style.setProperty('--ty', '0px');
+      });
+    };
+
+    computeCardTransforms();
+    window.addEventListener('resize', computeCardTransforms);
+    return () => window.removeEventListener('resize', computeCardTransforms);
+  }, [dashboardData]);
 
   useEffect(() => {
     const dashboard = dashboardRef.current;
@@ -258,9 +336,9 @@ export default function DashboardPage() {
       {data && (
         <>
           {/* Summary Cards Grid */}
-          <div className={`${styles.summaryGrid} ${isScrolled ? styles.scrolled : ''}`}>
+          <div className={styles.summaryGrid} ref={summaryGridRef}>
             <div
-              className={`${styles.summaryCard} ${styles.blueGradient} glass`}
+              className={`${styles.summaryCard} ${styles.blueGradient}`}
               onClick={() => router.push('/devices')}
               role="button"
               tabIndex={0}
@@ -278,7 +356,7 @@ export default function DashboardPage() {
             </div>
 
             <div
-              className={`${styles.summaryCard} ${styles.greenGradient} glass`}
+              className={`${styles.summaryCard} ${styles.greenGradient}`}
               onClick={() => router.push('/devices?status=online')}
               role="button"
               tabIndex={0}
@@ -296,7 +374,7 @@ export default function DashboardPage() {
             </div>
 
             <div
-              className={`${styles.summaryCard} ${styles.grayGradient} glass`}
+              className={`${styles.summaryCard} ${styles.grayGradient}`}
               onClick={() => router.push('/devices?status=offline')}
               role="button"
               tabIndex={0}
@@ -314,7 +392,7 @@ export default function DashboardPage() {
             </div>
 
             <div
-              className={`${styles.summaryCard} ${styles.orangeGradient} glass`}
+              className={`${styles.summaryCard} ${styles.orangeGradient}`}
               onClick={() => router.push('/activity')}
               role="button"
               tabIndex={0}

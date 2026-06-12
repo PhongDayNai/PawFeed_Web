@@ -136,28 +136,40 @@
   color: hsl(210, 100%, 85%);
   border-color: hsla(217, 90%, 40%, 0.2);
 }
-.blueGradient svg { color: hsl(210, 100%, 75%); }
+
+.blueGradient svg {
+  color: hsl(210, 100%, 75%);
+}
 
 .greenGradient {
   background: linear-gradient(135deg, hsla(142, 70%, 15%, 0.6) 0%, hsla(142, 70%, 25%, 0.4) 100%);
   color: hsl(142, 100%, 85%);
   border-color: hsla(142, 70%, 40%, 0.2);
 }
-.greenGradient svg { color: hsl(142, 100%, 75%); }
+
+.greenGradient svg {
+  color: hsl(142, 100%, 75%);
+}
 
 .grayGradient {
   background: linear-gradient(135deg, hsla(210, 15%, 20%, 0.6) 0%, hsla(210, 15%, 30%, 0.4) 100%);
   color: hsl(210, 15%, 85%);
   border-color: hsla(210, 15%, 40%, 0.2);
 }
-.grayGradient svg { color: hsl(210, 15%, 75%); }
+
+.grayGradient svg {
+  color: hsl(210, 15%, 75%);
+}
 
 .orangeGradient {
   background: linear-gradient(135deg, hsla(25, 95%, 15%, 0.6) 0%, hsla(25, 95%, 25%, 0.4) 100%);
   color: hsl(25, 100%, 85%);
   border-color: hsla(25, 95%, 40%, 0.2);
 }
-.orangeGradient svg { color: hsl(25, 100%, 75%); }
+
+.orangeGradient svg {
+  color: hsl(25, 100%, 75%);
+}
 
 .contentGrid {
   display: grid;
@@ -197,22 +209,27 @@
   flex: 1;
   overflow-y: auto;
   padding-right: 0;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .list::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none;
+  /* Chrome, Safari and Opera */
 }
 
-.deviceCard, .historyCard {
+.deviceCard,
+.historyCard {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   box-shadow: var(--card-shadow);
   transition: all 0.3s ease;
 }
 
-.deviceCard:hover, .historyCard:hover {
+.deviceCard:hover,
+.historyCard:hover {
   border-color: var(--border-color-hover);
   background: var(--bg-surface-hover);
 }
@@ -351,16 +368,19 @@
     overflow: visible;
     background-color: var(--bg-base);
   }
+
   .contentGrid {
     grid-template-columns: 1fr;
     gap: 24px;
     height: auto;
     overflow: visible;
   }
+
   .section {
     height: auto;
     overflow: visible;
   }
+
   .list {
     overflow-y: visible;
     height: auto;
@@ -369,158 +389,177 @@
   .title {
     font-size: 1.8rem;
   }
-  
+
+  /*
+   * Performance strategy for collapse/expand on mobile:
+   * - Cards use `position: absolute` with explicit 2x2 anchors. When .scrolled
+   *   is added, width/height/padding/font-size SNAP to the 1x4 values (one
+   *   layout pass, no transition). The card POSITION morphs smoothly via
+   *   transform: translate(...) — translate is GPU-composited, so it stays
+   *   smooth even when the main thread is busy (SSE, hydration, touch).
+   * - Crucially, the card itself is NOT scaled with transform: scale(...).
+   *   Scaling would shrink the icon and the value text along with the card,
+   *   making them unreadable in the collapsed state. Using real width/height
+   *   keeps the content at its natural, readable size.
+   * - backdrop-filter is intentionally OMITTED on the sticky scrolled bar:
+   *   it was the main source of post-collapse scroll jank on real mobile.
+   */
   .summaryGrid {
     position: sticky;
-    top: 56px; /* Stuck directly below main sticky header */
+    top: 56px;
+    /* Stuck directly below main sticky header */
     z-index: 99;
     background-color: var(--bg-base);
-    --progress: var(--scroll-progress, 0);
-    --gap: calc(12px - 4px * var(--progress)); /* Co từ 12px về 8px khi collapse */
-    
-    /* Width variables for interpolating between 2x2 and 1x4 */
-    --w-2x2: calc((100% - 12px) / 2);
-    /* 1x4 width: Trừ 24px lề grid (12px mỗi bên) và 3 khoảng gap 8px (24px) */
-    --w-1x4: calc((100% - 48px) / 4);
-    
-    /* Interpolated dimensions (110px down to 40px) */
-    --card-w: calc(var(--w-2x2) + (var(--w-1x4) - var(--w-2x2)) * var(--progress));
-    --card-h: calc(110px - 70px * var(--progress));
-    
-    height: calc(232px - 176px * var(--progress)); /* Co từ 232px về 56px khi collapse */
-    margin-bottom: 24px; /* Margin cố định trong document flow để tránh khoảng trống thừa */
+
+    padding: 0;
     width: 100%;
-    transition: background-color 0.2s ease, border-bottom 0.2s ease, box-shadow 0.2s ease;
+    height: 232px;
+    /* expanded - 2 rows of 110 + 12 gap */
+    margin-bottom: 24px;
+    overflow: hidden;
+    /* Clip box-shadow that bleeds beyond the card boundary */
+    will-change: height, background-color;
   }
 
-  /* Scrolled sticky layout bar container styling */
   .summaryGrid.scrolled {
-    background: hsla(222, 47%, 7%, 0.95);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    height: 80px;
+    /* Snap - no transition */
+    background: hsl(222, 47%, 7%);
     border-bottom: 1px solid var(--border-color);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    
-    /* Tràn viền màn hình che content cuộn dưới */
-    margin-left: -16px;
-    margin-right: -16px;
-    width: calc(100% + 32px);
-    padding-left: 16px;
-    padding-right: 16px;
+    /* Keep the same width as the expanded grid. The pixel-based translate
+       values from JS assume a stable grid width, so we don't change it
+       (and avoid the layout cost of full-bleed margin/width recalc). */
+    padding: 0 16px;
   }
 
   .summaryCard {
-    position: absolute !important;
-    width: var(--card-w) !important;
-    height: var(--card-h) !important;
-    min-height: 0 !important;
-    
-    display: flex;
-    flex-flow: row wrap; /* Allows wrapping when progress = 0 */
-    align-items: center;
-    justify-content: space-between;
-    
-    /* Padding dọc co giãn từ 12px về 8px, padding ngang từ 16px về 8px */
-    padding: calc(12px - 4px * var(--progress)) calc(16px - 8px * var(--progress)) !important;
-    border-radius: calc(var(--radius-md) - 8px * var(--progress)) !important;
-    box-shadow: var(--card-shadow);
-    overflow: hidden;
-
-    /* Bỏ transition hình học để tránh bị delay giật khi cuộn */
-    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
-  }
-
-  /* Compact layout when scrolled sticky/fixed to fit perfectly in 1x4 rows */
-  .summaryGrid.scrolled .summaryCard {
-    flex-flow: row nowrap !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    border-radius: 8px !important;
-  }
-
-  /* Fluid positioning coordinates for each card (absolute relative to summaryGrid) */
-  .summaryCard:nth-child(1) {
-    left: calc(12px * var(--progress)) !important; /* Lùi vào 12px khi collapse */
-    top: calc(8px * var(--progress)) !important; /* Căn giữa trong hàng dính 56px */
-  }
-
-  .summaryCard:nth-child(2) {
-    /* Nội suy A * (1 - p) + B * p */
-    left: calc((var(--w-2x2) + 12px) * (1 - var(--progress)) + (var(--w-1x4) + 20px) * var(--progress)) !important;
-    top: calc(8px * var(--progress)) !important;
-  }
-
-  .summaryCard:nth-child(3) {
-    left: calc((2 * var(--w-1x4) + 28px) * var(--progress)) !important;
-    top: calc(122px * (1 - var(--progress)) + 8px * var(--progress)) !important;
-  }
-
-  .summaryCard:nth-child(4) {
-    /* Nội suy A * (1 - p) + B * p */
-    left: calc((var(--w-2x2) + 12px) * (1 - var(--progress)) + (3 * var(--w-1x4) + 36px) * var(--progress)) !important;
-    top: calc(122px * (1 - var(--progress)) + 8px * var(--progress)) !important;
-  }
-
-  /* Inner layout and content scaling */
-  .cardInfo {
+    /* 2x2 default size and position (matches the original layout). */
+    position: absolute;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
-    width: calc(100% - 65% * var(--progress)) !important; /* morphs from 100% to 35% width */
-    transition: all 0.2s ease;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    min-width: 0;
+
+    /* Smooth GPU transition ONLY for the position change. */
+    transform: translate(0, 0);
+    will-change: transform;
+    transition:
+      transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+      background-color 0.2s ease,
+      border-color 0.2s ease;
   }
 
-  .summaryGrid.scrolled .cardInfo {
-    width: auto !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 0 !important;
+  /* When .scrolled is active, the card width/height/padding/radius SNAP
+     to the 1x4 sizes. The translate values (computed in JS as pixel
+     offsets) carry the card from its 2x2 cell to its 1x4 cell smoothly.
+     Vertical position is set directly via top (not via --ty) to avoid
+     nth-child specificity overriding the transform. */
+  .summaryGrid.scrolled .summaryCard {
+    width: calc(25% - 9px);
+    height: 50px;
+    top: 15px; /* Center 50px card in 80px bar: (80-50)/2 = 15px */
+    padding: 6px 10px;
+    border-radius: 8px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    transform: translate(var(--tx, 0px), 0px);
+  }
+
+  /* 2x2 anchors (the layout box each card occupies when expanded). */
+  .summaryCard:nth-child(1) {
+    top: 0;
+    left: 0;
+    width: calc(50% - 6px);
+    height: 110px;
+  }
+
+  .summaryCard:nth-child(2) {
+    top: 0;
+    left: calc(50% + 6px);
+    width: calc(50% - 6px);
+    height: 110px;
+  }
+
+  .summaryCard:nth-child(3) {
+    top: 122px;
+    left: 0;
+    width: calc(50% - 6px);
+    height: 110px;
+  }
+
+  .summaryCard:nth-child(4) {
+    top: 122px;
+    left: calc(50% + 6px);
+    width: calc(50% - 6px);
+    height: 110px;
+  }
+
+  .cardInfo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.9;
+    min-width: 0;
+    width: 100%;
+    flex-shrink: 0;
   }
 
   .cardInfo span {
-    font-size: 0.8rem;
-    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
-    opacity: max(0, calc(1 - var(--progress) * 2)); /* Ẩn dần và biến mất hẳn từ progress = 0.5 */
-    display: block;
-    max-height: max(0px, calc(20px * (1 - var(--progress) * 2)));
-    transition: all 0.2s ease;
+    opacity: 1;
+    max-width: 200px;
+    transition: opacity 0.2s ease, max-width 0.35s ease;
+  }
+
+  .summaryGrid.scrolled .cardInfo {
+    width: auto;
+    flex: 1;
+    flex-shrink: 1;
   }
 
   .summaryGrid.scrolled .cardInfo span {
-    display: none !important;
+    opacity: 0;
+    max-width: 0;
   }
 
   .cardInfo svg {
-    width: calc(24px - 8px * var(--progress)) !important;
-    height: calc(24px - 8px * var(--progress)) !important;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    /* No transform - size changes via width/height (snap, no transition).
+       This keeps the icon looking crisp at the actual rendered pixel size. */
   }
 
   .summaryGrid.scrolled .cardInfo svg {
-    width: 16px !important;
-    height: 16px !important;
+    width: 20px;
+    height: 20px;
   }
 
   .cardValue {
-    font-size: calc(2.2rem - 0.9rem * var(--progress)) !important; /* Từ 2.2rem co dần về 1.3rem */
+    font-family: var(--font-outfit);
+    font-size: 2.2rem;
+    font-weight: 800;
     line-height: 1;
     text-align: right;
-    margin-top: 0 !important;
-    /* Move số dịch lên khi ở trạng thái expand để tránh bị cut-off phần chân số */
-    margin-top: calc(-8px * (1 - var(--progress))) !important;
-    font-weight: 800;
-    width: calc(100% - 65% * var(--progress)) !important;
-    transition: all 0.2s ease;
+    align-self: flex-end;
+    flex-shrink: 0;
+    /* No transform - font-size changes directly (snap, no transition).
+       Same rationale as the icon: clean text rendering at actual size. */
   }
 
   .summaryGrid.scrolled .cardValue {
-    font-size: 1.3rem !important;
-    width: auto !important;
-    text-align: left !important;
-    margin-top: 0 !important;
+    font-size: 1.3rem;
+    align-self: center;
   }
 }
