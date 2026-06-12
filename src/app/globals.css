@@ -401,6 +401,13 @@ a {
   display: inline-block;
 }
 
+body:has(.page-scroll-lock) {
+  padding-bottom: 0 !important;
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+}
+
 /* Responsive Utilities & Layout Adjustments */
 @media (max-width: 768px) {
   body:has(nav) {
