@@ -77,6 +77,11 @@
   background: var(--bg-surface);
 }
 
+.masterText {
+  flex: 1;
+  padding-right: 16px;
+}
+
 .masterText h3 {
   font-size: 1.1rem;
   font-weight: 700;
@@ -412,4 +417,51 @@
   background: var(--primary);
   cursor: pointer;
   box-shadow: 0 0 8px var(--primary-glow);
+}
+
+/* Responsive overrides for schedules and toggles */
+@media (max-width: 576px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .title {
+    font-size: 1.6rem;
+  }
+  .listHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .listHeader h2 {
+    font-size: 1.1rem;
+  }
+  .addBtn {
+    width: 100%;
+    justify-content: center;
+  }
+  .scheduleTimeRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .timeGroup {
+    width: 100%;
+  }
+  .itemActions {
+    width: 100%;
+    justify-content: flex-end;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 12px;
+  }
+  .timeText {
+    font-size: 1.4rem;
+  }
+  .modalOverlay {
+    padding: 16px;
+  }
+  .modal {
+    padding: 20px 16px !important;
+  }
 }

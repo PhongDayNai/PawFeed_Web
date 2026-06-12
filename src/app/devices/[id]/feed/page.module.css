@@ -231,3 +231,9 @@
   width: 100%;
   justify-content: center;
 }
+
+@media (max-width: 480px) {
+  .card {
+    padding: 20px 16px;
+  }
+}
