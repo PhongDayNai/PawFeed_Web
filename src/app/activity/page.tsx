@@ -130,7 +130,7 @@ export default function ActivityPage() {
   const hasData = history.length > 0 || events.length > 0;
 
   return (
-    <div className={`${styles.pageContainer} container animate-fade-in`}>
+    <div className={`${styles.pageContainer} container page-scroll-lock animate-fade-in`}>
       {/* Header */}
       <div className={styles.pageHeader}>
         <div>
