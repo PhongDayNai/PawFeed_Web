@@ -127,7 +127,7 @@ export default function DevicesPage() {
 
   return (
     <>
-      <div className="container animate-fade-in" style={{ padding: '32px 24px', maxWidth: '800px', minHeight: 'calc(100vh - 120px)' }}>
+      <div className={`${styles.pageContainer} container page-scroll-lock animate-fade-in`}>
         {/* Title Header */}
         <div className={styles.pageHeader}>
           <div>
@@ -174,7 +174,7 @@ export default function DevicesPage() {
             </PawCard>
           </div>
         ) : (
-          <>
+          <div className={styles.contentWrapper}>
             {/* Search and Filter Controls */}
             <div className={styles.controlsRow}>
               <div className={styles.searchBox}>
@@ -283,7 +283,7 @@ export default function DevicesPage() {
                 ))}
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
 
