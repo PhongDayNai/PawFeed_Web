@@ -130,18 +130,13 @@ export default function ActivityPage() {
   const hasData = history.length > 0 || events.length > 0;
 
   return (
-    <div className="container animate-fade-in" style={{ padding: '32px 24px', maxWidth: '720px', minHeight: 'calc(100vh - 120px)' }}>
+    <div className={`${styles.pageContainer} container animate-fade-in`}>
       {/* Header */}
       <div className={styles.pageHeader}>
         <div>
           <h1 className={styles.title}>{t('activity.title')}</h1>
           <p className={styles.subtitle}>{t('activity.subtitle')}</p>
         </div>
-        {selectedDeviceId && (
-          <PawButton variant="outline" onClick={handleRefreshLogs} disabled={logsLoading}>
-            <RefreshCw className={logsLoading ? 'spinning' : ''} size={16} />
-          </PawButton>
-        )}
       </div>
 
       {devices.length === 0 ? (
@@ -153,21 +148,34 @@ export default function ActivityPage() {
           </PawCard>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className={styles.contentWrapper}>
           {/* Device Selector dropdown */}
           <div className={styles.selectorCard}>
             <label className={styles.selectorLabel}>{t('activity.select_device')}</label>
-            <select
-              value={selectedDeviceId}
-              onChange={(e) => setSelectedDeviceId(e.target.value)}
-              className={styles.deviceSelect}
-            >
-              {devices.map((d) => (
-                <option key={d.deviceId} value={d.deviceId}>
-                  {d.displayName || t('common.unknown')} ({d.deviceId.substring(0, 6)})
-                </option>
-              ))}
-            </select>
+            <div className={styles.selectorRow}>
+              <select
+                value={selectedDeviceId}
+                onChange={(e) => setSelectedDeviceId(e.target.value)}
+                className={styles.deviceSelect}
+              >
+                {devices.map((d) => (
+                  <option key={d.deviceId} value={d.deviceId}>
+                    {d.displayName || t('common.unknown')} ({d.deviceId.substring(0, 6)})
+                  </option>
+                ))}
+              </select>
+              {selectedDeviceId && (
+                <PawButton
+                  variant="outline"
+                  onClick={handleRefreshLogs}
+                  disabled={logsLoading}
+                  className={styles.refreshBtn}
+                  title={t('dashboard.refresh')}
+                >
+                  <RefreshCw className={logsLoading ? 'spinning' : ''} size={16} />
+                </PawButton>
+              )}
+            </div>
           </div>
 
           {/* Tabs header */}
