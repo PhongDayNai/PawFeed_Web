@@ -19,6 +19,7 @@ export function ChatbotBubble() {
   const model = 'gemma-4-e4b';
   const [errorMsg, setErrorMsg] = useState('');
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [toolStates, setToolStates] = useState<Record<string, 'pending' | 'loading' | 'success' | 'error' | 'rejected'>>({});
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -30,25 +31,30 @@ export function ChatbotBubble() {
     try {
       const initRes = await chatbotApi.initChatbot();
       if (initRes.ok) {
+        setCurrentSessionId(initRes.sessionId);
+
+        // Always load chat history
+        const histRes = await chatbotApi.getChatbotHistory();
+        let historyMessages: (ChatbotMessage & { isHistory?: boolean })[] = [];
+        if (histRes.ok) {
+          historyMessages = histRes.history.map((msg) => ({
+            ...msg,
+            isHistory: true,
+          }));
+        }
+
         if (initRes.isNewSession) {
-          // It's a new session, display greeting
-          setMessages([
-            {
-              role: 'assistant',
-              content: initRes.greeting || 'Chào bạn! Tôi là Nomi, trợ lý chăm sóc thú cưng PawFeed. Rất vui được hỗ trợ bạn hôm nay! Bé cưng của bạn thế nào rồi? 🐾',
-              createdAt: new Date().toISOString(),
-            },
-          ]);
+          // It's a new session, append greeting
+          const greetingMsg: ChatbotMessage & { isHistory?: boolean } = {
+            role: 'assistant',
+            content: initRes.greeting || 'Chào bạn! Tôi là Nomi, trợ lý chăm sóc thú cưng PawFeed. Rất vui được hỗ trợ bạn hôm nay! Bé cưng của bạn thế nào rồi? 🐾',
+            createdAt: new Date().toISOString(),
+            sessionId: initRes.sessionId,
+            isHistory: false,
+          };
+          setMessages([...historyMessages, greetingMsg]);
         } else {
-          // Existing session, fetch history
-          const histRes = await chatbotApi.getChatbotHistory();
-          if (histRes.ok) {
-            const historyWithFlag = histRes.history.map((msg) => ({
-              ...msg,
-              isHistory: true,
-            }));
-            setMessages(historyWithFlag);
-          }
+          setMessages(historyMessages);
         }
         setHasInitialized(true);
       } else {
@@ -102,6 +108,7 @@ export function ChatbotBubble() {
       role: 'user',
       content: userMsgText,
       createdAt: new Date().toISOString(),
+      sessionId: currentSessionId,
     };
 
     // Optimistically add user message to UI
@@ -113,7 +120,11 @@ export function ChatbotBubble() {
     try {
       const res = await chatbotApi.sendChatbotMessage([userMessage], model);
       if (res.ok) {
-        setMessages((prev) => [...prev, res.message]);
+        const aiMessage = {
+          ...res.message,
+          sessionId: res.message.sessionId || currentSessionId,
+        };
+        setMessages((prev) => [...prev, aiMessage]);
       } else {
         setErrorMsg(t('chatbot.connect_failed'));
       }
@@ -139,7 +150,11 @@ export function ChatbotBubble() {
     try {
       const res = await chatbotApi.sendChatbotMessage([lastUserMessage], model);
       if (res.ok) {
-        setMessages((prev) => [...prev, res.message]);
+        const aiMessage = {
+          ...res.message,
+          sessionId: res.message.sessionId || currentSessionId,
+        };
+        setMessages((prev) => [...prev, aiMessage]);
       } else {
         setErrorMsg(t('chatbot.connect_failed'));
       }
@@ -357,45 +372,59 @@ export function ChatbotBubble() {
 
         {/* Messages List */}
         <div className={styles.messageList}>
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`${styles.messageWrapper} ${msg.role === 'user' ? styles.messageUser : styles.messageAssistant
-                }`}
-            >
-              {msg.content && msg.content.trim() !== '' && (
+          {messages.map((msg, index) => {
+            const prevMsg = index > 0 ? messages[index - 1] : null;
+            // Show session divider when sessionId changes between consecutive messages
+            const isNewSessionStart = prevMsg && prevMsg.sessionId && msg.sessionId && prevMsg.sessionId !== msg.sessionId;
+
+            return (
+              <React.Fragment key={index}>
+                {isNewSessionStart && (
+                  <div className={styles.sessionDivider}>
+                    <span className={styles.sessionDividerText}>
+                      <Bot size={12} /> {t('chatbot.new_session_divider')}
+                    </span>
+                  </div>
+                )}
                 <div
-                  className={`${styles.messageBubble} ${msg.role === 'user' ? styles.bubbleUser : styles.bubbleAssistant
+                  className={`${styles.messageWrapper} ${msg.role === 'user' ? styles.messageUser : styles.messageAssistant
                     }`}
                 >
-                  {renderMarkdown(msg.content)}
+                  {msg.content && msg.content.trim() !== '' && (
+                    <div
+                      className={`${styles.messageBubble} ${msg.role === 'user' ? styles.bubbleUser : styles.bubbleAssistant
+                        }`}
+                    >
+                      {renderMarkdown(msg.content)}
+                    </div>
+                  )}
+
+                  {/* Render Tool Proposals if present */}
+                  {msg.role === 'assistant' && msg.tool_calls && msg.tool_calls.map((toolCall) => {
+                    const state = toolStates[toolCall.id] || (msg.isHistory ? 'disabled' : 'pending');
+                    return renderToolProposal(toolCall, state);
+                  })}
+
+                  <div
+                    className={`${styles.meta} ${msg.role === 'user' ? styles.metaUser : styles.metaAssistant
+                      }`}
+                  >
+                    {msg.createdAt && (
+                      <span>
+                        {new Date(msg.createdAt).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    )}
+                    {msg.role === 'assistant' && msg.model && (
+                      <span>• Nomi</span>
+                    )}
+                  </div>
                 </div>
-              )}
-
-              {/* Render Tool Proposals if present */}
-              {msg.role === 'assistant' && msg.tool_calls && msg.tool_calls.map((toolCall) => {
-                const state = toolStates[toolCall.id] || (msg.isHistory ? 'disabled' : 'pending');
-                return renderToolProposal(toolCall, state);
-              })}
-
-              <div
-                className={`${styles.meta} ${msg.role === 'user' ? styles.metaUser : styles.metaAssistant
-                  }`}
-              >
-                {msg.createdAt && (
-                  <span>
-                    {new Date(msg.createdAt).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                )}
-                {msg.role === 'assistant' && msg.model && (
-                  <span>• Nomi</span>
-                )}
-              </div>
-            </div>
-          ))}
+              </React.Fragment>
+            );
+          })}
 
           {/* Typing Indicator */}
           {isLoading && (
