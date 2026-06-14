@@ -120,6 +120,32 @@ export function ChatbotBubble() {
     }
   };
 
+  const handleRetryMessage = async () => {
+    if (isLoading) return;
+
+    const userMessages = messages.filter((m) => m.role === 'user');
+    if (userMessages.length === 0) return;
+
+    const lastUserMessage = userMessages[userMessages.length - 1];
+
+    setIsLoading(true);
+    setErrorMsg('');
+
+    try {
+      const res = await chatbotApi.sendChatbotMessage([lastUserMessage], model);
+      if (res.ok) {
+        setMessages((prev) => [...prev, res.message]);
+      } else {
+        setErrorMsg(t('chatbot.connect_failed'));
+      }
+    } catch (err) {
+      console.error('Failed to retry sending chatbot message', err);
+      setErrorMsg(t('chatbot.connect_failed'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!isAuthenticated) return null;
 
   return (
@@ -214,19 +240,20 @@ export function ChatbotBubble() {
 
           {/* Error Message */}
           {errorMsg && (
-            <div className={`${styles.messageBubble} animate-fade-in`} style={{
-              alignSelf: 'center',
-              background: 'var(--error-bg)',
-              border: '1px solid var(--error)',
-              color: 'var(--error)',
-              fontSize: '0.85rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              maxWidth: '90%'
-            }}>
-              <AlertCircle size={16} />
-              <span>{errorMsg}</span>
+            <div className={`${styles.errorWrapper} animate-fade-in`}>
+              <div className={styles.errorBubble}>
+                <AlertCircle size={16} />
+                <span>{errorMsg}</span>
+              </div>
+              <button
+                type="button"
+                className={styles.retryButton}
+                onClick={handleRetryMessage}
+                disabled={isLoading}
+              >
+                <RefreshCw size={12} className={isLoading ? styles.spinning : ''} />
+                <span>{t('common.retry')}</span>
+              </button>
             </div>
           )}
 
