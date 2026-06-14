@@ -1,4 +1,4 @@
-import { DashboardData, Device, DeviceStatus, MqttStatus, Schedule, FeedingHistory, User, AuthResponse } from './types';
+import { DashboardData, Device, DeviceStatus, MqttStatus, Schedule, FeedingHistory, User, AuthResponse, ChatbotInitResponse, ChatbotResponse, ChatbotHistoryResponse, ChatbotMessage } from './types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
@@ -324,5 +324,30 @@ export const deviceApi = {
 
   async confirmConfigFile(deviceId: string, configId: string): Promise<void> {
     await fetchApi(`/devices/${deviceId}/config-file/${configId}/confirm`, { method: 'POST' });
+  },
+};
+
+export const chatbotApi = {
+  async initChatbot(): Promise<ChatbotInitResponse> {
+    return fetchApi('/chatbot/init', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  },
+
+  async sendChatbotMessage(messages: ChatbotMessage[], model?: string): Promise<ChatbotResponse> {
+    return fetchApi('/chatbot', {
+      method: 'POST',
+      body: JSON.stringify({
+        messages,
+        model,
+      }),
+    });
+  },
+
+  async getChatbotHistory(limit = 50): Promise<ChatbotHistoryResponse> {
+    return fetchApi(`/chatbot/history?limit=${limit}`, {
+      method: 'GET',
+    });
   },
 };

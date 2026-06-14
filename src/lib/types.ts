@@ -88,3 +88,28 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface ChatbotMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  model?: string;
+  sessionId?: string;
+  createdAt?: string;
+}
+
+export interface ChatbotInitResponse {
+  ok: boolean;
+  isNewSession: boolean;
+  sessionId: string;
+  greeting?: string;
+}
+
+export interface ChatbotResponse {
+  ok: boolean;
+  message: ChatbotMessage;
+}
+
+export interface ChatbotHistoryResponse {
+  ok: boolean;
+  history: ChatbotMessage[];
+}
