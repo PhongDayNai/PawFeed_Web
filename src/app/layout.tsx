@@ -4,6 +4,7 @@ import './globals.css';
 import { AppProvider } from '../context/AppContext';
 import { LanguageProvider } from '../context/LanguageContext';
 import { Header } from './Header';
+import { ChatbotBubble } from '../components/ChatbotBubble';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -34,6 +35,7 @@ export default function RootLayout({
             <main style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%' }}>
               {children}
             </main>
+            <ChatbotBubble />
           </AppProvider>
         </LanguageProvider>
       </body>
