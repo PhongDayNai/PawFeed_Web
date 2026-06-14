@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { chatbotApi, deviceApi } from '../lib/api';
 import { ChatbotMessage } from '../lib/types';
-import { MessageSquare, Send, X, Bot, Sparkles, RefreshCw, AlertCircle, Calendar, Utensils, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { MessageSquare, Send, X, Bot, Sparkles, RefreshCw, AlertCircle, Calendar, Utensils, CheckCircle2, XCircle, Loader2, MessageSquarePlus } from 'lucide-react';
 import styles from './ChatbotBubble.module.css';
 
 export function ChatbotBubble() {
@@ -25,11 +25,11 @@ export function ChatbotBubble() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // Load chat history or initialize session when opened for the first time
-  const loadChatSession = React.useCallback(async () => {
+  const loadChatSession = React.useCallback(async (force = false) => {
     setIsLoading(true);
     setErrorMsg('');
     try {
-      const initRes = await chatbotApi.initChatbot();
+      const initRes = await chatbotApi.initChatbot(force);
       if (initRes.ok) {
         setCurrentSessionId(initRes.sessionId);
 
@@ -361,7 +361,19 @@ export function ChatbotBubble() {
           <div className={styles.headerActions}>
             <button
               className={styles.actionBtn}
-              onClick={loadChatSession}
+              onClick={() => {
+                if (window.confirm(t('chatbot.confirm_reset'))) {
+                  loadChatSession(true);
+                }
+              }}
+              title={t('chatbot.new_topic')}
+              disabled={isLoading}
+            >
+              <MessageSquarePlus size={16} />
+            </button>
+            <button
+              className={styles.actionBtn}
+              onClick={() => loadChatSession(false)}
               title={t('chatbot.reset_session')}
               disabled={isLoading}
             >

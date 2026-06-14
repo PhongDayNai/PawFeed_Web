@@ -335,10 +335,10 @@ export const deviceApi = {
 };
 
 export const chatbotApi = {
-  async initChatbot(): Promise<ChatbotInitResponse> {
+  async initChatbot(forceNewSession?: boolean): Promise<ChatbotInitResponse> {
     return fetchApi('/chatbot/init', {
       method: 'POST',
-      body: JSON.stringify({}),
+      body: JSON.stringify({ forceNewSession }),
     });
   },
 
