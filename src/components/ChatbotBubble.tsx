@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
-import { chatbotApi } from '../lib/api';
+import { chatbotApi, deviceApi } from '../lib/api';
 import { ChatbotMessage } from '../lib/types';
-import { MessageSquare, Send, X, Bot, Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
+import { MessageSquare, Send, X, Bot, Sparkles, RefreshCw, AlertCircle, Calendar, Utensils, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import styles from './ChatbotBubble.module.css';
 
 export function ChatbotBubble() {
@@ -13,12 +13,13 @@ export function ChatbotBubble() {
   const { t } = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatbotMessage[]>([]);
+  const [messages, setMessages] = useState<(ChatbotMessage & { isHistory?: boolean })[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const model = 'gemma-4-e4b';
   const [errorMsg, setErrorMsg] = useState('');
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [toolStates, setToolStates] = useState<Record<string, 'pending' | 'loading' | 'success' | 'error' | 'rejected'>>({});
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -42,7 +43,11 @@ export function ChatbotBubble() {
           // Existing session, fetch history
           const histRes = await chatbotApi.getChatbotHistory();
           if (histRes.ok) {
-            setMessages(histRes.history);
+            const historyWithFlag = histRes.history.map((msg) => ({
+              ...msg,
+              isHistory: true,
+            }));
+            setMessages(historyWithFlag);
           }
         }
         setHasInitialized(true);
@@ -146,6 +151,158 @@ export function ChatbotBubble() {
     }
   };
 
+  const handleAcceptTool = async (toolCallId: string, name: string, argsStr: string) => {
+    setToolStates((prev) => ({ ...prev, [toolCallId]: 'loading' }));
+    try {
+      const args = JSON.parse(argsStr);
+      if (name === 'proposeFeedNow') {
+        const { deviceId, openDurationMs } = args;
+        await deviceApi.feedNow(deviceId, openDurationMs);
+        setToolStates((prev) => ({ ...prev, [toolCallId]: 'success' }));
+      } else if (name === 'proposeSaveSchedule') {
+        const { deviceId, entries } = args;
+        const formattedEntries = entries.map((e: any) => ({
+          time: e.time,
+          openDurationMs: Number(e.openDurationMs),
+        }));
+        await deviceApi.updateProposedSchedule(deviceId, formattedEntries);
+        setToolStates((prev) => ({ ...prev, [toolCallId]: 'success' }));
+      } else {
+        throw new Error(`Unknown tool name: ${name}`);
+      }
+    } catch (err) {
+      console.error('Failed to execute proposed action', err);
+      setToolStates((prev) => ({ ...prev, [toolCallId]: 'error' }));
+    }
+  };
+
+  const handleRejectTool = (toolCallId: string) => {
+    setToolStates((prev) => ({ ...prev, [toolCallId]: 'rejected' }));
+  };
+
+  const renderToolProposal = (toolCall: any, state: 'pending' | 'loading' | 'success' | 'error' | 'rejected' | 'disabled') => {
+    let title = '';
+    let details: React.ReactNode = null;
+    let deviceId = '';
+
+    try {
+      const args = JSON.parse(toolCall.function.arguments);
+      deviceId = args.deviceId;
+
+      if (toolCall.function.name === 'proposeFeedNow') {
+        const duration = (args.openDurationMs / 1000).toFixed(1);
+        title = t('chatbot.proposal.feed_now_title');
+        details = (
+          <div className={styles.toolDetailItem}>
+            <span>{t('chatbot.proposal.device')}: <strong>{deviceId}</strong></span>
+            <span>{t('chatbot.proposal.duration')}: <strong>{duration}s</strong></span>
+          </div>
+        );
+      } else if (toolCall.function.name === 'proposeSaveSchedule') {
+        title = t('chatbot.proposal.save_schedule_title');
+        details = (
+          <div className={styles.toolDetailList}>
+            <div className={styles.toolDetailItem}>
+              <span>{t('chatbot.proposal.device')}: <strong>{deviceId}</strong></span>
+            </div>
+            <div className={styles.scheduleEntries}>
+              {args.entries && args.entries.map((entry: any, idx: number) => (
+                <div key={idx} className={styles.scheduleEntryBadge}>
+                  <span>🕒 {entry.time}</span>
+                  <span>({(entry.openDurationMs / 1000).toFixed(1)}s)</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      } else {
+        return null;
+      }
+    } catch (e) {
+      console.error('Failed to parse tool arguments', e);
+      return null;
+    }
+
+    return (
+      <div key={toolCall.id} className={styles.toolCard}>
+        <div className={styles.toolHeader}>
+          {toolCall.function.name === 'proposeFeedNow' ? <Utensils size={16} /> : <Calendar size={16} />}
+          <span className={styles.toolTitle}>{title}</span>
+        </div>
+        <div className={styles.toolBody}>
+          {details}
+        </div>
+        <div className={styles.toolFooter}>
+          {state === 'pending' && (
+            <div className={styles.toolActions}>
+              <button
+                type="button"
+                className={styles.rejectBtn}
+                onClick={() => handleRejectTool(toolCall.id)}
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                type="button"
+                className={styles.acceptBtn}
+                onClick={() => handleAcceptTool(toolCall.id, toolCall.function.name, toolCall.function.arguments)}
+              >
+                {t('common.confirm')}
+              </button>
+            </div>
+          )}
+          {state === 'loading' && (
+            <div className={styles.toolStatus}>
+              <Loader2 size={16} className={styles.spinning} />
+              <span>{t('chatbot.proposal.executing')}</span>
+            </div>
+          )}
+          {state === 'success' && (
+            <div className={`${styles.toolStatus} ${styles.statusSuccess}`}>
+              <CheckCircle2 size={16} />
+              <span>{t('chatbot.proposal.success')}</span>
+            </div>
+          )}
+          {state === 'rejected' && (
+            <div className={`${styles.toolStatus} ${styles.statusRejected}`}>
+              <XCircle size={16} />
+              <span>{t('chatbot.proposal.rejected')}</span>
+            </div>
+          )}
+          {state === 'error' && (
+            <div className={styles.toolActionsError}>
+              <div className={`${styles.toolStatus} ${styles.statusError}`}>
+                <AlertCircle size={16} />
+                <span>{t('chatbot.proposal.failed')}</span>
+              </div>
+              <div className={styles.toolActions}>
+                <button
+                  type="button"
+                  className={styles.rejectBtn}
+                  onClick={() => handleRejectTool(toolCall.id)}
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="button"
+                  className={styles.acceptBtn}
+                  onClick={() => handleAcceptTool(toolCall.id, toolCall.function.name, toolCall.function.arguments)}
+                >
+                  {t('common.retry')}
+                </button>
+              </div>
+            </div>
+          )}
+          {state === 'disabled' && (
+            <div className={`${styles.toolStatus} ${styles.statusDisabled}`}>
+              <span>{t('chatbot.proposal.expired')}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   if (!isAuthenticated) return null;
 
   return (
@@ -210,6 +367,13 @@ export function ChatbotBubble() {
               >
                 {renderMarkdown(msg.content)}
               </div>
+
+              {/* Render Tool Proposals if present */}
+              {msg.role === 'assistant' && msg.tool_calls && msg.tool_calls.map((toolCall) => {
+                const state = toolStates[toolCall.id] || (msg.isHistory ? 'disabled' : 'pending');
+                return renderToolProposal(toolCall, state);
+              })}
+
               <div
                 className={`${styles.meta} ${msg.role === 'user' ? styles.metaUser : styles.metaAssistant
                   }`}

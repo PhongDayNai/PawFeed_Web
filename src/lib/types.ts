@@ -89,12 +89,22 @@ export interface AuthResponse {
   refreshToken: string;
 }
 
+export interface ToolCall {
+  id: string;
+  type: string;
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
+
 export interface ChatbotMessage {
   role: 'user' | 'assistant';
   content: string;
   model?: string;
   sessionId?: string;
   createdAt?: string;
+  tool_calls?: ToolCall[];
 }
 
 export interface ChatbotInitResponse {

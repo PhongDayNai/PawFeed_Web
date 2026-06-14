@@ -477,3 +477,175 @@
   opacity: 0.8;
 }
 
+/* Tool Proposals Card */
+.toolCard {
+  margin-top: 10px;
+  background: hsla(223, 47%, 14%, 0.6);
+  border: 1px solid hsla(var(--hue-primary), 40%, 60%, 0.2);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toolCard:hover {
+  border-color: hsla(var(--hue-primary), 60%, 65%, 0.35);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.toolHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.toolTitle {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.toolBody {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.toolDetailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toolDetailItem span {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed hsla(0, 0%, 100%, 0.05);
+  padding-bottom: 2px;
+}
+
+.toolDetailList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scheduleEntries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.scheduleEntryBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: hsla(var(--hue-primary), 60%, 50%, 0.15);
+  border: 1px solid hsla(var(--hue-primary), 60%, 50%, 0.3);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.toolFooter {
+  border-top: 1px solid hsla(0, 0%, 100%, 0.06);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.toolActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.acceptBtn, .rejectBtn {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.acceptBtn {
+  background: var(--success);
+  border: 1px solid transparent;
+  color: var(--bg-base);
+}
+
+.acceptBtn:hover {
+  background: hsl(var(--hue-success), 80%, 40%);
+  transform: translateY(-1px);
+}
+
+.acceptBtn:active {
+  transform: scale(0.97);
+}
+
+.rejectBtn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.rejectBtn:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+  border-color: var(--border-color-hover);
+}
+
+.toolStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.statusSuccess {
+  color: var(--success);
+}
+
+.statusRejected {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.statusDisabled {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
+.statusError {
+  color: var(--error);
+}
+
+.toolActionsError {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+

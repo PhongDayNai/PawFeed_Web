@@ -325,6 +325,13 @@ export const deviceApi = {
   async confirmConfigFile(deviceId: string, configId: string): Promise<void> {
     await fetchApi(`/devices/${deviceId}/config-file/${configId}/confirm`, { method: 'POST' });
   },
+
+  async updateProposedSchedule(deviceId: string, entries: { time: string; openDurationMs: number }[]): Promise<any> {
+    return fetchApi(`/devices/${deviceId}/schedule`, {
+      method: 'PUT',
+      body: JSON.stringify({ entries }),
+    });
+  },
 };
 
 export const chatbotApi = {

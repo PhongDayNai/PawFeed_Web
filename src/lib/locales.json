@@ -247,7 +247,18 @@
       "select_model": "Select Model",
       "reset_session": "Reset Session",
       "connect_failed": "Failed to communicate with AI server.",
-      "disclaimer": "🐾 Nomi is an AI assistant. Responses and calculations are for reference only."
+      "disclaimer": "🐾 Nomi is an AI assistant. Responses and calculations are for reference only.",
+      "proposal": {
+        "feed_now_title": "Propose Feed Now",
+        "save_schedule_title": "Propose Update Schedule",
+        "device": "Device",
+        "duration": "Duration",
+        "executing": "Executing...",
+        "success": "Executed successfully",
+        "rejected": "Proposal rejected",
+        "failed": "Execution failed",
+        "expired": "Proposal expired"
+      }
     }
   },
   "vi": {
@@ -498,7 +509,18 @@
       "select_model": "Chọn mô hình",
       "reset_session": "Đặt lại phiên",
       "connect_failed": "Không thể kết nối đến máy chủ AI.",
-      "disclaimer": "🐾 Nomi là trợ lý AI. Thông tin và tính toán chỉ mang tính chất tham khảo."
+      "disclaimer": "🐾 Nomi là trợ lý AI. Thông tin và tính toán chỉ mang tính chất tham khảo.",
+      "proposal": {
+        "feed_now_title": "Đề xuất Cho Ăn Ngay",
+        "save_schedule_title": "Đề xuất Cập Nhật Lịch Ăn",
+        "device": "Thiết bị",
+        "duration": "Thời gian nhả",
+        "executing": "Đang thực hiện...",
+        "success": "Đã thực thi thành công",
+        "rejected": "Đã từ chối đề xuất",
+        "failed": "Thực thi thất bại",
+        "expired": "Đề xuất đã hết hạn"
+      }
     }
   }
 }
