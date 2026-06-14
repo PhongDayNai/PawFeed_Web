@@ -131,7 +131,7 @@ export function ChatbotBubble() {
         title={t('chatbot.title')}
         aria-label={t('chatbot.title')}
       >
-        {isOpen ? <X size={40} /> : <MessageSquare size={40} />}
+        {isOpen ? <X /> : <MessageSquare />}
       </button>
 
       {/* Chat Popover Window */}

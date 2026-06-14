@@ -8,8 +8,8 @@
 
 /* Floating button */
 .bubbleButton {
-  width: 90px;
-  height: 90px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary) 0%, hsl(var(--hue-primary), 80%, 45%) 100%);
   border: 1px solid hsla(var(--hue-primary), 100%, 75%, 0.3);
@@ -21,6 +21,12 @@
   box-shadow: 0 8px 24px hsla(var(--hue-primary), 85%, 60%, 0.35);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
+}
+
+.bubbleButton svg {
+  width: 32px;
+  height: 32px;
+  transition: transform 0.2s ease;
 }
 
 .bubbleButton:hover {
@@ -36,11 +42,11 @@
 /* Chat window */
 .chatWindow {
   position: absolute;
-  bottom: 110px;
+  bottom: 92px;
   right: 0;
-  width: 500px;
-  height: 740px;
-  max-height: calc(100vh - 180px);
+  width: 420px;
+  height: 680px;
+  max-height: calc(100vh - 140px);
   display: flex;
   flex-direction: column;
   background: hsla(223, 47%, 8%, 0.96); /* decreased transparency (more opaque) */
@@ -82,19 +88,52 @@
 }
 
 /* Mobile responsive */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .container {
-    bottom: 16px;
+    bottom: calc(64px + 16px + env(safe-area-inset-bottom));
     right: 16px;
   }
+  
+  .bubbleButton {
+    width: 56px;
+    height: 56px;
+    box-shadow: 0 6px 20px hsla(var(--hue-primary), 85%, 60%, 0.3);
+  }
+  
+  .bubbleButton svg {
+    width: 24px;
+    height: 24px;
+  }
+
   .chatWindow {
     position: fixed;
-    bottom: 114px;
-    left: 16px;
-    right: 16px;
-    width: auto;
-    height: 620px;
-    max-height: calc(100vh - 150px - env(safe-area-inset-bottom));
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    max-height: 100dvh;
+    border-radius: 0;
+    border: none;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32, 0.94, 0.6, 1), opacity 0.3s ease;
+  }
+
+  .chatWindowOpen {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+    
+    @starting-style {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+
+  .disclaimer {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
   }
 }
 
