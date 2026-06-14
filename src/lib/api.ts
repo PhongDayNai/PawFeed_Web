@@ -342,12 +342,13 @@ export const chatbotApi = {
     });
   },
 
-  async sendChatbotMessage(messages: ChatbotMessage[], model?: string): Promise<ChatbotResponse> {
+  async sendChatbotMessage(messages: ChatbotMessage[], model?: string, clientMsgId?: string): Promise<ChatbotResponse> {
     return fetchApi('/chatbot', {
       method: 'POST',
       body: JSON.stringify({
         messages,
         model,
+        clientMsgId,
       }),
     });
   },

@@ -103,6 +103,7 @@ export interface ChatbotMessage {
   content: string;
   model?: string;
   sessionId?: string;
+  clientMsgId?: string;
   createdAt?: string;
   tool_calls?: ToolCall[];
 }

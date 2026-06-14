@@ -104,11 +104,13 @@ export function ChatbotBubble() {
     if (!inputText.trim() || isLoading) return;
 
     const userMsgText = inputText.trim();
+    const msgId = generateUUID();
     const userMessage: ChatbotMessage = {
       role: 'user',
       content: userMsgText,
       createdAt: new Date().toISOString(),
       sessionId: currentSessionId,
+      clientMsgId: msgId,
     };
 
     // Optimistically add user message to UI
@@ -118,7 +120,7 @@ export function ChatbotBubble() {
     setErrorMsg('');
 
     try {
-      const res = await chatbotApi.sendChatbotMessage([userMessage], model);
+      const res = await chatbotApi.sendChatbotMessage([userMessage], model, msgId);
       if (res.ok) {
         const aiMessage = {
           ...res.message,
@@ -143,12 +145,17 @@ export function ChatbotBubble() {
     if (userMessages.length === 0) return;
 
     const lastUserMessage = userMessages[userMessages.length - 1];
+    const msgId = lastUserMessage.clientMsgId || generateUUID();
+    const userMessageWithId = {
+      ...lastUserMessage,
+      clientMsgId: msgId,
+    };
 
     setIsLoading(true);
     setErrorMsg('');
 
     try {
-      const res = await chatbotApi.sendChatbotMessage([lastUserMessage], model);
+      const res = await chatbotApi.sendChatbotMessage([userMessageWithId], model, msgId);
       if (res.ok) {
         const aiMessage = {
           ...res.message,
@@ -881,4 +888,15 @@ function parseInlineStyles(text: string): React.ReactNode[] {
   }
 
   return parts;
+}
+
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }
