@@ -111,9 +111,9 @@ export function Header() {
 
             <div className={styles.userSection}>
               <span className={styles.userName}>{user?.fullName || user?.email}</span>
-              <button onClick={logout} className={`${styles.logoutBtn} glass`}>
+              <button onClick={logout} className={`${styles.logoutBtn} glass`} title={t('nav.logout')}>
                 <LogOut size={16} />
-                {t('nav.logout')}
+                <span className={styles.logoutText}>{t('nav.logout')}</span>
               </button>
             </div>
           </div>

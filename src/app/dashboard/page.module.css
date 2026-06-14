@@ -72,6 +72,7 @@
   gap: 20px;
   margin-bottom: 24px;
   flex-shrink: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .summaryCard {
@@ -85,7 +86,7 @@
   gap: calc(16px - 16px * var(--scroll-progress, 0));
   box-shadow: var(--card-shadow);
   border: 1px solid var(--border-color);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), height 0.2s cubic-bezier(0.16, 1, 0.3, 1), padding 0.2s cubic-bezier(0.16, 1, 0.3, 1), gap 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, filter 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   cursor: pointer;
   user-select: none;
@@ -117,7 +118,7 @@
   font-weight: 600;
   opacity: 0.9;
   width: calc(100% - var(--scroll-progress, 0) * 55%);
-  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .cardValue {
@@ -126,7 +127,7 @@
   font-weight: 800;
   line-height: 1;
   text-align: right;
-  transition: font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Gradient themes */
@@ -135,28 +136,40 @@
   color: hsl(210, 100%, 85%);
   border-color: hsla(217, 90%, 40%, 0.2);
 }
-.blueGradient svg { color: hsl(210, 100%, 75%); }
+
+.blueGradient svg {
+  color: hsl(210, 100%, 75%);
+}
 
 .greenGradient {
   background: linear-gradient(135deg, hsla(142, 70%, 15%, 0.6) 0%, hsla(142, 70%, 25%, 0.4) 100%);
   color: hsl(142, 100%, 85%);
   border-color: hsla(142, 70%, 40%, 0.2);
 }
-.greenGradient svg { color: hsl(142, 100%, 75%); }
+
+.greenGradient svg {
+  color: hsl(142, 100%, 75%);
+}
 
 .grayGradient {
   background: linear-gradient(135deg, hsla(210, 15%, 20%, 0.6) 0%, hsla(210, 15%, 30%, 0.4) 100%);
   color: hsl(210, 15%, 85%);
   border-color: hsla(210, 15%, 40%, 0.2);
 }
-.grayGradient svg { color: hsl(210, 15%, 75%); }
+
+.grayGradient svg {
+  color: hsl(210, 15%, 75%);
+}
 
 .orangeGradient {
   background: linear-gradient(135deg, hsla(25, 95%, 15%, 0.6) 0%, hsla(25, 95%, 25%, 0.4) 100%);
   color: hsl(25, 100%, 85%);
   border-color: hsla(25, 95%, 40%, 0.2);
 }
-.orangeGradient svg { color: hsl(25, 100%, 75%); }
+
+.orangeGradient svg {
+  color: hsl(25, 100%, 75%);
+}
 
 .contentGrid {
   display: grid;
@@ -196,22 +209,27 @@
   flex: 1;
   overflow-y: auto;
   padding-right: 0;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .list::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none;
+  /* Chrome, Safari and Opera */
 }
 
-.deviceCard, .historyCard {
+.deviceCard,
+.historyCard {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   box-shadow: var(--card-shadow);
   transition: all 0.3s ease;
 }
 
-.deviceCard:hover, .historyCard:hover {
+.deviceCard:hover,
+.historyCard:hover {
   border-color: var(--border-color-hover);
   background: var(--bg-surface-hover);
 }
@@ -346,24 +364,202 @@
 /* Responsive Styles */
 @media (max-width: 992px) {
   .dashboardPage {
-    height: calc(100vh - 138px);
+    height: auto;
+    overflow: visible;
+    background-color: var(--bg-base);
   }
+
   .contentGrid {
     grid-template-columns: 1fr;
     gap: 24px;
-    height: 100%;
+    height: auto;
+    overflow: visible;
   }
-  .summaryGrid {
-    grid-template-columns: repeat(2, 1fr);
+
+  .section {
+    height: auto;
+    overflow: visible;
   }
-}
-@media (max-width: 768px) {
+
+  .list {
+    overflow-y: visible;
+    height: auto;
+  }
+
   .title {
     font-size: 1.8rem;
   }
-}
-@media (max-width: 480px) {
+
+  /*
+   * Performance strategy for collapse/expand on mobile:
+   * - Cards use `position: absolute` with explicit 2x2 anchors. When .scrolled
+   *   is added, width/height/padding/font-size SNAP to the 1x4 values (one
+   *   layout pass, no transition). The card POSITION morphs smoothly via
+   *   transform: translate(...) — translate is GPU-composited, so it stays
+   *   smooth even when the main thread is busy (SSE, hydration, touch).
+   * - Crucially, the card itself is NOT scaled with transform: scale(...).
+   *   Scaling would shrink the icon and the value text along with the card,
+   *   making them unreadable in the collapsed state. Using real width/height
+   *   keeps the content at its natural, readable size.
+   * - backdrop-filter is intentionally OMITTED on the sticky scrolled bar:
+   *   it was the main source of post-collapse scroll jank on real mobile.
+   */
   .summaryGrid {
-    grid-template-columns: 1fr;
+    position: sticky;
+    top: 56px;
+    /* Stuck directly below main sticky header */
+    z-index: 99;
+    background-color: var(--bg-base);
+
+    padding: 0;
+    width: 100%;
+    height: 232px;
+    /* expanded - 2 rows of 110 + 12 gap */
+    margin-bottom: 24px;
+    overflow: hidden;
+    /* Clip box-shadow that bleeds beyond the card boundary */
+    will-change: height, background-color;
+  }
+
+  .summaryGrid.scrolled {
+    height: 80px;
+    /* Snap - no transition */
+    background: hsl(222, 47%, 7%);
+    border-bottom: 1px solid var(--border-color);
+    /* Keep the same width as the expanded grid. The pixel-based translate
+       values from JS assume a stable grid width, so we don't change it
+       (and avoid the layout cost of full-bleed margin/width recalc). */
+    padding: 0 16px;
+  }
+
+  .summaryCard {
+    /* 2x2 default size and position (matches the original layout). */
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    min-width: 0;
+
+    /* Smooth GPU transition ONLY for the position change. */
+    transform: translate(0, 0);
+    will-change: transform;
+    transition:
+      transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  /* When .scrolled is active, the card width/height/padding/radius SNAP
+     to the 1x4 sizes. The translate values (computed in JS as pixel
+     offsets) carry the card from its 2x2 cell to its 1x4 cell smoothly.
+     Vertical position is set directly via top (not via --ty) to avoid
+     nth-child specificity overriding the transform. */
+  .summaryGrid.scrolled .summaryCard {
+    width: calc(25% - 9px);
+    height: 50px;
+    top: 15px; /* Center 50px card in 80px bar: (80-50)/2 = 15px */
+    padding: 6px 10px;
+    border-radius: 8px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    transform: translate(var(--tx, 0px), 0px);
+  }
+
+  /* 2x2 anchors (the layout box each card occupies when expanded). */
+  .summaryCard:nth-child(1) {
+    top: 0;
+    left: 0;
+    width: calc(50% - 6px);
+    height: 110px;
+  }
+
+  .summaryCard:nth-child(2) {
+    top: 0;
+    left: calc(50% + 6px);
+    width: calc(50% - 6px);
+    height: 110px;
+  }
+
+  .summaryCard:nth-child(3) {
+    top: 122px;
+    left: 0;
+    width: calc(50% - 6px);
+    height: 110px;
+  }
+
+  .summaryCard:nth-child(4) {
+    top: 122px;
+    left: calc(50% + 6px);
+    width: calc(50% - 6px);
+    height: 110px;
+  }
+
+  .cardInfo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.9;
+    min-width: 0;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  .cardInfo span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 1;
+    max-width: 200px;
+    transition: opacity 0.2s ease, max-width 0.35s ease;
+  }
+
+  .summaryGrid.scrolled .cardInfo {
+    width: auto;
+    flex: 1;
+    flex-shrink: 1;
+  }
+
+  .summaryGrid.scrolled .cardInfo span {
+    opacity: 0;
+    max-width: 0;
+  }
+
+  .cardInfo svg {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    /* No transform - size changes via width/height (snap, no transition).
+       This keeps the icon looking crisp at the actual rendered pixel size. */
+  }
+
+  .summaryGrid.scrolled .cardInfo svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .cardValue {
+    font-family: var(--font-outfit);
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1;
+    text-align: right;
+    align-self: flex-end;
+    flex-shrink: 0;
+    /* No transform - font-size changes directly (snap, no transition).
+       Same rationale as the icon: clean text rendering at actual size. */
+  }
+
+  .summaryGrid.scrolled .cardValue {
+    font-size: 1.3rem;
+    align-self: center;
   }
 }

@@ -88,3 +88,39 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface ToolCall {
+  id: string;
+  type: string;
+  function: {
+    name: string;
+    arguments: any;
+  };
+}
+
+export interface ChatbotMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  model?: string;
+  sessionId?: string;
+  clientMsgId?: string;
+  createdAt?: string;
+  tool_calls?: ToolCall[];
+}
+
+export interface ChatbotInitResponse {
+  ok: boolean;
+  isNewSession: boolean;
+  sessionId: string;
+  greeting?: string;
+}
+
+export interface ChatbotResponse {
+  ok: boolean;
+  message: ChatbotMessage;
+}
+
+export interface ChatbotHistoryResponse {
+  ok: boolean;
+  history: ChatbotMessage[];
+}

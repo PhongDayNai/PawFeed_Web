@@ -226,8 +226,22 @@
 
 /* Responsive Queries */
 @media (max-width: 768px) {
-  .desktopNav, .userSection {
+  .desktopNav {
     display: none;
+  }
+  .userName {
+    display: none;
+  }
+  .logoutText {
+    display: none;
+  }
+  .logoutBtn {
+    padding: 8px;
+    border-radius: 50%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .mobileBottomNav {
     display: flex;

@@ -316,3 +316,25 @@
   line-height: 1.4;
 }
 
+/* Responsive overrides for device detail header and panels */
+@media (max-width: 576px) {
+  .deviceName {
+    font-size: 1.5rem;
+  }
+  .syncGrid {
+    grid-template-columns: 1fr;
+  }
+  .modalOverlay {
+    padding: 16px;
+  }
+  .modal {
+    padding: 20px 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .btnText {
+    display: none;
+  }
+}
+

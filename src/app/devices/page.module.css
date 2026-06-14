@@ -1,3 +1,30 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px;
+  height: calc(100vh - 120px);
+  height: calc(100dvh - 120px);
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 20px 16px 0 16px;
+    height: calc(100dvh - 56px);
+  }
+}
+
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+  min-height: 0;
+}
+
 .pageHeader {
   display: flex;
   justify-content: space-between;
@@ -78,6 +105,17 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 24px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 4px;
+  align-content: start;
+}
+
+@media (max-width: 768px) {
+  .deviceList {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom) + 24px);
+  }
 }
 
 .deviceCard {
@@ -228,7 +266,6 @@
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  margin-bottom: 32px;
   flex-wrap: wrap;
 }
 
@@ -359,4 +396,42 @@
 
 .emptyCard {
   animation: fadeInSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Responsive overrides for controls and modals */
+@media (max-width: 768px) {
+  .controlsRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .searchBox {
+    max-width: none;
+    width: 100%;
+  }
+  .filterTabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .filterBtn {
+    flex: 1;
+    justify-content: center;
+    padding: 0 8px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .filterBtn span {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalOverlay {
+    padding: 16px;
+  }
+  .modal {
+    padding: 20px 16px !important;
+  }
 }
