@@ -459,6 +459,18 @@ function renderMarkdown(text: string): React.ReactNode {
       return;
     }
 
+    // 2.5. Handle horizontal rule / divider
+    const isDivider = /^(?:-{3,}|\*{3,}|_{3,})$/.test(trimmed);
+    if (isDivider) {
+      closeUl(index);
+      closeOl(index);
+      closeQuote(index);
+      elements.push(
+        <hr key={index} className={styles.divider} />
+      );
+      return;
+    }
+
     // 3. Handle blockquote
     const isQuote = trimmed.startsWith('>');
     if (isQuote) {
@@ -519,21 +531,11 @@ function renderMarkdown(text: string): React.ReactNode {
     }
 
     // 5. Handle headings and normal text
-    const isDivider = trimmed === '---' || trimmed === '***' || trimmed === '___';
     const isH3 = trimmed.startsWith('### ');
     const isH2 = trimmed.startsWith('## ');
     const isH1 = trimmed.startsWith('# ');
 
-    if (isDivider) {
-      elements.push(
-        <hr key={index} style={{
-          border: 'none',
-          borderTop: '1px solid var(--border-color)',
-          margin: '16px 0',
-          opacity: 0.5
-        }} />
-      );
-    } else if (isH3) {
+    if (isH3) {
       elements.push(
         <h4 key={index} style={{ margin: '14px 0 6px 0', fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>
           {parseInlineStyles(trimmed.substring(4))}

@@ -469,3 +469,11 @@
   to { transform: rotate(360deg); }
 }
 
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-color-hover);
+  margin: 14px 0;
+  width: 100%;
+  opacity: 0.8;
+}
+
