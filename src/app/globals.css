@@ -47,7 +47,9 @@
   --glass-saturate: 180%;
   --card-shadow: 0 8px 32px 0 rgba(15, 10, 5, 0.4);
 
-  --font-sans: 'Outfit', 'Inter', system-ui, sans-serif;
+  --font-outfit: var(--font-display);
+  --font-inter: var(--font-sans-serif);
+  --font-sans: var(--font-display), var(--font-sans-serif), system-ui, sans-serif;
   --radius-sm: 10px;
   --radius-md: 20px;
   --radius-lg: 28px;

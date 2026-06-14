@@ -1,19 +1,19 @@
 import type { Metadata } from 'next';
-import { Outfit, Inter } from 'next/font/google';
+import { Nunito, Inter } from 'next/font/google';
 import './globals.css';
 import { AppProvider } from '../context/AppContext';
 import { LanguageProvider } from '../context/LanguageContext';
 import { Header } from './Header';
 import { ChatbotBubble } from '../components/ChatbotBubble';
 
-const outfit = Outfit({
-  subsets: ['latin'],
-  variable: '--font-outfit',
+const displayFont = Nunito({
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-display',
 });
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
+const sansFont = Inter({
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-sans-serif',
 });
 
 export const metadata: Metadata = {
@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${outfit.variable} ${inter.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="en" className={`${displayFont.variable} ${sansFont.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }} suppressHydrationWarning>
         <LanguageProvider>
           <AppProvider>
