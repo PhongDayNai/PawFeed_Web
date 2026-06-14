@@ -151,10 +151,10 @@ export function ChatbotBubble() {
     }
   };
 
-  const handleAcceptTool = async (toolCallId: string, name: string, argsStr: string) => {
+  const handleAcceptTool = async (toolCallId: string, name: string, argsVal: any) => {
     setToolStates((prev) => ({ ...prev, [toolCallId]: 'loading' }));
     try {
-      const args = JSON.parse(argsStr);
+      const args = typeof argsVal === 'string' ? JSON.parse(argsVal) : argsVal;
       if (name === 'proposeFeedNow') {
         const { deviceId, openDurationMs } = args;
         await deviceApi.feedNow(deviceId, openDurationMs);
@@ -186,7 +186,9 @@ export function ChatbotBubble() {
     let deviceId = '';
 
     try {
-      const args = JSON.parse(toolCall.function.arguments);
+      const args = typeof toolCall.function.arguments === 'string'
+        ? JSON.parse(toolCall.function.arguments)
+        : toolCall.function.arguments;
       deviceId = args.deviceId;
 
       if (toolCall.function.name === 'proposeFeedNow') {
@@ -361,12 +363,14 @@ export function ChatbotBubble() {
               className={`${styles.messageWrapper} ${msg.role === 'user' ? styles.messageUser : styles.messageAssistant
                 }`}
             >
-              <div
-                className={`${styles.messageBubble} ${msg.role === 'user' ? styles.bubbleUser : styles.bubbleAssistant
-                  }`}
-              >
-                {renderMarkdown(msg.content)}
-              </div>
+              {msg.content && msg.content.trim() !== '' && (
+                <div
+                  className={`${styles.messageBubble} ${msg.role === 'user' ? styles.bubbleUser : styles.bubbleAssistant
+                    }`}
+                >
+                  {renderMarkdown(msg.content)}
+                </div>
+              )}
 
               {/* Render Tool Proposals if present */}
               {msg.role === 'assistant' && msg.tool_calls && msg.tool_calls.map((toolCall) => {
