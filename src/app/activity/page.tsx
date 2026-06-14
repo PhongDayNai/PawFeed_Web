@@ -8,6 +8,7 @@ import { getFriendlyErrorMessage } from '../../lib/error';
 import { Device, FeedingHistory } from '../../lib/types';
 import { PawCard } from '../../components/PawCard';
 import { PawButton } from '../../components/PawButton';
+import { PawSelect } from '../../components/PawSelect';
 import { History, Activity, AlertTriangle, RefreshCw, Clock, Settings, CheckCircle, Info } from 'lucide-react';
 import styles from './page.module.css';
 
@@ -153,17 +154,15 @@ export default function ActivityPage() {
           <div className={styles.selectorCard}>
             <label className={styles.selectorLabel}>{t('activity.select_device')}</label>
             <div className={styles.selectorRow}>
-              <select
+              <PawSelect
                 value={selectedDeviceId}
-                onChange={(e) => setSelectedDeviceId(e.target.value)}
+                onChange={setSelectedDeviceId}
+                options={devices.map((d) => ({
+                  value: d.deviceId,
+                  label: `${d.displayName || t('common.unknown')} (${d.deviceId.substring(0, 6)})`,
+                }))}
                 className={styles.deviceSelect}
-              >
-                {devices.map((d) => (
-                  <option key={d.deviceId} value={d.deviceId}>
-                    {d.displayName || t('common.unknown')} ({d.deviceId.substring(0, 6)})
-                  </option>
-                ))}
-              </select>
+              />
               {selectedDeviceId && (
                 <PawButton
                   variant="outline"
