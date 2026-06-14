@@ -1,0 +1,17 @@
+services:
+  pawfeed-web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        BACKEND_API_URL: ${BACKEND_API_URL}
+    container_name: pawfeed-web
+    restart: unless-stopped
+    ports:
+      - "8870:8870"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=8870
+      - HOSTNAME=0.0.0.0
