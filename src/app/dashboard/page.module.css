@@ -95,18 +95,18 @@
 
 .summaryCard:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-  filter: brightness(1.15);
+  box-shadow: 0 8px 30px rgba(15, 10, 5, 0.25);
+  filter: brightness(1.1);
 }
 
 .summaryCard:focus-visible {
-  outline: 2px solid var(--primary-color, #ff8a00);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
 .summaryCard:active {
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 15px rgba(15, 10, 5, 0.15);
   filter: brightness(0.95);
 }
 
@@ -130,45 +130,45 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Gradient themes */
+/* Gradient themes - Warm Boutique Colors */
 .blueGradient {
-  background: linear-gradient(135deg, hsla(217, 90%, 20%, 0.6) 0%, hsla(217, 90%, 30%, 0.4) 100%);
-  color: hsl(210, 100%, 85%);
-  border-color: hsla(217, 90%, 40%, 0.2);
+  background: linear-gradient(135deg, hsla(36, 85%, 20%, 0.6) 0%, hsla(36, 85%, 30%, 0.4) 100%);
+  color: hsl(36, 95%, 85%);
+  border-color: hsla(36, 85%, 40%, 0.2);
 }
 
 .blueGradient svg {
-  color: hsl(210, 100%, 75%);
+  color: hsl(36, 95%, 75%);
 }
 
 .greenGradient {
-  background: linear-gradient(135deg, hsla(142, 70%, 15%, 0.6) 0%, hsla(142, 70%, 25%, 0.4) 100%);
-  color: hsl(142, 100%, 85%);
-  border-color: hsla(142, 70%, 40%, 0.2);
+  background: linear-gradient(135deg, hsla(145, 50%, 15%, 0.6) 0%, hsla(145, 50%, 25%, 0.4) 100%);
+  color: hsl(145, 80%, 85%);
+  border-color: hsla(145, 50%, 40%, 0.2);
 }
 
 .greenGradient svg {
-  color: hsl(142, 100%, 75%);
+  color: hsl(145, 80%, 75%);
 }
 
 .grayGradient {
-  background: linear-gradient(135deg, hsla(210, 15%, 20%, 0.6) 0%, hsla(210, 15%, 30%, 0.4) 100%);
-  color: hsl(210, 15%, 85%);
-  border-color: hsla(210, 15%, 40%, 0.2);
+  background: linear-gradient(135deg, hsla(28, 10%, 20%, 0.6) 0%, hsla(28, 10%, 30%, 0.4) 100%);
+  color: hsl(28, 20%, 85%);
+  border-color: hsla(28, 10%, 40%, 0.2);
 }
 
 .grayGradient svg {
-  color: hsl(210, 15%, 75%);
+  color: hsl(28, 20%, 75%);
 }
 
 .orangeGradient {
-  background: linear-gradient(135deg, hsla(25, 95%, 15%, 0.6) 0%, hsla(25, 95%, 25%, 0.4) 100%);
-  color: hsl(25, 100%, 85%);
-  border-color: hsla(25, 95%, 40%, 0.2);
+  background: linear-gradient(135deg, hsla(24, 85%, 18%, 0.6) 0%, hsla(24, 85%, 28%, 0.4) 100%);
+  color: hsl(24, 95%, 85%);
+  border-color: hsla(24, 85%, 40%, 0.2);
 }
 
 .orangeGradient svg {
-  color: hsl(25, 100%, 75%);
+  color: hsl(24, 95%, 75%);
 }
 
 .contentGrid {
@@ -424,7 +424,7 @@
   .summaryGrid.scrolled {
     height: 80px;
     /* Snap - no transition */
-    background: hsl(222, 47%, 7%);
+    background: var(--bg-base);
     border-bottom: 1px solid var(--border-color);
     /* Keep the same width as the expanded grid. The pixel-based translate
        values from JS assume a stable grid width, so we don't change it

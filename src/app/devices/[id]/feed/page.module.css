@@ -57,16 +57,17 @@
 
 .dialTrack {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.05);
-  stroke-width: 12;
+  stroke: rgba(255, 255, 255, 0.04);
+  stroke-width: 14;
 }
 
 .dialValue {
   fill: none;
-  stroke: var(--accent);
-  stroke-width: 12;
+  stroke: var(--primary);
+  stroke-width: 14;
   stroke-linecap: round;
-  transition: stroke-dashoffset 0.35s ease;
+  transition: stroke-dashoffset 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 0 8px var(--primary-glow));
 }
 
 .dialInfo {
@@ -79,18 +80,18 @@
 
 .dialValText {
   font-family: var(--font-outfit);
-  font-size: 3.5rem;
+  font-size: 4rem;
   font-weight: 800;
   color: var(--text-primary);
   line-height: 1;
 }
 
 .dialLblText {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
 }
 
 /* Canvas Animation */
@@ -156,25 +157,30 @@
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.1);
+  background: hsla(var(--hue-primary), 30%, 50%, 0.15);
   outline: none;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+}
+
+.slider:hover {
+  background: hsla(var(--hue-primary), 30%, 50%, 0.25);
 }
 
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--primary);
   cursor: pointer;
-  box-shadow: 0 0 10px var(--accent-glow);
-  transition: transform 0.1s ease;
+  box-shadow: 0 0 12px var(--primary-glow);
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .slider::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
+  transform: scale(1.2);
+  background: var(--primary-hover);
 }
 
 /* Status Displays */

@@ -299,9 +299,9 @@
 }
 
 .searchInput:focus {
-  border-color: var(--primary-color, #ff8a00);
+  border-color: var(--primary);
   background: rgba(0, 0, 0, 0.3);
-  box-shadow: 0 0 0 2px hsla(var(--hue-primary, 24), 90%, 50%, 0.15);
+  box-shadow: 0 0 0 2px var(--primary-glow);
 }
 
 .filterTabs {
@@ -345,13 +345,13 @@
 }
 
 .activeFilter {
-  background: var(--primary-color, #ff8a00) !important;
-  color: #fff !important;
-  box-shadow: 0 2px 10px rgba(255, 138, 0, 0.3);
+  background: var(--primary) !important;
+  color: var(--bg-base) !important; /* High-contrast text on primary background */
+  box-shadow: 0 4px 12px var(--primary-glow);
 }
 
 .activeFilter svg {
-  color: #fff !important;
+  color: var(--bg-base) !important;
 }
 
 .filterCount {

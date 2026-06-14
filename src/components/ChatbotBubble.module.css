@@ -8,18 +8,19 @@
 
 /* Floating button */
 .bubbleButton {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary) 0%, hsl(var(--hue-primary), 80%, 45%) 100%);
-  border: 1px solid hsla(var(--hue-primary), 100%, 75%, 0.3);
-  color: var(--bg-base);
+  background: hsla(28, 12%, 14%, 0.9);
+  border: 1.5px solid var(--border-color-hover);
+  color: var(--primary); /* Ginger gold icon */
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 8px 24px hsla(var(--hue-primary), 85%, 60%, 0.35);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(15, 10, 5, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   outline: none;
 }
 
@@ -49,7 +50,7 @@
   max-height: calc(100vh - 140px);
   display: flex;
   flex-direction: column;
-  background: hsla(223, 47%, 8%, 0.96); /* decreased transparency (more opaque) */
+  background: hsla(28, 12%, 8%, 0.96); /* decreased transparency (more opaque) */
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--border-color);
@@ -140,7 +141,7 @@
 /* Header */
 .header {
   padding: 16px;
-  background: hsla(223, 47%, 8%, 0.5);
+  background: hsla(28, 12%, 8%, 0.5);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
@@ -217,7 +218,7 @@
 /* Model selector panel */
 .modelSelector {
   padding: 8px 16px;
-  background: hsla(223, 47%, 6%, 0.3);
+  background: hsla(28, 12%, 6%, 0.3);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
@@ -277,18 +278,19 @@
 }
 
 .bubbleUser {
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary) 0%, hsl(var(--hue-primary), 80%, 45%) 100%);
   color: var(--bg-base);
+  font-weight: 500;
   border-bottom-right-radius: 4px;
-  box-shadow: 0 4px 10px var(--primary-glow);
+  box-shadow: 0 4px 12px var(--primary-glow);
 }
 
 .bubbleAssistant {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
+  background: hsla(28, 10%, 18%, 0.85); /* stands out clearly from window background */
+  border: 1px solid var(--border-color-hover);
   color: var(--text-primary);
   border-bottom-left-radius: 4px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .meta {
@@ -340,7 +342,7 @@
 /* Input area */
 .inputArea {
   padding: 12px 16px;
-  background: hsla(223, 47%, 8%, 0.5);
+  background: hsla(28, 12%, 8%, 0.5);
   border-top: 1px solid var(--border-color);
   display: flex;
   gap: 8px;
@@ -404,7 +406,7 @@
 
 .disclaimer {
   padding: 4px 16px 10px 16px;
-  background: hsla(223, 47%, 8%, 0.5);
+  background: hsla(28, 12%, 8%, 0.5);
   font-size: 0.65rem;
   color: var(--text-muted);
   text-align: center;
@@ -480,7 +482,7 @@
 /* Tool Proposals Card */
 .toolCard {
   margin-top: 10px;
-  background: hsla(223, 47%, 14%, 0.6);
+  background: hsla(28, 12%, 14%, 0.6);
   border: 1px solid hsla(var(--hue-primary), 40%, 60%, 0.2);
   border-radius: var(--radius-md);
   padding: 12px;
@@ -671,7 +673,7 @@
 }
 
 .sessionDividerText {
-  background: hsl(223, 47%, 8%);
+  background: hsl(28, 12%, 8%);
   padding: 4px 14px;
   font-size: 0.7rem;
   color: var(--text-muted);
