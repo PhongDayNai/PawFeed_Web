@@ -1036,14 +1036,15 @@ function cleanLatex(formula: string): React.ReactNode {
   cleaned = cleaned.replace(/\\geq(?![a-zA-Z])/g, '≥');
   cleaned = cleaned.replace(/\\ge(?![a-zA-Z])/g, '≥');
   
-  cleaned = cleaned.replace(/\\alpha(?![a-zA-Z])/g, 'α');
-  cleaned = cleaned.replace(/\\beta(?![a-zA-Z])/g, 'β');
-  cleaned = cleaned.replace(/\\gamma(?![a-zA-Z])/g, 'γ');
-  cleaned = cleaned.replace(/\\delta(?![a-zA-Z])/g, 'δ');
-  cleaned = cleaned.replace(/\\theta(?![a-zA-Z])/g, 'θ');
-  cleaned = cleaned.replace(/\\pi(?![a-zA-Z])/g, 'π');
-  cleaned = cleaned.replace(/\\sigma(?![a-zA-Z])/g, 'σ');
-  cleaned = cleaned.replace(/\\mu(?![a-zA-Z])/g, 'μ');
+  cleaned = cleaned.replace(/\\alpha/g, 'α');
+  cleaned = cleaned.replace(/\\beta/g, 'β');
+  cleaned = cleaned.replace(/\\gamma/g, 'γ');
+  cleaned = cleaned.replace(/\\delta/g, 'δ');
+  cleaned = cleaned.replace(/\\Delta/g, 'Δ');
+  cleaned = cleaned.replace(/\\theta/g, 'θ');
+  cleaned = cleaned.replace(/\\pi/g, 'π');
+  cleaned = cleaned.replace(/\\sigma/g, 'σ');
+  cleaned = cleaned.replace(/\\mu/g, 'μ');
 
   return parseMathToReact(cleaned.trim());
 }
@@ -1064,14 +1065,15 @@ function cleanInlineMath(text: string): string {
   result = result.replace(/\\le(?![a-zA-Z])/g, '≤');
   result = result.replace(/\\geq(?![a-zA-Z])/g, '≥');
   result = result.replace(/\\ge(?![a-zA-Z])/g, '≥');
-  result = result.replace(/\\alpha(?![a-zA-Z])/g, 'α');
-  result = result.replace(/\\beta(?![a-zA-Z])/g, 'β');
-  result = result.replace(/\\gamma(?![a-zA-Z])/g, 'γ');
-  result = result.replace(/\\delta(?![a-zA-Z])/g, 'δ');
-  result = result.replace(/\\theta(?![a-zA-Z])/g, 'θ');
-  result = result.replace(/\\pi(?![a-zA-Z])/g, 'π');
-  result = result.replace(/\\sigma(?![a-zA-Z])/g, 'σ');
-  result = result.replace(/\\mu(?![a-zA-Z])/g, 'μ');
+  result = result.replace(/\\alpha/g, 'α');
+  result = result.replace(/\\beta/g, 'β');
+  result = result.replace(/\\gamma/g, 'γ');
+  result = result.replace(/\\delta/g, 'δ');
+  result = result.replace(/\\Delta/g, 'Δ');
+  result = result.replace(/\\theta/g, 'θ');
+  result = result.replace(/\\pi/g, 'π');
+  result = result.replace(/\\sigma/g, 'σ');
+  result = result.replace(/\\mu/g, 'μ');
 
   result = result.replace(/\$\$([^\$]+)\$\$/g, '$1');
   result = result.replace(/\$([^\$]+)\$/g, '$1');
