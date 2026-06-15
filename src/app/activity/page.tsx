@@ -96,6 +96,13 @@ export default function ActivityPage() {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    if (!status) return t('common.unknown');
+    const key = `common.status_${status.toLowerCase()}`;
+    const val = t(key);
+    return val === key ? status : val;
+  };
+
   const getEventMessage = (event: any) => {
     const payload = event.payload || {};
     switch (event.eventType) {
@@ -161,6 +168,7 @@ export default function ActivityPage() {
                   value: d.deviceId,
                   label: `${d.displayName || t('common.unknown')} (${d.deviceId.substring(0, 6)})`,
                 }))}
+                placeholder={t('common.select')}
                 className={styles.deviceSelect}
               />
               {selectedDeviceId && (
@@ -224,7 +232,7 @@ export default function ActivityPage() {
                       <div className={styles.logBody}>
                         <span>{t('dashboard.dispensing_time')} <strong>{item.openDurationMs / 1000}s</strong></span>
                         <span className={`badge ${item.status === 'completed' ? 'badge-online' : 'badge-warning'}`}>
-                          {item.status === 'completed' ? t('common.done') : item.status}
+                          {getStatusLabel(item.status)}
                         </span>
                       </div>
                     </PawCard>
@@ -253,9 +261,9 @@ export default function ActivityPage() {
                           <div className={styles.eventContent}>
                             <div className={styles.eventHeader}>
                               <span className={`${styles.eventBadge} ${eventTypeClass}`}>
-                                {event.eventType === 'device_error' ? 'ERROR' : 
-                                 event.eventType === 'config_applied' ? 'CONFIG' : 
-                                 event.eventType === 'feeding_completed' ? 'FEED' : 'INFO'}
+                                {event.eventType === 'device_error' ? t('activity.event_type_error') : 
+                                 event.eventType === 'config_applied' ? t('activity.event_type_config') : 
+                                 event.eventType === 'feeding_completed' ? t('activity.event_type_feed') : t('activity.event_type_info')}
                               </span>
                               <span className={styles.eventTime}>{formatTime(event.createdAt)}</span>
                             </div>

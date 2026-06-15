@@ -104,7 +104,7 @@ export function Header() {
           </Link>
 
           <div className={styles.rightSection}>
-            <button onClick={toggleLanguage} className={styles.langToggle} title="Switch language">
+            <button onClick={toggleLanguage} className={styles.langToggle} title={t('nav.switch_language')}>
               <Globe size={14} style={{ marginRight: '6px' }} />
               {language === 'en' ? 'EN' : 'VI'}
             </button>

@@ -301,7 +301,7 @@ export default function DevicesPage() {
                   <Cpu className={styles.inputIcon} size={18} />
                   <input
                     type="text"
-                    placeholder="e.g. PF-982314-B"
+                    placeholder={t('link_device.machine_code_placeholder')}
                     className="input-field"
                     style={{ paddingLeft: '44px' }}
                     value={machineCode}
@@ -318,7 +318,7 @@ export default function DevicesPage() {
                   <KeyRound className={styles.inputIcon} size={18} />
                   <input
                     type="text"
-                    placeholder="e.g. 439012"
+                    placeholder={t('link_device.pairing_code_placeholder')}
                     className="input-field"
                     style={{ paddingLeft: '44px' }}
                     value={pairingCode}

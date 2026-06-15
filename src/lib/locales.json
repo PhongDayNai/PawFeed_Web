@@ -20,7 +20,13 @@
       "last_seen": "Last seen",
       "connected": "Connected",
       "disconnected": "Disconnected",
-      "initializing": "Initializing..."
+      "initializing": "Initializing...",
+      "show_password": "Show password",
+      "hide_password": "Hide password",
+      "select": "Select...",
+      "status_completed": "Completed",
+      "status_failed": "Failed",
+      "status_pending": "Pending"
     },
     "nav": {
       "dashboard": "Dashboard",
@@ -33,7 +39,8 @@
       "toast_offline": "Device {id} is now OFFLINE",
       "toast_feeding_completed": "Feeding completed! Source: {source}, Duration: {duration}s",
       "toast_config_applied": "Config version {version} applied to device!",
-      "toast_error": "Error: {message}"
+      "toast_error": "Error: {message}",
+      "switch_language": "Switch language"
     },
     "login": {
       "title": "Sign In",
@@ -109,19 +116,21 @@
       "rename_dialog_title": "Rename Feeder",
       "rename_dialog_label": "New Display Name",
       "wifi_dialog_title": "Generate WiFi Config",
-      "wifi_dialog_desc": "WiFi credential config file will download automatically to be loaded into ESP firmware.",
+      "wifi_dialog_desc": "WiFi config file will download automatically. To apply it, please access the IP address displayed in the Device Information section (make sure your phone/computer is connected to the same WiFi network as the device) and upload the file.",
       "wifi_ssid_label": "WiFi SSID Name",
       "wifi_password_label": "WiFi Password",
       "confirm_unlink_title": "Unlink Feeder",
       "confirm_unlink_desc": "Are you sure you want to unlink this device? Your feeder will no longer be associated with your account, and all schedule backups on the server will be deleted.",
-      "wifi_success": "Config file saved successfully. Please copy it to your device's storage root.",
+      "wifi_success": "Config file saved successfully. Please access your device's IP address to upload the file.",
       "change_wifi_checkbox": "Change WiFi configuration",
       "current_wifi_ssid": "Current WiFi SSID:",
       "regenerate_desc": "WiFi credentials have been saved. Click Confirm to download the configuration file using saved settings.",
       "load_failed_err": "Failed to load device details.",
       "rename_failed_err": "Failed to rename device.",
       "wifi_failed_err": "Failed to generate WiFi config.",
-      "unlink_failed_err": "Failed to unlink device."
+      "unlink_failed_err": "Failed to unlink device.",
+      "wifi_ssid_placeholder": "e.g. MyHomeWiFi",
+      "wifi_password_placeholder": "e.g. 12345678"
     },
     "feed": {
       "duration_label": "Feed Duration",
@@ -199,7 +208,9 @@
       "machine_code": "Machine Code",
       "pairing_code": "Pairing Code",
       "pair_btn": "Pair & Link Device",
-      "link_failed_err": "Failed to link feeder. Verify your machine code and pairing code."
+      "link_failed_err": "Failed to link feeder. Verify your machine code and pairing code.",
+      "machine_code_placeholder": "e.g. PF-982314-B",
+      "pairing_code_placeholder": "e.g. 439012"
     },
     "devices": {
       "title": "Devices",
@@ -226,7 +237,11 @@
       "event_config_applied": "Configuration applied successfully (Version: {version})",
       "event_device_status_updated": "Connection status updated",
       "event_other": "Other system event",
-      "load_failed_err": "Failed to load activity logs."
+      "load_failed_err": "Failed to load activity logs.",
+      "event_type_error": "Error",
+      "event_type_config": "Config",
+      "event_type_feed": "Feed",
+      "event_type_info": "Info"
     },
     "errors": {
       "api_failed": "Failed to connect to the server. Please try again later.",
@@ -249,6 +264,7 @@
       "new_topic": "New Topic",
       "confirm_reset": "Are you sure you want to start a new chat session? Your current chat history will be archived.",
       "connect_failed": "Failed to communicate with AI server.",
+      "greeting": "Hello! I'm Nomi, your PawFeed pet care assistant. Glad to help you today! How is your pet doing? 🐾",
       "disclaimer": "🐾 Nomi is an AI assistant. Responses and calculations are for reference only.",
       "new_session_divider": "New Conversation",
       "proposal": {
@@ -285,7 +301,13 @@
       "last_seen": "Hoạt động cuối",
       "connected": "Đã kết nối",
       "disconnected": "Mất kết nối",
-      "initializing": "Đang khởi tạo..."
+      "initializing": "Đang khởi tạo...",
+      "show_password": "Hiển thị mật khẩu",
+      "hide_password": "Ẩn mật khẩu",
+      "select": "Chọn...",
+      "status_completed": "Đã hoàn thành",
+      "status_failed": "Thất bại",
+      "status_pending": "Đang xử lý"
     },
     "nav": {
       "dashboard": "Bảng điều khiển",
@@ -298,7 +320,8 @@
       "toast_offline": "Thiết bị {id} hiện đã OFFLINE",
       "toast_feeding_completed": "Cho ăn hoàn tất! Nguồn: {source}, Thời gian: {duration} giây",
       "toast_config_applied": "Đã áp dụng cấu hình phiên bản {version} cho thiết bị!",
-      "toast_error": "Lỗi: {message}"
+      "toast_error": "Lỗi: {message}",
+      "switch_language": "Chuyển đổi ngôn ngữ"
     },
     "login": {
       "title": "Đăng nhập",
@@ -374,19 +397,21 @@
       "rename_dialog_title": "Đổi tên máy cho ăn",
       "rename_dialog_label": "Tên hiển thị mới",
       "wifi_dialog_title": "Tạo cấu hình WiFi",
-      "wifi_dialog_desc": "File cấu hình WiFi sẽ tự động tải xuống. Vui lòng copy vào thư mục gốc thẻ nhớ thiết bị ESP.",
+      "wifi_dialog_desc": "File cấu hình WiFi sẽ tự động tải xuống. Để áp dụng, vui lòng truy cập vào địa chỉ IP hiển thị trong phần Thông tin thiết bị (yêu cầu điện thoại/máy tính của bạn đang kết nối cùng mạng WiFi với thiết bị) rồi tải file cấu hình lên.",
       "wifi_ssid_label": "Tên mạng WiFi (SSID)",
       "wifi_password_label": "Mật khẩu WiFi",
       "confirm_unlink_title": "Hủy liên kết thiết bị",
       "confirm_unlink_desc": "Bạn có chắc chắn muốn gỡ thiết bị này? Thiết bị sẽ không còn liên kết với tài khoản này nữa và toàn bộ dữ liệu lịch trình sao lưu trên server sẽ bị xóa bỏ.",
-      "wifi_success": "Đã tạo file cấu hình thành công. Vui lòng copy tệp tin vào bộ nhớ thiết bị của bạn.",
+      "wifi_success": "Đã tạo file cấu hình thành công. Vui lòng truy cập địa chỉ IP của thiết bị để tải tệp tin này lên.",
       "change_wifi_checkbox": "Thay đổi cấu hình WiFi",
       "current_wifi_ssid": "WiFi hiện tại:",
       "regenerate_desc": "Cấu hình WiFi đã được lưu. Nhấn Xác nhận để tải lại file cấu hình với thông tin cũ.",
       "load_failed_err": "Lỗi tải thông tin chi tiết thiết bị.",
       "rename_failed_err": "Đổi tên thiết bị thất bại.",
       "wifi_failed_err": "Tạo cấu hình WiFi thất bại.",
-      "unlink_failed_err": "Hủy liên kết thiết bị thất bại."
+      "unlink_failed_err": "Hủy liên kết thiết bị thất bại.",
+      "wifi_ssid_placeholder": "Ví dụ: MyHomeWiFi",
+      "wifi_password_placeholder": "Ví dụ: 12345678"
     },
     "feed": {
       "duration_label": "Thời gian nhả hạt",
@@ -464,7 +489,9 @@
       "machine_code": "Mã thiết bị (Machine Code)",
       "pairing_code": "Mã liên kết (Pairing Code)",
       "pair_btn": "Kết nối thiết bị",
-      "link_failed_err": "Liên kết thiết bị thất bại. Vui lòng kiểm tra lại Machine Code và Pairing Code."
+      "link_failed_err": "Liên kết thiết bị thất bại. Vui lòng kiểm tra lại Machine Code và Pairing Code.",
+      "machine_code_placeholder": "Ví dụ: PF-982314-B",
+      "pairing_code_placeholder": "Ví dụ: 439012"
     },
     "devices": {
       "title": "Thiết bị",
@@ -491,7 +518,11 @@
       "event_config_applied": "Áp dụng cấu hình thành công (Phiên bản: {version})",
       "event_device_status_updated": "Cập nhật trạng thái kết nối",
       "event_other": "Sự kiện hệ thống khác",
-      "load_failed_err": "Lỗi tải nhật ký hoạt động."
+      "load_failed_err": "Lỗi tải nhật ký hoạt động.",
+      "event_type_error": "Lỗi",
+      "event_type_config": "Cấu hình",
+      "event_type_feed": "Cho ăn",
+      "event_type_info": "Thông tin"
     },
     "errors": {
       "api_failed": "Kết nối tới máy chủ thất bại. Vui lòng thử lại sau.",
@@ -514,6 +545,7 @@
       "new_topic": "Chủ đề mới",
       "confirm_reset": "Bạn có chắc chắn muốn bắt đầu phiên chat mới? Lịch sử chat hiện tại sẽ được lưu trữ.",
       "connect_failed": "Không thể kết nối đến máy chủ AI.",
+      "greeting": "Chào bạn! Tôi là Nomi, trợ lý chăm sóc thú cưng PawFeed. Rất vui được hỗ trợ bạn hôm nay! Bé cưng của bạn thế nào rồi? 🐾",
       "disclaimer": "🐾 Nomi là trợ lý AI. Thông tin và tính toán chỉ mang tính chất tham khảo.",
       "new_session_divider": "Cuộc hội thoại mới",
       "proposal": {

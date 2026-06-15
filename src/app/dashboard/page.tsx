@@ -282,6 +282,13 @@ export default function DashboardPage() {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    if (!status) return t('common.unknown');
+    const key = `common.status_${status.toLowerCase()}`;
+    const val = t(key);
+    return val === key ? status : val;
+  };
+
   if (dashboardLoading && !data) {
     return (
       <div className={styles.loadingContainer}>
@@ -501,7 +508,7 @@ export default function DashboardPage() {
                           <span className={styles.historyTime}>{formatTime(history.startedAt)}</span>
                         </div>
                         <span className={`badge ${history.status === 'completed' ? 'badge-online' : 'badge-warning'}`}>
-                          {history.status === 'completed' ? t('common.done') : history.status}
+                          {getStatusLabel(history.status)}
                         </span>
                       </div>
                       <div className={styles.historyBody}>

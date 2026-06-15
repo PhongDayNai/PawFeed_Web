@@ -464,7 +464,7 @@ export default function DeviceDetailPage() {
                     <label className="form-label">{t('device_detail.wifi_ssid_label')}</label>
                     <input
                       type="text"
-                      placeholder="e.g. MyHomeWiFi"
+                      placeholder={t('device_detail.wifi_ssid_placeholder')}
                       className="input-field"
                       value={wifiSsid}
                       onChange={(e) => setWifiSsid(e.target.value)}
@@ -476,7 +476,7 @@ export default function DeviceDetailPage() {
                     <label className="form-label">{t('device_detail.wifi_password_label')}</label>
                     <input
                       type="password"
-                      placeholder="e.g. 12345678"
+                      placeholder={t('device_detail.wifi_password_placeholder')}
                       className="input-field"
                       value={wifiPassword}
                       onChange={(e) => setWifiPassword(e.target.value)}

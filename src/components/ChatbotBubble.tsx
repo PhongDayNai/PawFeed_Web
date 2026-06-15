@@ -8,9 +8,13 @@ import { ChatbotMessage } from '../lib/types';
 import { MessageSquare, Send, X, Bot, Sparkles, RefreshCw, AlertCircle, Calendar, Utensils, CheckCircle2, XCircle, Loader2, MessageSquarePlus } from 'lucide-react';
 import styles from './ChatbotBubble.module.css';
 
+let currentLanguage = 'vi';
+
 export function ChatbotBubble() {
   const { isAuthenticated } = useApp();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+
+  currentLanguage = language;
 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<(ChatbotMessage & { isHistory?: boolean })[]>([]);
@@ -47,7 +51,7 @@ export function ChatbotBubble() {
           // It's a new session, append greeting
           const greetingMsg: ChatbotMessage & { isHistory?: boolean } = {
             role: 'assistant',
-            content: initRes.greeting || 'Chào bạn! Tôi là Nomi, trợ lý chăm sóc thú cưng PawFeed. Rất vui được hỗ trợ bạn hôm nay! Bé cưng của bạn thế nào rồi? 🐾',
+            content: initRes.greeting || t('chatbot.greeting'),
             createdAt: new Date().toISOString(),
             sessionId: initRes.sessionId,
             isHistory: false,
@@ -1010,7 +1014,7 @@ function cleanMathSymbols(text: string): string {
   result = result.replace(/\\dots/g, '…');
 
   // Replace standard symbols
-  result = result.replace(/\(ms\)/g, '(mili giây)');
+  result = result.replace(/\(ms\)/g, currentLanguage === 'en' ? '(ms)' : '(mili giây)');
   result = result.replace(/\s*\\div\s*/g, ' ÷ ');
   result = result.replace(/\s*\\rightarrow\s*/g, ' → ');
   result = result.replace(/\s*\\to\s*/g, ' → ');
@@ -1215,7 +1219,7 @@ function cleanLatex(formula: string): React.ReactNode {
   cleaned = cleaned.replace(/\\dots/g, '…');
 
   // Replace standard symbols
-  cleaned = cleaned.replace(/\(ms\)/g, '(mili giây)');
+  cleaned = cleaned.replace(/\(ms\)/g, currentLanguage === 'en' ? '(ms)' : '(mili giây)');
   cleaned = cleaned.replace(/\s*\\div\s*/g, ' ÷ ');
   cleaned = cleaned.replace(/\s*\\rightarrow\s*/g, ' → ');
   cleaned = cleaned.replace(/\s*\\to\s*/g, ' → ');
