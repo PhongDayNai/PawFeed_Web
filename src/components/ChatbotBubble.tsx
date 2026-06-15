@@ -59,6 +59,9 @@ export function ChatbotBubble() {
           setMessages([...historyMessages, greetingMsg]);
         } else {
           setMessages(historyMessages);
+          if (historyMessages.length > 0 && historyMessages[historyMessages.length - 1].role === 'user') {
+            setErrorMsg(t('chatbot.history_no_response'));
+          }
         }
         setHasInitialized(true);
       } else {

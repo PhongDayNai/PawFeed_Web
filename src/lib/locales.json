@@ -265,6 +265,7 @@
       "confirm_reset": "Are you sure you want to start a new chat session? Your current chat history will be archived.",
       "connect_failed": "Failed to communicate with AI server.",
       "greeting": "Hello! I'm Nomi, your PawFeed pet care assistant. Glad to help you today! How is your pet doing? 🐾",
+      "history_no_response": "No response received for the previous message.",
       "disclaimer": "🐾 Nomi is an AI assistant. Responses and calculations are for reference only.",
       "new_session_divider": "New Conversation",
       "proposal": {
@@ -546,6 +547,7 @@
       "confirm_reset": "Bạn có chắc chắn muốn bắt đầu phiên chat mới? Lịch sử chat hiện tại sẽ được lưu trữ.",
       "connect_failed": "Không thể kết nối đến máy chủ AI.",
       "greeting": "Chào bạn! Tôi là Nomi, trợ lý chăm sóc thú cưng PawFeed. Rất vui được hỗ trợ bạn hôm nay! Bé cưng của bạn thế nào rồi? 🐾",
+      "history_no_response": "Không nhận được phản hồi cho tin nhắn trước đó.",
       "disclaimer": "🐾 Nomi là trợ lý AI. Thông tin và tính toán chỉ mang tính chất tham khảo.",
       "new_session_divider": "Cuộc hội thoại mới",
       "proposal": {
