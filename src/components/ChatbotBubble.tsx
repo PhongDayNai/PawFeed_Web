@@ -847,113 +847,211 @@ function findMatchingBrace(str: string, startIndex: number): number {
   return -1;
 }
 
-function cleanMathSymbols(text: string): string {
-  let result = text;
-  
-  // Replace fractions \frac{a}{b} -> a / b using balanced brace matching
-  let fracIdx;
-  let fracSearchIdx = 0;
-  while ((fracIdx = result.indexOf('\\frac{', fracSearchIdx)) !== -1) {
-    let startParam1 = fracIdx + 6;
-    let endParam1 = findMatchingBrace(result, startParam1);
-    if (endParam1 === -1) {
-      fracSearchIdx = startParam1;
-      continue;
+function parseMathToReact(str: string): React.ReactNode {
+  if (!str) return null;
+
+  const targets = [
+    { key: '\\frac{', len: 6 },
+    { key: '\\text{', len: 6 },
+    { key: '\\sqrt{', len: 6 },
+    { key: '^{', len: 2 },
+    { key: '_{', len: 2 }
+  ];
+
+  let firstIndex = -1;
+  let selectedTarget: { key: string, len: number } | null = null;
+
+  for (const t of targets) {
+    const idx = str.indexOf(t.key);
+    if (idx !== -1) {
+      if (firstIndex === -1 || idx < firstIndex) {
+        firstIndex = idx;
+        selectedTarget = t;
+      }
     }
-    const param1 = result.substring(startParam1, endParam1);
-    
-    let startParam2 = endParam1 + 1;
-    if (result[startParam2] !== '{') {
-      while (startParam2 < result.length && /\s/.test(result[startParam2])) {
+  }
+
+  if (firstIndex === -1 || !selectedTarget) {
+    return str;
+  }
+
+  const before = str.substring(0, firstIndex);
+  const start = firstIndex + selectedTarget.len;
+  const end = findMatchingBrace(str, start);
+  
+  if (end === -1) {
+    return (
+      <>
+        {parseMathToReact(before)}
+        {str.substring(firstIndex, start)}
+        {parseMathToReact(str.substring(start))}
+      </>
+    );
+  }
+
+  const inner = str.substring(start, end);
+  const after = str.substring(end + 1);
+
+  if (selectedTarget.key === '\\frac{') {
+    let startParam2 = end + 1;
+    if (str[startParam2] !== '{') {
+      while (startParam2 < str.length && /\s/.test(str[startParam2])) {
         startParam2++;
       }
     }
-    if (result[startParam2] !== '{') {
-      fracSearchIdx = startParam1;
-      continue;
+    if (str[startParam2] !== '{') {
+      return (
+        <>
+          {parseMathToReact(before)}
+          <span style={{ color: 'red' }}>\frac{'{'}{inner}{'}'}</span>
+          {parseMathToReact(after)}
+        </>
+      );
     }
-    
-    let endParam2 = findMatchingBrace(result, startParam2 + 1);
+    const endParam2 = findMatchingBrace(str, startParam2 + 1);
     if (endParam2 === -1) {
-      fracSearchIdx = startParam2 + 1;
-      continue;
+      return (
+        <>
+          {parseMathToReact(before)}
+          <span style={{ color: 'red' }}>\frac{'{'}{inner}{'}'}</span>
+          {parseMathToReact(str.substring(startParam2))}
+        </>
+      );
     }
-    const param2 = result.substring(startParam2 + 1, endParam2);
-    
-    result = result.substring(0, fracIdx) + param1 + ' / ' + param2 + result.substring(endParam2 + 1);
-    fracSearchIdx = 0; // Reset search index as string changed
+    const param2 = str.substring(startParam2 + 1, endParam2);
+    const afterParam2 = str.substring(endParam2 + 1);
+
+    return (
+      <>
+        {parseMathToReact(before)}
+        <span style={{ 
+          display: 'inline-flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          verticalAlign: 'middle', 
+          padding: '0 8px', 
+          lineHeight: 1.25 
+        }}>
+          <span style={{ 
+            borderBottom: '1.5px solid var(--accent)', 
+            paddingBottom: '4px', 
+            textAlign: 'center', 
+            width: '100%', 
+            display: 'block' 
+          }}>
+            {parseMathToReact(inner)}
+          </span>
+          <span style={{ 
+            paddingTop: '4px', 
+            textAlign: 'center', 
+            width: '100%', 
+            display: 'block' 
+          }}>
+            {parseMathToReact(param2)}
+          </span>
+        </span>
+        {parseMathToReact(afterParam2)}
+      </>
+    );
   }
 
-  // Replace \text{...} using balanced brace matching
-  let textIdx;
-  let textSearchIdx = 0;
-  while ((textIdx = result.indexOf('\\text{', textSearchIdx)) !== -1) {
-    let start = textIdx + 6;
-    let end = findMatchingBrace(result, start);
-    if (end === -1) {
-      textSearchIdx = start;
-      continue;
-    }
-    const inner = result.substring(start, end);
-    result = result.substring(0, textIdx) + inner + result.substring(end + 1);
-    textSearchIdx = 0;
+  if (selectedTarget.key === '\\text{') {
+    return (
+      <>
+        {parseMathToReact(before)}
+        <span style={{ fontFamily: 'var(--font-sans)', fontStyle: 'normal', fontWeight: 500 }}>
+          {parseMathToReact(inner)}
+        </span>
+        {parseMathToReact(after)}
+      </>
+    );
   }
 
-  // Replace superscripts ^{...} using balanced brace matching
-  let superIdx;
-  let superSearchIdx = 0;
-  while ((superIdx = result.indexOf('^{', superSearchIdx)) !== -1) {
-    let start = superIdx + 2;
-    let end = findMatchingBrace(result, start);
-    if (end === -1) {
-      superSearchIdx = start;
-      continue;
-    }
-    const inner = result.substring(start, end);
-    result = result.substring(0, superIdx) + '^' + inner + result.substring(end + 1);
-    superSearchIdx = 0;
+  if (selectedTarget.key === '\\sqrt{') {
+    return (
+      <>
+        {parseMathToReact(before)}
+        <span style={{ display: 'inline-flex', alignItems: 'center', verticalAlign: 'middle' }}>
+          <span style={{ fontSize: '1.25em', lineHeight: 1, marginRight: '-1px', transform: 'translateY(-1px)' }}>√</span>
+          <span style={{ borderTop: '1.5px solid currentColor', paddingTop: '1px', display: 'inline-block' }}>
+            {parseMathToReact(inner)}
+          </span>
+        </span>
+        {parseMathToReact(after)}
+      </>
+    );
   }
 
-  // Replace subscripts _{...} using balanced brace matching
-  let subIdx;
-  let subSearchIdx = 0;
-  while ((subIdx = result.indexOf('_{', subSearchIdx)) !== -1) {
-    let start = subIdx + 2;
-    let end = findMatchingBrace(result, start);
-    if (end === -1) {
-      subSearchIdx = start;
-      continue;
-    }
-    const inner = result.substring(start, end);
-    result = result.substring(0, subIdx) + '_' + inner + result.substring(end + 1);
-    subSearchIdx = 0;
+  if (selectedTarget.key === '^{') {
+    return (
+      <>
+        {parseMathToReact(before)}
+        <sup style={{ fontSize: '0.75em', verticalAlign: 'super', lineHeight: 0, marginLeft: '1px' }}>
+          {parseMathToReact(inner)}
+        </sup>
+        {parseMathToReact(after)}
+      </>
+    );
   }
 
-  // Replace square roots: \sqrt{x} -> √(x) using balanced brace matching
-  let sqrtIdx;
-  let sqrtSearchIdx = 0;
-  while ((sqrtIdx = result.indexOf('\\sqrt{', sqrtSearchIdx)) !== -1) {
-    let start = sqrtIdx + 6;
-    let end = findMatchingBrace(result, start);
-    if (end === -1) {
-      sqrtSearchIdx = start;
-      continue;
-    }
-    const inner = result.substring(start, end);
-    result = result.substring(0, sqrtIdx) + '√(' + inner + ')' + result.substring(end + 1);
-    sqrtSearchIdx = 0;
+  if (selectedTarget.key === '_{') {
+    return (
+      <>
+        {parseMathToReact(before)}
+        <sub style={{ fontSize: '0.75em', verticalAlign: 'sub', lineHeight: 0, marginLeft: '1px' }}>
+          {parseMathToReact(inner)}
+        </sub>
+        {parseMathToReact(after)}
+      </>
+    );
   }
 
-  // Remove backslashes for standard math functions
-  result = result.replace(/\\(ln|log|exp|sin|cos|tan)(?![a-zA-Z])/g, '$1');
+  return str;
+}
 
+function cleanLatex(formula: string): React.ReactNode {
+  let cleaned = formula;
+  
   // Replace spacing commands
-  result = result.replace(/\\quad/g, '  ');
-  result = result.replace(/\\qquad/g, '    ');
-  result = result.replace(/\\([,;:])|\\!/g, (match, p1) => p1 ? ' ' : '');
+  cleaned = cleaned.replace(/\\quad/g, '  ');
+  cleaned = cleaned.replace(/\\qquad/g, '    ');
+  cleaned = cleaned.replace(/\\([,;:])|\\!/g, (match, p1) => p1 ? ' ' : '');
+  
+  // Remove backslashes for standard math functions
+  cleaned = cleaned.replace(/\\(ln|log|exp|sin|cos|tan)(?![a-zA-Z])/g, '$1');
 
   // Replace standard symbols
-  result = result.replace(/\(ms\)/g, '(mili giây)');
+  cleaned = cleaned.replace(/\(ms\)/g, '(mili giây)');
+  cleaned = cleaned.replace(/\\div(?![a-zA-Z])/g, '÷');
+  cleaned = cleaned.replace(/\\rightarrow(?![a-zA-Z])/g, '→');
+  cleaned = cleaned.replace(/\\to(?![a-zA-Z])/g, '→');
+  cleaned = cleaned.replace(/\\times(?![a-zA-Z])/g, '×');
+  cleaned = cleaned.replace(/\\approx(?![a-zA-Z])/g, '≈');
+  cleaned = cleaned.replace(/\\neq(?![a-zA-Z])/g, '≠');
+  cleaned = cleaned.replace(/\\cdot(?![a-zA-Z])/g, '·');
+  cleaned = cleaned.replace(/\\pm(?![a-zA-Z])/g, '±');
+  
+  cleaned = cleaned.replace(/\\leq(?![a-zA-Z])/g, '≤');
+  cleaned = cleaned.replace(/\\le(?![a-zA-Z])/g, '≤');
+  cleaned = cleaned.replace(/\\geq(?![a-zA-Z])/g, '≥');
+  cleaned = cleaned.replace(/\\ge(?![a-zA-Z])/g, '≥');
+  
+  cleaned = cleaned.replace(/\\alpha(?![a-zA-Z])/g, 'α');
+  cleaned = cleaned.replace(/\\beta(?![a-zA-Z])/g, 'β');
+  cleaned = cleaned.replace(/\\gamma(?![a-zA-Z])/g, 'γ');
+  cleaned = cleaned.replace(/\\delta(?![a-zA-Z])/g, 'δ');
+  cleaned = cleaned.replace(/\\theta(?![a-zA-Z])/g, 'θ');
+  cleaned = cleaned.replace(/\\pi(?![a-zA-Z])/g, 'π');
+  cleaned = cleaned.replace(/\\sigma(?![a-zA-Z])/g, 'σ');
+  cleaned = cleaned.replace(/\\mu(?![a-zA-Z])/g, 'μ');
+
+  return parseMathToReact(cleaned.trim());
+}
+
+function cleanInlineMath(text: string): string {
+  let result = text;
+  // Fallback for simple inline replacement without React parsing
+  result = result.replace(/\\(ln|log|exp|sin|cos|tan)(?![a-zA-Z])/g, '$1');
   result = result.replace(/\\div(?![a-zA-Z])/g, '÷');
   result = result.replace(/\\rightarrow(?![a-zA-Z])/g, '→');
   result = result.replace(/\\to(?![a-zA-Z])/g, '→');
@@ -962,12 +1060,10 @@ function cleanMathSymbols(text: string): string {
   result = result.replace(/\\neq(?![a-zA-Z])/g, '≠');
   result = result.replace(/\\cdot(?![a-zA-Z])/g, '·');
   result = result.replace(/\\pm(?![a-zA-Z])/g, '±');
-  
   result = result.replace(/\\leq(?![a-zA-Z])/g, '≤');
   result = result.replace(/\\le(?![a-zA-Z])/g, '≤');
   result = result.replace(/\\geq(?![a-zA-Z])/g, '≥');
   result = result.replace(/\\ge(?![a-zA-Z])/g, '≥');
-  
   result = result.replace(/\\alpha(?![a-zA-Z])/g, 'α');
   result = result.replace(/\\beta(?![a-zA-Z])/g, 'β');
   result = result.replace(/\\gamma(?![a-zA-Z])/g, 'γ');
@@ -977,16 +1073,6 @@ function cleanMathSymbols(text: string): string {
   result = result.replace(/\\sigma(?![a-zA-Z])/g, 'σ');
   result = result.replace(/\\mu(?![a-zA-Z])/g, 'μ');
 
-  return result;
-}
-
-function cleanLatex(formula: string): string {
-  return cleanMathSymbols(formula).trim();
-}
-
-function cleanInlineMath(text: string): string {
-  let result = text;
-  result = cleanMathSymbols(result);
   result = result.replace(/\$\$([^\$]+)\$\$/g, '$1');
   result = result.replace(/\$([^\$]+)\$/g, '$1');
   result = result.replace(/\\\((.*?)\\\)/g, '$1');
