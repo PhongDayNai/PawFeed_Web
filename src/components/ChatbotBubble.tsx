@@ -21,7 +21,7 @@ export function ChatbotBubble() {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const model = 'gemma-4-e4b';
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorKey, setErrorKey] = useState('');
   const [hasInitialized, setHasInitialized] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [toolStates, setToolStates] = useState<Record<string, 'pending' | 'loading' | 'success' | 'error' | 'rejected'>>({});
@@ -31,7 +31,7 @@ export function ChatbotBubble() {
   // Load chat history or initialize session when opened for the first time
   const loadChatSession = React.useCallback(async (force = false) => {
     setIsLoading(true);
-    setErrorMsg('');
+    setErrorKey('');
     try {
       const initRes = await chatbotApi.initChatbot(force);
       if (initRes.ok) {
@@ -60,16 +60,16 @@ export function ChatbotBubble() {
         } else {
           setMessages(historyMessages);
           if (historyMessages.length > 0 && historyMessages[historyMessages.length - 1].role === 'user') {
-            setErrorMsg(t('chatbot.history_no_response'));
+            setErrorKey('chatbot.history_no_response');
           }
         }
         setHasInitialized(true);
       } else {
-        setErrorMsg(t('chatbot.connect_failed'));
+        setErrorKey('chatbot.connect_failed');
       }
     } catch (err) {
       console.error('Failed to initialize Nomi chatbot', err);
-      setErrorMsg(t('chatbot.connect_failed'));
+      setErrorKey('chatbot.connect_failed');
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +124,7 @@ export function ChatbotBubble() {
     setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setIsLoading(true);
-    setErrorMsg('');
+    setErrorKey('');
 
     try {
       const res = await chatbotApi.sendChatbotMessage([userMessage], model, msgId);
@@ -135,11 +135,11 @@ export function ChatbotBubble() {
         };
         setMessages((prev) => [...prev, aiMessage]);
       } else {
-        setErrorMsg(t('chatbot.connect_failed'));
+        setErrorKey('chatbot.connect_failed');
       }
     } catch (err) {
       console.error('Failed to send chatbot message', err);
-      setErrorMsg(t('chatbot.connect_failed'));
+      setErrorKey('chatbot.connect_failed');
     } finally {
       setIsLoading(false);
     }
@@ -159,7 +159,7 @@ export function ChatbotBubble() {
     };
 
     setIsLoading(true);
-    setErrorMsg('');
+    setErrorKey('');
 
     try {
       const res = await chatbotApi.sendChatbotMessage([userMessageWithId], model, msgId);
@@ -170,11 +170,11 @@ export function ChatbotBubble() {
         };
         setMessages((prev) => [...prev, aiMessage]);
       } else {
-        setErrorMsg(t('chatbot.connect_failed'));
+        setErrorKey('chatbot.connect_failed');
       }
     } catch (err) {
       console.error('Failed to retry sending chatbot message', err);
-      setErrorMsg(t('chatbot.connect_failed'));
+      setErrorKey('chatbot.connect_failed');
     } finally {
       setIsLoading(false);
     }
@@ -462,11 +462,11 @@ export function ChatbotBubble() {
           )}
 
           {/* Error Message */}
-          {errorMsg && (
+          {errorKey && (
             <div className={`${styles.errorWrapper} animate-fade-in`}>
               <div className={styles.errorBubble}>
                 <AlertCircle size={16} />
-                <span>{errorMsg}</span>
+                <span>{t(errorKey)}</span>
               </div>
               <button
                 type="button"
