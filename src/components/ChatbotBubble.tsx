@@ -518,7 +518,7 @@ function renderMarkdown(text: string): React.ReactNode {
   let inBlockquote = false;
   let quoteLines: React.ReactNode[] = [];
 
-  let inFormula = false;
+  let inFormulaType: '$$' | '\\[' | null = null;
   let formulaLines: string[] = [];
 
   let inCode = false;
@@ -608,8 +608,10 @@ function renderMarkdown(text: string): React.ReactNode {
     }
 
     // 2. Handle Formula Block
-    if (inFormula) {
-      if (trimmed.endsWith('$$')) {
+    if (inFormulaType) {
+      const isEnd = (inFormulaType === '$$' && trimmed.endsWith('$$')) ||
+                    (inFormulaType === '\\[' && trimmed.endsWith('\\]'));
+      if (isEnd) {
         const lastLinePart = trimmed.substring(0, trimmed.length - 2);
         if (lastLinePart) {
           formulaLines.push(lastLinePart);
@@ -633,7 +635,7 @@ function renderMarkdown(text: string): React.ReactNode {
             {cleanLatex(formula)}
           </div>
         );
-        inFormula = false;
+        inFormulaType = null;
         formulaLines = [];
       } else {
         formulaLines.push(line);
@@ -641,11 +643,14 @@ function renderMarkdown(text: string): React.ReactNode {
       return;
     }
 
-    if (trimmed.startsWith('$$')) {
+    if (trimmed.startsWith('$$') || trimmed.startsWith('\\[')) {
       closeUl(index);
       closeOl(index);
       closeQuote(index);
-      if (trimmed.endsWith('$$') && trimmed.length > 4) {
+      const currentType = trimmed.startsWith('$$') ? '$$' : '\\[';
+      const isEnd = (currentType === '$$' && trimmed.endsWith('$$') && trimmed.length > 4) ||
+                    (currentType === '\\[' && trimmed.endsWith('\\]') && trimmed.length > 4);
+      if (isEnd) {
         const formula = trimmed.substring(2, trimmed.length - 2);
         elements.push(
           <div key={`formula-${index}`} style={{
@@ -666,7 +671,7 @@ function renderMarkdown(text: string): React.ReactNode {
           </div>
         );
       } else {
-        inFormula = true;
+        inFormulaType = currentType;
         const firstLinePart = trimmed.substring(2);
         if (firstLinePart) {
           formulaLines.push(firstLinePart);
@@ -782,7 +787,7 @@ function renderMarkdown(text: string): React.ReactNode {
   closeOl(lines.length);
   closeQuote(lines.length);
 
-  if (inFormula && formulaLines.length > 0) {
+  if (inFormulaType && formulaLines.length > 0) {
     const formula = formulaLines.join('\n');
     elements.push(
       <div key={`formula-final`} style={{
@@ -827,27 +832,165 @@ function renderMarkdown(text: string): React.ReactNode {
   return elements;
 }
 
-function cleanLatex(formula: string): string {
-  let result = formula;
+function findMatchingBrace(str: string, startIndex: number): number {
+  let level = 1;
+  for (let i = startIndex; i < str.length; i++) {
+    if (str[i] === '{') {
+      level++;
+    } else if (str[i] === '}') {
+      level--;
+      if (level === 0) {
+        return i;
+      }
+    }
+  }
+  return -1;
+}
+
+function cleanMathSymbols(text: string): string {
+  let result = text;
+  
+  // Replace fractions \frac{a}{b} -> a / b using balanced brace matching
+  let fracIdx;
+  let fracSearchIdx = 0;
+  while ((fracIdx = result.indexOf('\\frac{', fracSearchIdx)) !== -1) {
+    let startParam1 = fracIdx + 6;
+    let endParam1 = findMatchingBrace(result, startParam1);
+    if (endParam1 === -1) {
+      fracSearchIdx = startParam1;
+      continue;
+    }
+    const param1 = result.substring(startParam1, endParam1);
+    
+    let startParam2 = endParam1 + 1;
+    if (result[startParam2] !== '{') {
+      while (startParam2 < result.length && /\s/.test(result[startParam2])) {
+        startParam2++;
+      }
+    }
+    if (result[startParam2] !== '{') {
+      fracSearchIdx = startParam1;
+      continue;
+    }
+    
+    let endParam2 = findMatchingBrace(result, startParam2 + 1);
+    if (endParam2 === -1) {
+      fracSearchIdx = startParam2 + 1;
+      continue;
+    }
+    const param2 = result.substring(startParam2 + 1, endParam2);
+    
+    result = result.substring(0, fracIdx) + param1 + ' / ' + param2 + result.substring(endParam2 + 1);
+    fracSearchIdx = 0; // Reset search index as string changed
+  }
+
+  // Replace \text{...} using balanced brace matching
+  let textIdx;
+  let textSearchIdx = 0;
+  while ((textIdx = result.indexOf('\\text{', textSearchIdx)) !== -1) {
+    let start = textIdx + 6;
+    let end = findMatchingBrace(result, start);
+    if (end === -1) {
+      textSearchIdx = start;
+      continue;
+    }
+    const inner = result.substring(start, end);
+    result = result.substring(0, textIdx) + inner + result.substring(end + 1);
+    textSearchIdx = 0;
+  }
+
+  // Replace superscripts ^{...} using balanced brace matching
+  let superIdx;
+  let superSearchIdx = 0;
+  while ((superIdx = result.indexOf('^{', superSearchIdx)) !== -1) {
+    let start = superIdx + 2;
+    let end = findMatchingBrace(result, start);
+    if (end === -1) {
+      superSearchIdx = start;
+      continue;
+    }
+    const inner = result.substring(start, end);
+    result = result.substring(0, superIdx) + '^' + inner + result.substring(end + 1);
+    superSearchIdx = 0;
+  }
+
+  // Replace subscripts _{...} using balanced brace matching
+  let subIdx;
+  let subSearchIdx = 0;
+  while ((subIdx = result.indexOf('_{', subSearchIdx)) !== -1) {
+    let start = subIdx + 2;
+    let end = findMatchingBrace(result, start);
+    if (end === -1) {
+      subSearchIdx = start;
+      continue;
+    }
+    const inner = result.substring(start, end);
+    result = result.substring(0, subIdx) + '_' + inner + result.substring(end + 1);
+    subSearchIdx = 0;
+  }
+
+  // Replace square roots: \sqrt{x} -> √(x) using balanced brace matching
+  let sqrtIdx;
+  let sqrtSearchIdx = 0;
+  while ((sqrtIdx = result.indexOf('\\sqrt{', sqrtSearchIdx)) !== -1) {
+    let start = sqrtIdx + 6;
+    let end = findMatchingBrace(result, start);
+    if (end === -1) {
+      sqrtSearchIdx = start;
+      continue;
+    }
+    const inner = result.substring(start, end);
+    result = result.substring(0, sqrtIdx) + '√(' + inner + ')' + result.substring(end + 1);
+    sqrtSearchIdx = 0;
+  }
+
+  // Remove backslashes for standard math functions
+  result = result.replace(/\\(ln|log|exp|sin|cos|tan)(?![a-zA-Z])/g, '$1');
+
+  // Replace spacing commands
+  result = result.replace(/\\quad/g, '  ');
+  result = result.replace(/\\qquad/g, '    ');
+  result = result.replace(/\\([,;:])|\\!/g, (match, p1) => p1 ? ' ' : '');
+
+  // Replace standard symbols
   result = result.replace(/\(ms\)/g, '(mili giây)');
-  result = result.replace(/\\text\{([^\}]+)\}/g, '$1');
-  result = result.replace(/\\frac\{([^\}]+)\}\{([^\}]+)\}/g, '$1 / $2');
-  result = result.replace(/\\times/g, '×');
+  result = result.replace(/\\div(?![a-zA-Z])/g, '÷');
+  result = result.replace(/\\rightarrow(?![a-zA-Z])/g, '→');
+  result = result.replace(/\\to(?![a-zA-Z])/g, '→');
+  result = result.replace(/\\times(?![a-zA-Z])/g, '×');
+  result = result.replace(/\\approx(?![a-zA-Z])/g, '≈');
+  result = result.replace(/\\neq(?![a-zA-Z])/g, '≠');
+  result = result.replace(/\\cdot(?![a-zA-Z])/g, '·');
+  result = result.replace(/\\pm(?![a-zA-Z])/g, '±');
+  
+  result = result.replace(/\\leq(?![a-zA-Z])/g, '≤');
+  result = result.replace(/\\le(?![a-zA-Z])/g, '≤');
+  result = result.replace(/\\geq(?![a-zA-Z])/g, '≥');
+  result = result.replace(/\\ge(?![a-zA-Z])/g, '≥');
+  
+  result = result.replace(/\\alpha(?![a-zA-Z])/g, 'α');
+  result = result.replace(/\\beta(?![a-zA-Z])/g, 'β');
+  result = result.replace(/\\gamma(?![a-zA-Z])/g, 'γ');
+  result = result.replace(/\\delta(?![a-zA-Z])/g, 'δ');
+  result = result.replace(/\\theta(?![a-zA-Z])/g, 'θ');
+  result = result.replace(/\\pi(?![a-zA-Z])/g, 'π');
+  result = result.replace(/\\sigma(?![a-zA-Z])/g, 'σ');
+  result = result.replace(/\\mu(?![a-zA-Z])/g, 'μ');
+
   return result;
+}
+
+function cleanLatex(formula: string): string {
+  return cleanMathSymbols(formula).trim();
 }
 
 function cleanInlineMath(text: string): string {
   let result = text;
-  result = result.replace(/\\text\{([^\}]+)\}/g, '$1');
-  result = result.replace(/\\div/g, '÷');
-  result = result.replace(/\\rightarrow/g, '→');
-  result = result.replace(/\\to/g, '→');
-  result = result.replace(/\\times/g, '×');
-  result = result.replace(/\\le(?!a)/g, '≤');
-  result = result.replace(/\\leq/g, '≤');
-  result = result.replace(/\\ge(?!t)/g, '≥');
-  result = result.replace(/\\geq/g, '≥');
+  result = cleanMathSymbols(result);
+  result = result.replace(/\$\$([^\$]+)\$\$/g, '$1');
   result = result.replace(/\$([^\$]+)\$/g, '$1');
+  result = result.replace(/\\\((.*?)\\\)/g, '$1');
+  result = result.replace(/\\\[(.*?)\\\]/g, '$1');
   result = result.replace(/\s+/g, ' ');
   return result;
 }
