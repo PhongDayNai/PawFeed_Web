@@ -504,8 +504,62 @@ export function ChatbotBubble() {
   );
 }
 
+function tokenizeFormula(formula: string): string[] {
+  let cleaned = formula.trim();
+  // Remove outer math delimiters if present
+  if (cleaned.startsWith('$') && cleaned.endsWith('$')) {
+    cleaned = cleaned.slice(1, -1).trim();
+  } else if (cleaned.startsWith('\\(') && cleaned.endsWith('\\)')) {
+    cleaned = cleaned.slice(2, -2).trim();
+  }
+  
+  // Clean markdown bold, italic, code formatting
+  cleaned = cleaned.replace(/[\*\_\`]/g, ' ');
+  
+  // Replace standard LaTeX formatting commands with space
+  cleaned = cleaned.replace(/\\(frac|sqrt|text|limits|mathbf|mathit|mathrm)/g, ' ');
+  
+  // Replace mathematical delimiters and operators with space
+  cleaned = cleaned.replace(/[\\\{\}\_\^\=\+\-\*\/\(\)\[\]\,\;\:]/g, ' ');
+  
+  // Split by whitespace, convert to lowercase, and keep only non-empty words
+  return cleaned.split(/\s+/)
+                .map(w => w.toLowerCase())
+                .filter(w => w.length > 0);
+}
+
+function extractFormulas(text: string): string[] {
+  const formulas: string[] = [];
+  
+  // Match block formulas: $$...$$ or \[...\]
+  const blockFormulaRegex = /\$\$([\s\S]*?)\$\$|\\\[([\s\S]*?)\\\]/g;
+  let blockMatch;
+  while ((blockMatch = blockFormulaRegex.exec(text)) !== null) {
+    formulas.push(blockMatch[1] || blockMatch[2]);
+  }
+  
+  // Match inline formulas: $...$ or \(...\)
+  const inlineFormulaRegex = /(?<!\$)\$([^\$]+)\$(?!\$)|\\\((.*?)\\\)/g;
+  let inlineMatch;
+  while ((inlineMatch = inlineFormulaRegex.exec(text)) !== null) {
+    formulas.push(inlineMatch[1] || inlineMatch[2]);
+  }
+  
+  return formulas;
+}
+
+function getFormulaTokens(text: string): Set<string> {
+  const tokens = new Set<string>();
+  const formulas = extractFormulas(text);
+  formulas.forEach(formula => {
+    tokenizeFormula(formula).forEach(t => tokens.add(t));
+  });
+  return tokens;
+}
+
 function renderMarkdown(text: string): React.ReactNode {
   if (!text) return null;
+  const variables = getFormulaTokens(text);
   const lines = text.split('\n');
   const elements: React.ReactNode[] = [];
 
@@ -629,7 +683,7 @@ function renderMarkdown(text: string): React.ReactNode {
             fontSize: '0.95rem',
             fontWeight: 500,
             color: 'var(--accent)',
-            wordBreak: 'break-word',
+            whiteSpace: 'nowrap',
             overflowX: 'auto',
           }}>
             {cleanLatex(formula)}
@@ -664,7 +718,7 @@ function renderMarkdown(text: string): React.ReactNode {
             fontSize: '0.95rem',
             fontWeight: 500,
             color: 'var(--accent)',
-            wordBreak: 'break-word',
+            whiteSpace: 'nowrap',
             overflowX: 'auto',
           }}>
             {cleanLatex(formula)}
@@ -704,7 +758,7 @@ function renderMarkdown(text: string): React.ReactNode {
       const quoteContent = trimmed.substring(1).trim();
       quoteLines.push(
         <p key={index} style={{ margin: '4px 0' }}>
-          {parseInlineStyles(quoteContent)}
+          {parseInlineStyles(quoteContent, variables)}
         </p>
       );
       return;
@@ -725,7 +779,7 @@ function renderMarkdown(text: string): React.ReactNode {
       const itemContent = trimmed.substring(2);
       ulItems.push(
         <li key={index} style={{ marginBottom: '4px' }}>
-          {parseInlineStyles(itemContent)}
+          {parseInlineStyles(itemContent, variables)}
         </li>
       );
       return;
@@ -743,7 +797,7 @@ function renderMarkdown(text: string): React.ReactNode {
       const itemContent = match ? match[2] : trimmed;
       olItems.push(
         <li key={index} style={{ marginBottom: '4px' }}>
-          {parseInlineStyles(itemContent)}
+          {parseInlineStyles(itemContent, variables)}
         </li>
       );
       return;
@@ -759,25 +813,25 @@ function renderMarkdown(text: string): React.ReactNode {
     if (isH3) {
       elements.push(
         <h4 key={index} style={{ margin: '14px 0 6px 0', fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-          {parseInlineStyles(trimmed.substring(4))}
+          {parseInlineStyles(trimmed.substring(4), variables)}
         </h4>
       );
     } else if (isH2) {
       elements.push(
         <h3 key={index} style={{ margin: '16px 0 8px 0', fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-          {parseInlineStyles(trimmed.substring(3))}
+          {parseInlineStyles(trimmed.substring(3), variables)}
         </h3>
       );
     } else if (isH1) {
       elements.push(
         <h2 key={index} style={{ margin: '18px 0 10px 0', fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-          {parseInlineStyles(trimmed.substring(2))}
+          {parseInlineStyles(trimmed.substring(2), variables)}
         </h2>
       );
     } else if (trimmed !== '') {
       elements.push(
         <p key={index} style={{ margin: '8px 0' }}>
-          {parseInlineStyles(line)}
+          {parseInlineStyles(line, variables)}
         </p>
       );
     }
@@ -801,7 +855,7 @@ function renderMarkdown(text: string): React.ReactNode {
         fontSize: '0.95rem',
         fontWeight: 500,
         color: 'var(--accent)',
-        wordBreak: 'break-word',
+        whiteSpace: 'nowrap',
         overflowX: 'auto',
       }}>
         {cleanLatex(formula)}
@@ -845,6 +899,143 @@ function findMatchingBrace(str: string, startIndex: number): number {
     }
   }
   return -1;
+}
+
+function cleanMathSymbols(text: string): string {
+  let result = text;
+  
+  // Replace fractions \frac{a}{b} -> a / b using balanced brace matching
+  let fracIdx;
+  let fracSearchIdx = 0;
+  while ((fracIdx = result.indexOf('\\frac{', fracSearchIdx)) !== -1) {
+    let startParam1 = fracIdx + 6;
+    let endParam1 = findMatchingBrace(result, startParam1);
+    if (endParam1 === -1) {
+      fracSearchIdx = startParam1;
+      continue;
+    }
+    const param1 = result.substring(startParam1, endParam1);
+    
+    let startParam2 = endParam1 + 1;
+    if (result[startParam2] !== '{') {
+      while (startParam2 < result.length && /\s/.test(result[startParam2])) {
+        startParam2++;
+      }
+    }
+    if (result[startParam2] !== '{') {
+      fracSearchIdx = startParam1;
+      continue;
+    }
+    
+    let endParam2 = findMatchingBrace(result, startParam2 + 1);
+    if (endParam2 === -1) {
+      fracSearchIdx = startParam2 + 1;
+      continue;
+    }
+    const param2 = result.substring(startParam2 + 1, endParam2);
+    
+    result = result.substring(0, fracIdx) + param1 + ' / ' + param2 + result.substring(endParam2 + 1);
+    fracSearchIdx = 0; // Reset search index as string changed
+  }
+
+  // Replace \text{...} using balanced brace matching
+  let textIdx;
+  let textSearchIdx = 0;
+  while ((textIdx = result.indexOf('\\text{', textSearchIdx)) !== -1) {
+    let start = textIdx + 6;
+    let end = findMatchingBrace(result, start);
+    if (end === -1) {
+      textSearchIdx = start;
+      continue;
+    }
+    const inner = result.substring(start, end);
+    result = result.substring(0, textIdx) + inner + result.substring(end + 1);
+    textSearchIdx = 0;
+  }
+
+  // Replace superscripts ^{...} using balanced brace matching
+  let superIdx;
+  let superSearchIdx = 0;
+  while ((superIdx = result.indexOf('^{', superSearchIdx)) !== -1) {
+    let start = superIdx + 2;
+    let end = findMatchingBrace(result, start);
+    if (end === -1) {
+      superSearchIdx = start;
+      continue;
+    }
+    const inner = result.substring(start, end);
+    result = result.substring(0, superIdx) + '^' + inner + result.substring(end + 1);
+    superSearchIdx = 0;
+  }
+
+  // Replace subscripts _{...} using balanced brace matching
+  let subIdx;
+  let subSearchIdx = 0;
+  while ((subIdx = result.indexOf('_{', subSearchIdx)) !== -1) {
+    let start = subIdx + 2;
+    let end = findMatchingBrace(result, start);
+    if (end === -1) {
+      subSearchIdx = start;
+      continue;
+    }
+    const inner = result.substring(start, end);
+    result = result.substring(0, subIdx) + '_' + inner + result.substring(end + 1);
+    subSearchIdx = 0;
+  }
+
+  // Replace square roots: \sqrt{x} -> √(x) using balanced brace matching
+  let sqrtIdx;
+  let sqrtSearchIdx = 0;
+  while ((sqrtIdx = result.indexOf('\\sqrt{', sqrtSearchIdx)) !== -1) {
+    let start = sqrtIdx + 6;
+    let end = findMatchingBrace(result, start);
+    if (end === -1) {
+      sqrtSearchIdx = start;
+      continue;
+    }
+    const inner = result.substring(start, end);
+    result = result.substring(0, sqrtIdx) + '√(' + inner + ')' + result.substring(end + 1);
+    sqrtSearchIdx = 0;
+  }
+
+  // Remove backslashes for standard math functions
+  result = result.replace(/\\(ln|log|exp|sin|cos|tan)(?![a-zA-Z])/g, '$1');
+
+  // Replace spacing commands
+  result = result.replace(/\\quad/g, '  ');
+  result = result.replace(/\\qquad/g, '    ');
+  result = result.replace(/\\([,;:])|\\!/g, (match, p1) => p1 ? ' ' : '');
+  
+  // Replace dots
+  result = result.replace(/\\dots/g, '…');
+
+  // Replace standard symbols
+  result = result.replace(/\(ms\)/g, '(mili giây)');
+  result = result.replace(/\s*\\div\s*/g, ' ÷ ');
+  result = result.replace(/\s*\\rightarrow\s*/g, ' → ');
+  result = result.replace(/\s*\\to\s*/g, ' → ');
+  result = result.replace(/\s*\\times\s*/g, ' × ');
+  result = result.replace(/\s*\\approx\s*/g, ' ≈ ');
+  result = result.replace(/\s*\\neq\s*/g, ' ≠ ');
+  result = result.replace(/\s*\\cdot\s*/g, ' · ');
+  result = result.replace(/\s*\\pm\s*/g, ' ± ');
+  
+  result = result.replace(/\s*\\leq\s*/g, ' ≤ ');
+  result = result.replace(/\s*\\le\s*/g, ' ≤ ');
+  result = result.replace(/\s*\\geq\s*/g, ' ≥ ');
+  result = result.replace(/\s*\\ge\s*/g, ' ≥ ');
+  
+  result = result.replace(/\\alpha/g, 'α');
+  result = result.replace(/\\beta/g, 'β');
+  result = result.replace(/\\gamma/g, 'γ');
+  result = result.replace(/\\delta/g, 'δ');
+  result = result.replace(/\\Delta/g, 'Δ');
+  result = result.replace(/\\theta/g, 'θ');
+  result = result.replace(/\\pi/g, 'π');
+  result = result.replace(/\\sigma/g, 'σ');
+  result = result.replace(/\\mu/g, 'μ');
+
+  return result;
 }
 
 function parseMathToReact(str: string): React.ReactNode {
@@ -1020,21 +1211,24 @@ function cleanLatex(formula: string): React.ReactNode {
   // Remove backslashes for standard math functions
   cleaned = cleaned.replace(/\\(ln|log|exp|sin|cos|tan)(?![a-zA-Z])/g, '$1');
 
+  // Replace dots
+  cleaned = cleaned.replace(/\\dots/g, '…');
+
   // Replace standard symbols
   cleaned = cleaned.replace(/\(ms\)/g, '(mili giây)');
-  cleaned = cleaned.replace(/\\div(?![a-zA-Z])/g, '÷');
-  cleaned = cleaned.replace(/\\rightarrow(?![a-zA-Z])/g, '→');
-  cleaned = cleaned.replace(/\\to(?![a-zA-Z])/g, '→');
-  cleaned = cleaned.replace(/\\times(?![a-zA-Z])/g, '×');
-  cleaned = cleaned.replace(/\\approx(?![a-zA-Z])/g, '≈');
-  cleaned = cleaned.replace(/\\neq(?![a-zA-Z])/g, '≠');
-  cleaned = cleaned.replace(/\\cdot(?![a-zA-Z])/g, '·');
-  cleaned = cleaned.replace(/\\pm(?![a-zA-Z])/g, '±');
+  cleaned = cleaned.replace(/\s*\\div\s*/g, ' ÷ ');
+  cleaned = cleaned.replace(/\s*\\rightarrow\s*/g, ' → ');
+  cleaned = cleaned.replace(/\s*\\to\s*/g, ' → ');
+  cleaned = cleaned.replace(/\s*\\times\s*/g, ' × ');
+  cleaned = cleaned.replace(/\s*\\approx\s*/g, ' ≈ ');
+  cleaned = cleaned.replace(/\s*\\neq\s*/g, ' ≠ ');
+  cleaned = cleaned.replace(/\s*\\cdot\s*/g, ' · ');
+  cleaned = cleaned.replace(/\s*\\pm\s*/g, ' ± ');
   
-  cleaned = cleaned.replace(/\\leq(?![a-zA-Z])/g, '≤');
-  cleaned = cleaned.replace(/\\le(?![a-zA-Z])/g, '≤');
-  cleaned = cleaned.replace(/\\geq(?![a-zA-Z])/g, '≥');
-  cleaned = cleaned.replace(/\\ge(?![a-zA-Z])/g, '≥');
+  cleaned = cleaned.replace(/\s*\\leq\s*/g, ' ≤ ');
+  cleaned = cleaned.replace(/\s*\\le\s*/g, ' ≤ ');
+  cleaned = cleaned.replace(/\s*\\geq\s*/g, ' ≥ ');
+  cleaned = cleaned.replace(/\s*\\ge\s*/g, ' ≥ ');
   
   cleaned = cleaned.replace(/\\alpha/g, 'α');
   cleaned = cleaned.replace(/\\beta/g, 'β');
@@ -1051,30 +1245,7 @@ function cleanLatex(formula: string): React.ReactNode {
 
 function cleanInlineMath(text: string): string {
   let result = text;
-  // Fallback for simple inline replacement without React parsing
-  result = result.replace(/\\(ln|log|exp|sin|cos|tan)(?![a-zA-Z])/g, '$1');
-  result = result.replace(/\\div(?![a-zA-Z])/g, '÷');
-  result = result.replace(/\\rightarrow(?![a-zA-Z])/g, '→');
-  result = result.replace(/\\to(?![a-zA-Z])/g, '→');
-  result = result.replace(/\\times(?![a-zA-Z])/g, '×');
-  result = result.replace(/\\approx(?![a-zA-Z])/g, '≈');
-  result = result.replace(/\\neq(?![a-zA-Z])/g, '≠');
-  result = result.replace(/\\cdot(?![a-zA-Z])/g, '·');
-  result = result.replace(/\\pm(?![a-zA-Z])/g, '±');
-  result = result.replace(/\\leq(?![a-zA-Z])/g, '≤');
-  result = result.replace(/\\le(?![a-zA-Z])/g, '≤');
-  result = result.replace(/\\geq(?![a-zA-Z])/g, '≥');
-  result = result.replace(/\\ge(?![a-zA-Z])/g, '≥');
-  result = result.replace(/\\alpha/g, 'α');
-  result = result.replace(/\\beta/g, 'β');
-  result = result.replace(/\\gamma/g, 'γ');
-  result = result.replace(/\\delta/g, 'δ');
-  result = result.replace(/\\Delta/g, 'Δ');
-  result = result.replace(/\\theta/g, 'θ');
-  result = result.replace(/\\pi/g, 'π');
-  result = result.replace(/\\sigma/g, 'σ');
-  result = result.replace(/\\mu/g, 'μ');
-
+  result = cleanMathSymbols(result);
   result = result.replace(/\$\$([^\$]+)\$\$/g, '$1');
   result = result.replace(/\$([^\$]+)\$/g, '$1');
   result = result.replace(/\\\((.*?)\\\)/g, '$1');
@@ -1083,14 +1254,72 @@ function cleanInlineMath(text: string): string {
   return result;
 }
 
-function parseInlineStyles(text: string): React.ReactNode[] {
-  const cleanedText = cleanInlineMath(text);
+function parseInlineStyles(text: string, variables?: Set<string>): React.ReactNode[] {
+  // Parse mathematical symbol definitions/annotations first
+  const annotMatch = text.match(/^\s*([^\:]+?)\s*\:\s*(.*)$/);
+  if (annotMatch) {
+    const rawKey = annotMatch[1].trim();
+    const desc = annotMatch[2].trim();
+
+    // Clean delimiters to check length
+    let cleanKeyText = rawKey;
+    if (cleanKeyText.startsWith('$') && cleanKeyText.endsWith('$')) {
+      cleanKeyText = cleanKeyText.slice(1, -1).trim();
+    } else if (cleanKeyText.startsWith('\\(') && cleanKeyText.endsWith('\\)')) {
+      cleanKeyText = cleanKeyText.slice(2, -2).trim();
+    }
+
+    const words = cleanKeyText.split(/\s+/);
+    if (cleanKeyText.length <= 30 && words.length <= 5) {
+      // Check if it matches variables from formulas
+      let isVariable = false;
+      if (variables && variables.size > 0) {
+        const keyTokens = tokenizeFormula(rawKey);
+        if (keyTokens.length > 0) {
+          isVariable = keyTokens.every(t => variables.has(t));
+        }
+      }
+
+      if (isVariable) {
+        // Render key using cleanLatex if it has math delimiters or looks like math
+        let renderKey: React.ReactNode;
+        if (rawKey.startsWith('$') && rawKey.endsWith('$')) {
+          renderKey = cleanLatex(rawKey.slice(1, -1));
+        } else if (rawKey.startsWith('\\(') && rawKey.endsWith('\\)')) {
+          renderKey = cleanLatex(rawKey.slice(2, -2));
+        } else {
+          renderKey = cleanLatex(rawKey);
+        }
+
+        return [
+          <span key="key" style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            fontStyle: 'normal',
+            fontWeight: 600,
+            color: 'var(--accent)',
+            background: 'hsla(var(--hue-accent), 95%, 55%, 0.08)',
+            padding: '2px 8px',
+            borderRadius: '6px',
+            marginRight: '8px',
+            border: '1px solid hsla(var(--hue-accent), 95%, 55%, 0.2)'
+          }}>
+            {renderKey}
+          </span>,
+          <span key="colon" style={{ color: 'var(--text-muted)', marginRight: '6px' }}>:</span>,
+          ...parseInlineStyles(desc, variables)
+        ];
+      }
+    }
+  }
+
   const parts: React.ReactNode[] = [];
-  const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`)/g;
-  const matches = [...cleanedText.matchAll(regex)];
+  // Tokenize bold, italic, inline code, and inline math ($...$ or \(...\))
+  const tokenRegex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|\$[^\$]+\$|\\\(.*?\\\))/g;
+  const matches = [...text.matchAll(tokenRegex)];
 
   if (matches.length === 0) {
-    return [cleanedText];
+    return [cleanInlineMath(text)];
   }
 
   let lastIndex = 0;
@@ -1099,7 +1328,7 @@ function parseInlineStyles(text: string): React.ReactNode[] {
     const matchIndex = match.index!;
 
     if (matchIndex > lastIndex) {
-      parts.push(cleanedText.substring(lastIndex, matchIndex));
+      parts.push(cleanInlineMath(text.substring(lastIndex, matchIndex)));
     }
 
     if (matchText.startsWith('**') && matchText.endsWith('**')) {
@@ -1121,13 +1350,48 @@ function parseInlineStyles(text: string): React.ReactNode[] {
           {matchText.slice(1, -1)}
         </code>
       );
+    } else if ((matchText.startsWith('$') && matchText.endsWith('$')) ||
+               (matchText.startsWith('\\(') && matchText.endsWith('\\)'))) {
+      const isDollar = matchText.startsWith('$');
+      const innerMath = isDollar ? matchText.slice(1, -1) : matchText.slice(2, -2);
+      
+      let isVariable = false;
+      if (variables && variables.size > 0) {
+        const keyTokens = tokenizeFormula(matchText);
+        if (keyTokens.length > 0) {
+          isVariable = keyTokens.every(t => variables.has(t));
+        }
+      }
+
+      if (isVariable) {
+        parts.push(
+          <span key={mIdx} style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            fontStyle: 'normal',
+            fontWeight: 600,
+            color: 'var(--accent)',
+            background: 'hsla(var(--hue-accent), 95%, 55%, 0.08)',
+            padding: '2px 8px',
+            borderRadius: '6px',
+            marginRight: '4px',
+            marginLeft: '4px',
+            border: '1px solid hsla(var(--hue-accent), 95%, 55%, 0.2)',
+            verticalAlign: 'middle'
+          }}>
+            {cleanLatex(innerMath)}
+          </span>
+        );
+      } else {
+        parts.push(<React.Fragment key={mIdx}>{cleanLatex(innerMath)}</React.Fragment>);
+      }
     }
 
     lastIndex = matchIndex + matchText.length;
   });
 
-  if (lastIndex < cleanedText.length) {
-    parts.push(cleanedText.substring(lastIndex));
+  if (lastIndex < text.length) {
+    parts.push(cleanInlineMath(text.substring(lastIndex)));
   }
 
   return parts;
