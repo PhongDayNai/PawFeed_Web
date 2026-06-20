@@ -48,15 +48,23 @@ export function ChatbotBubble() {
         }
 
         if (initRes.isNewSession) {
-          // It's a new session, append greeting
-          const greetingMsg: ChatbotMessage & { isHistory?: boolean } = {
-            role: 'assistant',
-            content: initRes.greeting || t('chatbot.greeting'),
-            createdAt: new Date().toISOString(),
-            sessionId: initRes.sessionId,
-            isHistory: false,
-          };
-          setMessages([...historyMessages, greetingMsg]);
+          // It's a new session, check if history already contains the greeting to prevent duplicates
+          const hasGreeting = historyMessages.some(
+            (msg) => msg.role === 'assistant' && msg.sessionId === initRes.sessionId
+          );
+
+          if (!hasGreeting) {
+            const greetingMsg: ChatbotMessage & { isHistory?: boolean } = {
+              role: 'assistant',
+              content: initRes.greeting || t('chatbot.greeting'),
+              createdAt: new Date().toISOString(),
+              sessionId: initRes.sessionId,
+              isHistory: false,
+            };
+            setMessages([...historyMessages, greetingMsg]);
+          } else {
+            setMessages(historyMessages);
+          }
         } else {
           setMessages(historyMessages);
           if (historyMessages.length > 0 && historyMessages[historyMessages.length - 1].role === 'user') {
@@ -614,7 +622,7 @@ function renderMarkdown(text: string): React.ReactNode {
       elements.push(
         <blockquote key={`quote-${key}`} style={{
           borderLeft: '3px solid var(--accent)',
-          background: 'hsla(0, 0%, 100%, 0.03)',
+          background: 'var(--input-bg)',
           padding: '8px 12px',
           margin: '10px 0',
           borderRadius: '0 var(--radius-sm) var(--radius-sm) 0',
@@ -637,7 +645,7 @@ function renderMarkdown(text: string): React.ReactNode {
       if (trimmed.startsWith('```')) {
         elements.push(
           <pre key={`code-${index}`} style={{
-            background: 'hsla(0, 0%, 0%, 0.25)',
+            background: 'var(--input-bg-focus)',
             border: '1px solid var(--border-color)',
             borderRadius: 'var(--radius-sm)',
             padding: '12px',
@@ -873,7 +881,7 @@ function renderMarkdown(text: string): React.ReactNode {
   if (inCode && codeLines.length > 0) {
     elements.push(
       <pre key={`code-final`} style={{
-        background: 'hsla(0, 0%, 0%, 0.25)',
+        background: 'var(--input-bg-focus)',
         border: '1px solid var(--border-color)',
         borderRadius: 'var(--radius-sm)',
         padding: '12px',
@@ -1347,7 +1355,7 @@ function parseInlineStyles(text: string, variables?: Set<string>): React.ReactNo
         <code
           key={mIdx}
           style={{
-            background: 'hsla(0, 0%, 100%, 0.1)',
+            background: 'var(--input-bg)',
             padding: '2px 4px',
             borderRadius: '4px',
             fontFamily: 'monospace',

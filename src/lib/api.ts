@@ -57,8 +57,13 @@ export async function fetchApi(path: string, options: RequestInit = {}): Promise
     headers.set('Content-Type', 'application/json');
   }
 
+  const defaultSignal = typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function'
+    ? AbortSignal.timeout(120000)
+    : undefined;
+
   const response = await fetch(`${BASE_URL}${path}`, {
     cache: 'no-store',
+    signal: defaultSignal,
     ...options,
     headers,
   });
@@ -79,6 +84,7 @@ export async function fetchApi(path: string, options: RequestInit = {}): Promise
         headers.set('Authorization', `Bearer ${newToken}`);
         const retryResponse = await fetch(`${BASE_URL}${path}`, {
           cache: 'no-store',
+          signal: defaultSignal,
           ...options,
           headers,
         });
@@ -276,8 +282,8 @@ export const deviceApi = {
 
   async feedNow(deviceId: string, openDurationMs: number): Promise<{ command: any }> {
     // Generate simple UUID for Idempotency-Key
-    const idempotencyKey = typeof crypto !== 'undefined' && crypto.randomUUID 
-      ? crypto.randomUUID() 
+    const idempotencyKey = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
       : Math.random().toString(36).substring(2) + Date.now().toString(36);
 
     return fetchApi(`/devices/${deviceId}/commands/feed-now`, {
