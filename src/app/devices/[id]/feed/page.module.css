@@ -57,7 +57,7 @@
 
 .dialTrack {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.04);
+  stroke: var(--border-color);
   stroke-width: 14;
 }
 
@@ -101,7 +101,7 @@
   height: 200px;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--input-bg);
   border: 1px solid var(--border-color);
 }
 

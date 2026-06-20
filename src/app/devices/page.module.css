@@ -288,7 +288,7 @@
 .searchInput {
   width: 100%;
   padding: 10px 14px 10px 42px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--input-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
@@ -300,13 +300,13 @@
 
 .searchInput:focus {
   border-color: var(--primary);
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--input-bg-focus);
   box-shadow: 0 0 0 2px var(--primary-glow);
 }
 
 .filterTabs {
   display: flex;
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--bg-surface);
   padding: 4px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
@@ -337,7 +337,7 @@
 
 .filterBtn:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-surface-hover);
 }
 
 .filterBtn:active {
@@ -358,7 +358,7 @@
   font-size: 0.75rem;
   padding: 2px 6px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--border-color);
   color: var(--text-muted);
   font-weight: 700;
   transition: all 0.2s ease;

@@ -95,7 +95,7 @@
 
 .summaryCard:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(15, 10, 5, 0.25);
+  box-shadow: var(--card-shadow-hover);
   filter: brightness(1.1);
 }
 
@@ -132,43 +132,43 @@
 
 /* Gradient themes - Warm Boutique Colors */
 .blueGradient {
-  background: linear-gradient(135deg, hsla(36, 85%, 20%, 0.6) 0%, hsla(36, 85%, 30%, 0.4) 100%);
-  color: hsl(36, 95%, 85%);
-  border-color: hsla(36, 85%, 40%, 0.2);
+  background: var(--blue-grad-bg);
+  color: var(--blue-grad-text);
+  border-color: var(--blue-grad-border);
 }
 
 .blueGradient svg {
-  color: hsl(36, 95%, 75%);
+  color: var(--blue-grad-text);
 }
 
 .greenGradient {
-  background: linear-gradient(135deg, hsla(145, 50%, 15%, 0.6) 0%, hsla(145, 50%, 25%, 0.4) 100%);
-  color: hsl(145, 80%, 85%);
-  border-color: hsla(145, 50%, 40%, 0.2);
+  background: var(--green-grad-bg);
+  color: var(--green-grad-text);
+  border-color: var(--green-grad-border);
 }
 
 .greenGradient svg {
-  color: hsl(145, 80%, 75%);
+  color: var(--green-grad-text);
 }
 
 .grayGradient {
-  background: linear-gradient(135deg, hsla(28, 10%, 20%, 0.6) 0%, hsla(28, 10%, 30%, 0.4) 100%);
-  color: hsl(28, 20%, 85%);
-  border-color: hsla(28, 10%, 40%, 0.2);
+  background: var(--gray-grad-bg);
+  color: var(--gray-grad-text);
+  border-color: var(--gray-grad-border);
 }
 
 .grayGradient svg {
-  color: hsl(28, 20%, 75%);
+  color: var(--gray-grad-text);
 }
 
 .orangeGradient {
-  background: linear-gradient(135deg, hsla(24, 85%, 18%, 0.6) 0%, hsla(24, 85%, 28%, 0.4) 100%);
-  color: hsl(24, 95%, 85%);
-  border-color: hsla(24, 85%, 40%, 0.2);
+  background: var(--orange-grad-bg);
+  color: var(--orange-grad-text);
+  border-color: var(--orange-grad-border);
 }
 
 .orangeGradient svg {
-  color: hsl(24, 95%, 75%);
+  color: var(--orange-grad-text);
 }
 
 .contentGrid {
@@ -257,10 +257,10 @@
   flex-direction: column;
   gap: 6px;
   margin-bottom: 20px;
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--input-bg);
   padding: 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
 }
 
 .detailRow {
@@ -323,7 +323,7 @@
   align-items: center;
   font-size: 0.85rem;
   color: var(--text-secondary);
-  border-top: 1px dashed rgba(255, 255, 255, 0.05);
+  border-top: 1px dashed var(--border-color);
   padding-top: 8px;
   margin-top: 8px;
 }

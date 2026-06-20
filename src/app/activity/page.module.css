@@ -268,9 +268,9 @@
 }
 
 .eventIconWrapper.eventDefault {
-  background: hsla(0, 0%, 100%, 0.05);
+  background: var(--border-color);
   color: var(--text-muted);
-  border: 1px solid hsla(0, 0%, 100%, 0.1);
+  border: 1px solid var(--border-color-hover);
 }
 
 .eventContent {
@@ -312,7 +312,7 @@
 }
 
 .eventBadge.eventDefault {
-  background: hsla(0, 0%, 100%, 0.08);
+  background: var(--border-color);
   color: var(--text-muted);
 }
 
