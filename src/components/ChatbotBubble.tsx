@@ -20,6 +20,7 @@ export function ChatbotBubble() {
   const [messages, setMessages] = useState<(ChatbotMessage & { isHistory?: boolean })[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const model = 'gemma-4-e4b';
   const [errorKey, setErrorKey] = useState('');
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -116,7 +117,7 @@ export function ChatbotBubble() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputText.trim() || isLoading) return;
+    if (!inputText.trim() || isLoading || isStreaming) return;
 
     const userMsgText = inputText.trim();
     const msgId = generateUUID();
@@ -133,28 +134,62 @@ export function ChatbotBubble() {
     setInputText('');
     setIsLoading(true);
     setErrorKey('');
+    setIsStreaming(true);
+
+    let receivedChunks = false;
+    let sessionId = currentSessionId;
 
     try {
-      const res = await chatbotApi.sendChatbotMessage([userMessage], model, msgId);
-      if (res.ok) {
-        const aiMessage = {
-          ...res.message,
-          sessionId: res.message.sessionId || currentSessionId,
-        };
-        setMessages((prev) => [...prev, aiMessage]);
-      } else {
-        setErrorKey('chatbot.connect_failed');
-      }
+      await chatbotApi.sendChatbotMessageStream(
+        [userMessage],
+        (chunk) => {
+          if (!receivedChunks) {
+            receivedChunks = true;
+            setIsLoading(false);
+          }
+          if (chunk.sessionId) {
+            sessionId = chunk.sessionId;
+            setCurrentSessionId(chunk.sessionId);
+          }
+
+          setMessages((prev) => {
+            const lastMsg = prev[prev.length - 1];
+            if (lastMsg && lastMsg.role === 'assistant') {
+              const updatedMsg = {
+                ...lastMsg,
+                content: lastMsg.content + (chunk.content || ''),
+                tool_calls: chunk.tool_calls ? [...(lastMsg.tool_calls || []), ...chunk.tool_calls] : lastMsg.tool_calls,
+                sessionId: chunk.sessionId || lastMsg.sessionId,
+              };
+              return [...prev.slice(0, -1), updatedMsg];
+            } else {
+              const newMsg: ChatbotMessage = {
+                role: 'assistant',
+                content: chunk.content || '',
+                tool_calls: chunk.tool_calls,
+                sessionId: chunk.sessionId || sessionId,
+                createdAt: new Date().toISOString(),
+                model: model,
+              };
+              return [...prev, newMsg];
+            }
+          });
+        },
+        model,
+        msgId
+      );
     } catch (err) {
       console.error('Failed to send chatbot message', err);
       setErrorKey('chatbot.connect_failed');
+      setIsLoading(false);
     } finally {
       setIsLoading(false);
+      setIsStreaming(false);
     }
   };
 
   const handleRetryMessage = async () => {
-    if (isLoading) return;
+    if (isLoading || isStreaming) return;
 
     const userMessages = messages.filter((m) => m.role === 'user');
     if (userMessages.length === 0) return;
@@ -168,23 +203,57 @@ export function ChatbotBubble() {
 
     setIsLoading(true);
     setErrorKey('');
+    setIsStreaming(true);
+
+    let receivedChunks = false;
+    let sessionId = currentSessionId;
 
     try {
-      const res = await chatbotApi.sendChatbotMessage([userMessageWithId], model, msgId);
-      if (res.ok) {
-        const aiMessage = {
-          ...res.message,
-          sessionId: res.message.sessionId || currentSessionId,
-        };
-        setMessages((prev) => [...prev, aiMessage]);
-      } else {
-        setErrorKey('chatbot.connect_failed');
-      }
+      await chatbotApi.sendChatbotMessageStream(
+        [userMessageWithId],
+        (chunk) => {
+          if (!receivedChunks) {
+            receivedChunks = true;
+            setIsLoading(false);
+          }
+          if (chunk.sessionId) {
+            sessionId = chunk.sessionId;
+            setCurrentSessionId(chunk.sessionId);
+          }
+
+          setMessages((prev) => {
+            const lastMsg = prev[prev.length - 1];
+            if (lastMsg && lastMsg.role === 'assistant') {
+              const updatedMsg = {
+                ...lastMsg,
+                content: lastMsg.content + (chunk.content || ''),
+                tool_calls: chunk.tool_calls ? [...(lastMsg.tool_calls || []), ...chunk.tool_calls] : lastMsg.tool_calls,
+                sessionId: chunk.sessionId || lastMsg.sessionId,
+              };
+              return [...prev.slice(0, -1), updatedMsg];
+            } else {
+              const newMsg: ChatbotMessage = {
+                role: 'assistant',
+                content: chunk.content || '',
+                tool_calls: chunk.tool_calls,
+                sessionId: chunk.sessionId || sessionId,
+                createdAt: new Date().toISOString(),
+                model: model,
+              };
+              return [...prev, newMsg];
+            }
+          });
+        },
+        model,
+        msgId
+      );
     } catch (err) {
       console.error('Failed to retry sending chatbot message', err);
       setErrorKey('chatbot.connect_failed');
+      setIsLoading(false);
     } finally {
       setIsLoading(false);
+      setIsStreaming(false);
     }
   };
 
@@ -382,7 +451,7 @@ export function ChatbotBubble() {
                 }
               }}
               title={t('chatbot.new_topic')}
-              disabled={isLoading}
+              disabled={isLoading || isStreaming}
             >
               <MessageSquarePlus size={16} />
             </button>
@@ -390,9 +459,9 @@ export function ChatbotBubble() {
               className={styles.actionBtn}
               onClick={() => loadChatSession(false)}
               title={t('chatbot.reset_session')}
-              disabled={isLoading}
+              disabled={isLoading || isStreaming}
             >
-              <RefreshCw size={16} className={isLoading ? styles.spinning : ''} />
+              <RefreshCw size={16} className={(isLoading || isStreaming) ? styles.spinning : ''} />
             </button>
             <button
               className={styles.actionBtn}
@@ -480,9 +549,9 @@ export function ChatbotBubble() {
                 type="button"
                 className={styles.retryButton}
                 onClick={handleRetryMessage}
-                disabled={isLoading}
+                disabled={isLoading || isStreaming}
               >
-                <RefreshCw size={12} className={isLoading ? styles.spinning : ''} />
+                <RefreshCw size={12} className={(isLoading || isStreaming) ? styles.spinning : ''} />
                 <span>{t('common.retry')}</span>
               </button>
             </div>
@@ -499,12 +568,12 @@ export function ChatbotBubble() {
             placeholder={t('chatbot.placeholder')}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            disabled={isLoading}
+            disabled={isLoading || isStreaming}
           />
           <button
             type="submit"
             className={styles.sendButton}
-            disabled={isLoading || !inputText.trim()}
+            disabled={isLoading || isStreaming || !inputText.trim()}
           >
             <Send size={16} />
           </button>
