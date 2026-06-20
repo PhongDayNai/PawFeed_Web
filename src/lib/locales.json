@@ -40,7 +40,8 @@
       "toast_feeding_completed": "Feeding completed! Source: {source}, Duration: {duration}s",
       "toast_config_applied": "Config version {version} applied to device!",
       "toast_error": "Error: {message}",
-      "switch_language": "Switch language"
+      "switch_language": "Switch language",
+      "switch_theme": "Switch color theme"
     },
     "login": {
       "title": "Sign In",
@@ -322,7 +323,8 @@
       "toast_feeding_completed": "Cho ăn hoàn tất! Nguồn: {source}, Thời gian: {duration} giây",
       "toast_config_applied": "Đã áp dụng cấu hình phiên bản {version} cho thiết bị!",
       "toast_error": "Lỗi: {message}",
-      "switch_language": "Chuyển đổi ngôn ngữ"
+      "switch_language": "Chuyển đổi ngôn ngữ",
+      "switch_theme": "Chuyển đổi giao diện sáng/tối"
     },
     "login": {
       "title": "Đăng nhập",

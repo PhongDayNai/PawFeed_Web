@@ -46,6 +46,34 @@
   --glass-blur: 16px;
   --glass-saturate: 180%;
   --card-shadow: 0 8px 32px 0 rgba(15, 10, 5, 0.4);
+  --card-shadow-hover: 0 12px 40px 0 rgba(15, 10, 5, 0.55);
+
+  --input-bg: hsla(0, 0%, 0%, 0.2);
+  --input-bg-focus: hsla(0, 0%, 0%, 0.3);
+
+  --shimmer-gradient: linear-gradient(90deg,
+      hsla(0, 0%, 100%, 0.05) 25%,
+      hsla(0, 0%, 100%, 0.12) 37%,
+      hsla(0, 0%, 100%, 0.05) 63%);
+
+  --scrollbar-thumb: hsla(0, 0%, 100%, 0.15);
+  --scrollbar-thumb-hover: hsla(0, 0%, 100%, 0.3);
+
+  --blue-grad-bg: linear-gradient(135deg, hsla(36, 85%, 20%, 0.6) 0%, hsla(36, 85%, 30%, 0.4) 100%);
+  --blue-grad-text: hsl(36, 95%, 85%);
+  --blue-grad-border: hsla(36, 85%, 40%, 0.2);
+
+  --green-grad-bg: linear-gradient(135deg, hsla(145, 50%, 15%, 0.6) 0%, hsla(145, 50%, 25%, 0.4) 100%);
+  --green-grad-text: hsl(145, 80%, 85%);
+  --green-grad-border: hsla(145, 50%, 40%, 0.2);
+
+  --gray-grad-bg: linear-gradient(135deg, hsla(28, 10%, 20%, 0.6) 0%, hsla(28, 10%, 30%, 0.4) 100%);
+  --gray-grad-text: hsl(28, 20%, 85%);
+  --gray-grad-border: hsla(28, 10%, 40%, 0.2);
+
+  --orange-grad-bg: linear-gradient(135deg, hsla(24, 85%, 18%, 0.6) 0%, hsla(24, 85%, 28%, 0.4) 100%);
+  --orange-grad-text: hsl(24, 95%, 85%);
+  --orange-grad-border: hsla(24, 85%, 40%, 0.2);
 
   --font-outfit: var(--font-display);
   --font-inter: var(--font-sans-serif);
@@ -56,37 +84,66 @@
   --radius-xl: 36px;
 }
 
-/* Light Theme overrides (optional, triggered by .light class) */
+/* Light Theme overrides - Warm vanilla & organic mint tones */
 .light {
-  --bg-base: hsl(36, 30%, 96%); /* Warm bone / cream base */
-  --bg-surface: hsla(36, 30%, 98%, 0.75);
-  --bg-surface-hover: hsla(36, 30%, 92%, 0.85);
-  --bg-surface-active: hsla(36, 30%, 88%, 0.9);
-  --bg-card: hsla(0, 0%, 100%, 0.8);
-  --bg-dropdown: hsl(0, 0%, 100%);
-  --bg-modal: hsla(0, 0%, 100%, 0.95);
+  color-scheme: light;
+  --bg-base: hsl(36, 40%, 95%);
+  --bg-surface: hsla(36, 45%, 98%, 0.45);
+  --bg-surface-hover: hsla(36, 45%, 90%, 0.6);
+  --bg-surface-active: hsla(36, 45%, 85%, 0.75);
+  --bg-card: hsla(0, 0%, 100%, 0.45);
+  --bg-dropdown: hsl(36, 45%, 98%);
+  --bg-modal: hsla(36, 30%, 95%, 0.95);
 
-  --border-color: hsla(28, 12%, 8%, 0.08);
-  --border-color-hover: hsla(28, 12%, 8%, 0.15);
+  --border-color: hsla(28, 12%, 8%, 0.06);
+  --border-color-hover: hsla(28, 12%, 8%, 0.12);
 
-  --text-primary: hsl(28, 12%, 8%);
-  --text-secondary: hsl(28, 10%, 28%);
-  --text-muted: hsl(28, 8%, 48%);
-  --text-inverse: hsl(36, 30%, 98%);
+  --text-primary: hsl(28, 20%, 12%);
+  --text-secondary: hsl(28, 15%, 32%);
+  --text-muted: hsl(28, 10%, 50%);
+  --text-inverse: hsl(36, 45%, 98%);
 
-  --primary: hsl(var(--hue-primary), 75%, 50%);
-  --primary-hover: hsl(var(--hue-primary), 80%, 55%);
-  --primary-glow: hsla(var(--hue-primary), 75%, 50%, 0.15);
+  --primary: hsl(var(--hue-primary), 85%, 50%);
+  --primary-hover: hsl(var(--hue-primary), 90%, 55%);
+  --primary-glow: hsla(var(--hue-primary), 85%, 50%, 0.2);
 
-  --accent: hsl(var(--hue-accent), 48%, 45%);
-  --accent-hover: hsl(var(--hue-accent), 53%, 50%);
-  --accent-glow: hsla(var(--hue-accent), 48%, 45%, 0.2);
+  --accent: hsl(var(--hue-accent), 48%, 40%);
+  --accent-hover: hsl(var(--hue-accent), 53%, 45%);
+  --accent-glow: hsla(var(--hue-accent), 48%, 40%, 0.18);
 
-  --success-bg: hsla(var(--hue-success), 70%, 45%, 0.08);
-  --warning-bg: hsla(38, 92%, 50%, 0.08);
-  --error-bg: hsla(var(--hue-error), 75%, 50%, 0.08);
+  --success-bg: hsla(var(--hue-success), 70%, 45%, 0.1);
+  --warning-bg: hsla(38, 92%, 50%, 0.1);
+  --error-bg: hsla(var(--hue-error), 75%, 50%, 0.1);
 
-  --card-shadow: 0 8px 32px 0 rgba(70, 50, 30, 0.08);
+  --card-shadow: 0 8px 32px 0 rgba(120, 95, 75, 0.06), 0 2px 8px 0 rgba(120, 95, 75, 0.04);
+  --card-shadow-hover: 0 16px 48px 0 rgba(120, 95, 75, 0.12), 0 4px 12px 0 rgba(120, 95, 75, 0.06);
+
+  --input-bg: hsla(0, 0%, 100%, 0.6);
+  --input-bg-focus: hsla(0, 0%, 100%, 0.85);
+
+  --shimmer-gradient: linear-gradient(90deg,
+      rgba(28, 12, 8, 0.03) 25%,
+      rgba(28, 12, 8, 0.08) 37%,
+      rgba(28, 12, 8, 0.03) 63%);
+
+  --scrollbar-thumb: hsla(28, 12%, 8%, 0.15);
+  --scrollbar-thumb-hover: hsla(28, 12%, 8%, 0.3);
+
+  --blue-grad-bg: linear-gradient(135deg, hsla(36, 85%, 92%, 0.75) 0%, hsla(36, 85%, 96%, 0.6) 100%);
+  --blue-grad-text: hsl(36, 85%, 30%);
+  --blue-grad-border: hsla(36, 85%, 60%, 0.25);
+
+  --green-grad-bg: linear-gradient(135deg, hsla(145, 55%, 92%, 0.75) 0%, hsla(145, 55%, 96%, 0.6) 100%);
+  --green-grad-text: hsl(145, 60%, 25%);
+  --green-grad-border: hsla(145, 55%, 60%, 0.25);
+
+  --gray-grad-bg: linear-gradient(135deg, hsla(28, 15%, 92%, 0.75) 0%, hsla(28, 15%, 96%, 0.6) 100%);
+  --gray-grad-text: hsl(28, 15%, 30%);
+  --gray-grad-border: hsla(28, 15%, 60%, 0.25);
+
+  --orange-grad-bg: linear-gradient(135deg, hsla(24, 80%, 93%, 0.75) 0%, hsla(24, 80%, 97%, 0.6) 100%);
+  --orange-grad-text: hsl(24, 85%, 30%);
+  --orange-grad-border: hsla(24, 80%, 60%, 0.25);
 }
 
 /* Resets & Base Styles */
@@ -128,6 +185,7 @@ body::after {
   opacity: 0.15;
   z-index: -1;
   pointer-events: none;
+  transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
 body::before {
@@ -141,6 +199,29 @@ body::after {
   background: var(--accent);
   width: 350px;
   height: 350px;
+}
+
+/* Light Mode Premium Multi-gradient Mesh Background & Grid Overlay */
+.light body {
+  background-image: 
+    /* Dotted/grid overlay (top layer) to structure empty space */
+    linear-gradient(rgba(28, 12, 8, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(28, 12, 8, 0.02) 1px, transparent 1px),
+    /* Soft ambient glows (middle layers) */
+    radial-gradient(at 0% 0%, hsla(36, 85%, 90%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(145, 50%, 90%, 0.4) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, hsla(28, 80%, 92%, 0.4) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(36, 70%, 88%, 0.5) 0px, transparent 50%),
+    /* Base background gradient (bottom layer) */
+    linear-gradient(135deg, hsl(36, 40%, 96%) 0%, hsl(20, 25%, 93%) 100%);
+  background-size: 32px 32px, 32px 32px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-attachment: fixed;
+}
+
+.light body::before,
+.light body::after {
+  opacity: 0.35;
+  filter: blur(100px);
 }
 
 a {
@@ -159,12 +240,12 @@ a {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsla(0, 0%, 100%, 0.15);
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsla(0, 0%, 100%, 0.3);
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* Common Glassmorphic Styles */
@@ -182,7 +263,7 @@ a {
   transform: translateY(-4px);
   border-color: var(--border-color-hover);
   background: var(--bg-surface-hover);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+  box-shadow: var(--card-shadow-hover);
 }
 
 /* Loading Shimmer Animation */
@@ -197,10 +278,7 @@ a {
 }
 
 .shimmer {
-  background: linear-gradient(90deg,
-      hsla(0, 0%, 100%, 0.05) 25%,
-      hsla(0, 0%, 100%, 0.12) 37%,
-      hsla(0, 0%, 100%, 0.05) 63%);
+  background: var(--shimmer-gradient);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -224,7 +302,7 @@ a {
   padding: 12px 16px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
-  background: hsla(0, 0%, 0%, 0.2);
+  background: var(--input-bg);
   color: var(--text-primary);
   font-family: inherit;
   font-size: 1rem;
@@ -235,7 +313,7 @@ a {
 .input-field:focus {
   border-color: var(--border-focus);
   box-shadow: 0 0 0 3px hsla(var(--hue-primary), 85%, 60%, 0.15);
-  background: hsla(0, 0%, 0%, 0.3);
+  background: var(--input-bg-focus);
 }
 
 .input-field::placeholder {
@@ -269,8 +347,8 @@ a {
 
 .badge-offline {
   color: var(--text-muted);
-  background: hsla(0, 0%, 100%, 0.05);
-  border: 1px solid hsla(0, 0%, 100%, 0.1);
+  background: var(--border-color);
+  border: 1px solid var(--border-color-hover);
 }
 
 .badge-warning {

@@ -3,6 +3,7 @@ import { Nunito, Inter } from 'next/font/google';
 import './globals.css';
 import { AppProvider } from '../context/AppContext';
 import { LanguageProvider } from '../context/LanguageContext';
+import { ThemeProvider } from '../context/ThemeContext';
 import { Header } from './Header';
 import { ChatbotBubble } from '../components/ChatbotBubble';
 
@@ -30,13 +31,15 @@ export default function RootLayout({
     <html lang="en" className={`${displayFont.variable} ${sansFont.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }} suppressHydrationWarning>
         <LanguageProvider>
-          <AppProvider>
-            <Header />
-            <main style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%' }}>
-              {children}
-            </main>
-            <ChatbotBubble />
-          </AppProvider>
+          <ThemeProvider>
+            <AppProvider>
+              <Header />
+              <main style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%' }}>
+                {children}
+              </main>
+              <ChatbotBubble />
+            </AppProvider>
+          </ThemeProvider>
         </LanguageProvider>
       </body>
     </html>

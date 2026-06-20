@@ -6,12 +6,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { useLanguage } from '../context/LanguageContext';
 import { getFriendlyErrorMessage } from '../lib/error';
-import { Home, User, LogOut, WifiOff, Bell, Loader, Globe, Smartphone, History, RefreshCw } from 'lucide-react';
+import { Home, User, LogOut, WifiOff, Bell, Loader, Globe, Smartphone, History, RefreshCw, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import styles from './Header.module.css';
 
 export function Header() {
   const { user, isAuthenticated, logout, sseConnected, networkOffline, recentEvent, devicesLoading, dashboardLoading } = useApp();
   const { language, setLanguage, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
@@ -107,6 +109,11 @@ export function Header() {
             <button onClick={toggleLanguage} className={styles.langToggle} title={t('nav.switch_language')}>
               <Globe size={14} style={{ marginRight: '6px' }} />
               {language === 'en' ? 'EN' : 'VI'}
+            </button>
+
+            <button onClick={toggleTheme} className={styles.themeToggle} title={t('nav.switch_theme')}>
+              {theme === 'light' ? <Sun size={14} style={{ marginRight: '6px' }} /> : <Moon size={14} style={{ marginRight: '6px' }} />}
+              {theme === 'light' ? (language === 'en' ? 'LIGHT' : 'SÁNG') : (language === 'en' ? 'DARK' : 'TỐI')}
             </button>
 
             <div className={styles.userSection}>
