@@ -108,6 +108,12 @@ export interface ChatbotMessage {
   tool_calls?: ToolCall[];
 }
 
+export interface ChatbotStreamChunk {
+  sessionId?: string;
+  content?: string;
+  tool_calls?: ToolCall[];
+}
+
 export interface ChatbotInitResponse {
   ok: boolean;
   isNewSession: boolean;

@@ -1,4 +1,4 @@
-import { DashboardData, Device, DeviceStatus, MqttStatus, Schedule, FeedingHistory, User, AuthResponse, ChatbotInitResponse, ChatbotResponse, ChatbotHistoryResponse, ChatbotMessage } from './types';
+import { DashboardData, Device, DeviceStatus, MqttStatus, Schedule, FeedingHistory, User, AuthResponse, ChatbotInitResponse, ChatbotResponse, ChatbotHistoryResponse, ChatbotMessage, ChatbotStreamChunk, ToolCall } from './types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
@@ -130,6 +130,71 @@ export async function fetchApi(path: string, options: RequestInit = {}): Promise
   }
 
   return response.status === 204 ? null : await response.json();
+}
+
+export async function fetchStream(path: string, options: RequestInit = {}): Promise<Response> {
+  let token = localStorage.getItem('accessToken');
+  const headers = new Headers(options.headers || {});
+
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  // Set Content-Type default to JSON if body is provided and not already set
+  if (options.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  if (!headers.has('Accept')) {
+    headers.set('Accept', 'text/event-stream');
+  }
+  if (!headers.has('Cache-Control')) {
+    headers.set('Cache-Control', 'no-cache');
+  }
+
+  let response = await fetch(`${BASE_URL}${path}`, {
+    cache: 'no-store',
+    ...options,
+    headers,
+  });
+
+  if (response.status === 401) {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      // Use existing promise or create new one to avoid double call
+      if (!refreshPromise) {
+        refreshPromise = refreshTokens(refreshToken).finally(() => {
+          refreshPromise = null;
+        });
+      }
+
+      const newToken = await refreshPromise;
+      if (newToken) {
+        // Retry the original request with the new token
+        headers.set('Authorization', `Bearer ${newToken}`);
+        response = await fetch(`${BASE_URL}${path}`, {
+          cache: 'no-store',
+          ...options,
+          headers,
+        });
+      }
+    }
+
+    if (response.status === 401) {
+      // Refresh failed or no refresh token, redirect to login
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
+        window.location.href = '/login';
+      }
+      throw new ApiError('Unauthorized', 401);
+    }
+  }
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new ApiError(errData.message || 'API request failed', response.status);
+  }
+
+  return response;
 }
 
 // Authentication API
@@ -357,6 +422,88 @@ export const chatbotApi = {
         clientMsgId,
       }),
     });
+  },
+
+  async sendChatbotMessageStream(
+    messages: ChatbotMessage[],
+    onChunk: (chunk: ChatbotStreamChunk) => void,
+    model?: string,
+    clientMsgId?: string
+  ): Promise<void> {
+    const response = await fetchStream('/chatbot', {
+      method: 'POST',
+      body: JSON.stringify({
+        messages,
+        model,
+        clientMsgId,
+        stream: true,
+      }),
+    });
+
+    if (!response.body) {
+      throw new Error('Response body is null');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    const dataLines: string[] = [];
+
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed === 'data: [DONE]' || trimmed === '[DONE]') {
+            reader.cancel().catch(() => {});
+            return;
+          }
+          if (trimmed === '') {
+            if (dataLines.length > 0) {
+              const dataStr = dataLines.join('\n');
+              try {
+                const parsed = JSON.parse(dataStr);
+                onChunk(parsed);
+              } catch (e) {
+                console.error('Failed to parse SSE data chunk:', dataStr, e);
+              }
+              dataLines.length = 0;
+            }
+          } else if (trimmed.startsWith('data:')) {
+            dataLines.push(trimmed.substring(5).trim());
+          }
+        }
+      }
+
+      if (buffer.trim()) {
+        const trimmed = buffer.trim();
+        if (trimmed === 'data: [DONE]' || trimmed === '[DONE]') {
+          reader.cancel().catch(() => {});
+          return;
+        }
+        if (trimmed.startsWith('data:')) {
+          dataLines.push(trimmed.substring(5).trim());
+        }
+      }
+
+      if (dataLines.length > 0) {
+        const dataStr = dataLines.join('\n');
+        try {
+          const parsed = JSON.parse(dataStr);
+          onChunk(parsed);
+        } catch (e) {
+          console.error('Failed to parse final SSE data chunk:', dataStr, e);
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
   },
 
   async getChatbotHistory(limit = 50): Promise<ChatbotHistoryResponse> {
