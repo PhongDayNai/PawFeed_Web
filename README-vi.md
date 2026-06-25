@@ -13,6 +13,8 @@ Tài liệu này ánh xạ toàn bộ các kho lưu trữ (repositories) cấu t
 
 Bảng điều khiển khách (client dashboard) ứng dụng Web Next.js responsive dành cho **Hệ sinh thái PawFeed IoT**. Được xây dựng bằng React, TypeScript và Vanilla CSS Modules, đây là trung tâm điều khiển chính để người nuôi thú cưng kết nối và quản lý máy cho ăn, theo dõi số liệu chẩn đoán phần cứng theo thời gian thực, thiết lập lịch trình cho ăn offline, gửi lệnh điều khiển từ xa và tương tác trực tiếp với **Trợ lý ảo AI Nomi**.
 
+**Trang Web Trực Tuyến (Live Production)**: [https://pawfeed.phongdaynai.id.vn/](https://pawfeed.phongdaynai.id.vn/)
+
 ## 🚀 Các chức năng cốt lõi của Web Client
 
 ### 1. Quản lý Tài khoản & Xác thực Đồng bộ

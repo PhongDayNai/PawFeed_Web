@@ -13,6 +13,8 @@ This document maps all the repositories that form the **PawFeed IoT Ecosystem**.
 
 The responsive Next.js web application client dashboard for the **PawFeed IoT Ecosystem**. Built with React, TypeScript, and Vanilla CSS Modules, it serves as the central control panel for pet owners to register and manage smart feeders, monitor hardware telemetry in real time, set up offline feeding schedules, dispatch remote commands, and chat with the **Nomi AI Assistant**.
 
+**Live Production Web Dashboard**: [https://pawfeed.phongdaynai.id.vn/](https://pawfeed.phongdaynai.id.vn/)
+
 ## 🚀 Key Features of Web Client
 
 ### 1. Unified Authentication & Profile Management
